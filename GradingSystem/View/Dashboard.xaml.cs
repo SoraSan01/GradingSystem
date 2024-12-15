@@ -49,7 +49,11 @@ namespace GradingSystem.View
 
         private void Close(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();  // Close the application
+            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();  // Close the application
+            }
         }
     }
 }

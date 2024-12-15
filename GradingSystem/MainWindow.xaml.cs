@@ -32,10 +32,13 @@ namespace GradingSystem
 
         private void logoutBtn(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
+            var result = MessageBox.Show("Are you sure you want to Log out?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                Close();
+                Login login = new Login();
+                login.Show();
+
+                this.Close();
             }
         }
 
@@ -45,6 +48,14 @@ namespace GradingSystem
             {
                 // Call DragMove to allow the window to be dragged
                 this.DragMove();
+            }
+        }
+
+        private void ProfessorBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ProfessorForm)
+            {
+                MainContent.Content = new ProfessorForm();
             }
         }
     }
