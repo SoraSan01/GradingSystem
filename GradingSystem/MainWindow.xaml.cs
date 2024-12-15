@@ -25,7 +25,9 @@ namespace GradingSystem
 
         private void dashboardBtn(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Dashboard();
+            if (MainContent.Content is not Dashboard) {
+                MainContent.Content = new Dashboard();
+            }
         }
 
         private void logoutBtn(object sender, RoutedEventArgs e)
@@ -37,5 +39,13 @@ namespace GradingSystem
             }
         }
 
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                // Call DragMove to allow the window to be dragged
+                this.DragMove();
+            }
+        }
     }
 }

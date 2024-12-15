@@ -8,5 +8,6 @@ namespace GradingSystem.ViewModel
 {
     class LoginViewModel
     {
+
     }
 }

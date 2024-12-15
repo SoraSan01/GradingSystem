@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace GradingSystem.View
 {
@@ -20,9 +21,35 @@ namespace GradingSystem.View
     /// </summary>
     public partial class Dashboard : UserControl
     {
+
         public Dashboard()
         {
             InitializeComponent();
+        }
+
+        private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            window.WindowState = WindowState.Minimized; // Minimize the window
+        }
+
+        private void Maximize(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window.WindowState == WindowState.Maximized)
+                window.WindowState = WindowState.Normal; // Restore window to normal
+            else
+                window.WindowState = WindowState.Maximized; // Maximize the window
+        }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();  // Close the application
         }
     }
 }
