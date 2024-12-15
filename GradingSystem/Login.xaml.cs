@@ -23,5 +23,19 @@ namespace GradingSystem
         {
             InitializeComponent();
         }
+
+        private void closeBtn(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                // Call DragMove to allow the window to be dragged
+                this.DragMove();
+            }
+        }
     }
 }

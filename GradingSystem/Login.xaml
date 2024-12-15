@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Login" Height="450" Width="800"
         WindowStartupLocation="CenterScreen" 
-        WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
+        WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
     <Grid>
         <materialDesign:Card Margin="10" UniformCornerRadius="15">
             <Grid>
@@ -36,6 +36,9 @@
                     <!-- Image in Row 0 -->
                     <Grid Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Image Source="Resources/um-logo.png" Height="100" Margin="0 20 0 0" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button Width="25" Height="25" Style="{StaticResource MaterialDesignIconButton}" Margin="227,7,-175,65" Click="closeBtn">
+                            <materialDesign:PackIcon Kind="Close"/>
+                        </Button>
                     </Grid>
 
                     <!-- TextBoxes in Row 1 -->

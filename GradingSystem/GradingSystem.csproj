@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\leadership.gif" />
+    <None Remove="Resources\lecturer.gif" />
+    <None Remove="Resources\student.gif" />
     <None Remove="Resources\um-bg.jpg" />
     <None Remove="Resources\um-logo.png" />
   </ItemGroup>
@@ -18,9 +21,13 @@
     <PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
     <PackageReference Include="MaterialDesignColors" Version="3.1.0" />
     <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\leadership.gif" />
+    <Resource Include="Resources\lecturer.gif" />
+    <Resource Include="Resources\student.gif" />
     <Resource Include="Resources\um-bg.jpg" />
     <Resource Include="Resources\um-logo.png" />
   </ItemGroup>
