@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace GradingSystem.View
 {
     /// <summary>
-    /// Interaction logic for ProfessorForm.xaml
+    /// Interaction logic for Students.xaml
     /// </summary>
-    public partial class ProfessorForm : UserControl
+    public partial class Students : UserControl
     {
-        public ProfessorForm()
+        public Students()
         {
             InitializeComponent();
         }

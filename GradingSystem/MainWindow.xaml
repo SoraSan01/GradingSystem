@@ -25,7 +25,7 @@
                     <ColumnDefinition Width="15*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="0">
+                <Grid Grid.Column="0" Background="DarkGreen">
                     <ListView Margin="0 15">
                         
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
@@ -33,7 +33,7 @@
                                     HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}"
                                     Foreground="black" Click="dashboardBtn">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="ViewDashboard"/>
+                                    <materialDesign:PackIcon Kind="ViewDashboardOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -42,16 +42,16 @@
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
             HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ProfessorBtn">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="AccountStudent"/>
+                                    <materialDesign:PackIcon Kind="AccountStudentOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
                         
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black">
+            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="studentsBtn">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="School"/>
+                                    <materialDesign:PackIcon Kind="SchoolOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -60,7 +60,7 @@
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
 HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="Paper"/>
+                                    <materialDesign:PackIcon Kind="PaperOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -69,7 +69,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
 HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="FaceMale"/>
+                                    <materialDesign:PackIcon Kind="FaceMaleShimmerOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -78,7 +78,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
 HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="logoutBtn">
                                 <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="ExitToApp"/>
+                                    <materialDesign:PackIcon Kind="ExitToApp" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -87,7 +87,27 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                 </Grid>
 
                 <Grid Grid.Column="1" Background="#F6F5F8" Name="RenderPages">
-                    <ContentControl x:Name="MainContent"/>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <!-- Header Section with Buttons -->
+                    <Grid Grid.Row="0" Margin="20 20 0 0">
+                        <Grid HorizontalAlignment="Right">
+                            <StackPanel Margin="0 0 20 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <!-- Minimize Button -->
+                                <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="MinimizeButton" Content="{materialDesign:PackIcon Kind=Minimize}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Minimize"/>
+                                <!-- Maximize Button -->
+                                <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="MaximizeButton" Content="{materialDesign:PackIcon Kind=Maximize}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Maximize"/>
+                                <!-- Close Button -->
+                                <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Close"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                    
+                    <Grid Grid.Row="1">
+                        <ContentControl x:Name="MainContent" Height="640"/>
+                    </Grid>
                 </Grid>
             </Grid>
         </materialDesign:Card>

@@ -12,6 +12,7 @@
     <None Remove="Resources\leadership.gif" />
     <None Remove="Resources\lecturer.gif" />
     <None Remove="Resources\student.gif" />
+    <None Remove="Resources\teacher.png" />
     <None Remove="Resources\um-bg.jpg" />
     <None Remove="Resources\um-logo.png" />
   </ItemGroup>
@@ -35,6 +36,7 @@
     <Resource Include="Resources\leadership.gif" />
     <Resource Include="Resources\lecturer.gif" />
     <Resource Include="Resources\student.gif" />
+    <Resource Include="Resources\teacher.png" />
     <Resource Include="Resources\um-bg.jpg" />
     <Resource Include="Resources\um-logo.png" />
   </ItemGroup>
