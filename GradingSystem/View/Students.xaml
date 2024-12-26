@@ -6,7 +6,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
              xmlns:local="clr-namespace:GradingSystem.ViewModel"
              mc:Ignorable="d" 
-             d:DesignHeight="700" d:DesignWidth="1106.25">
+             d:DesignHeight="640" d:DesignWidth="1106.25">
     <UserControl.DataContext>
         <local:StudentsViewModel />
     </UserControl.DataContext>
@@ -24,96 +24,31 @@
                    VerticalAlignment="Center"/>
 
         <!-- Main Content -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="10 0 10 0" Width="1085">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Column="0" Width="800">
-                <Border Background="White" CornerRadius="4">
-                    <DataGrid RowStyle="{StaticResource MaterialDesignDataGridRow}" 
-                              ColumnHeaderStyle="{StaticResource MaterialDesignDataGridColumnHeader}"
-                              RowHeaderStyle="{StaticResource MaterialDesignDataGridRowHeader}"
-                              CellStyle="{StaticResource MaterialDesignDataGridCell}" 
-                              x:Name="studentDataGrid" 
-                              Style="{StaticResource MaterialDesignDataGrid}">
+            <Grid Grid.Row="0" Grid.Column="0" Width="1086.25" Margin="0 0 0 0">
+                <materialDesign:Card Background="White" Margin="0 0 0 0"
+                        Height="553" Effect="{StaticResource MaterialDesignShadowDepth2}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="50"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
 
-                        <DataGrid.Resources>
-                            <Style TargetType="DataGridColumnHeader">
-                                <Setter Property="Background" Value="LightBlue" />
-                                <Setter Property="Foreground" Value="Black" />
-                            </Style>
-                        </DataGrid.Resources>
-
-                        <DataGrid.Columns>
-
-                            <DataGridTextColumn Header="ID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding ID}"/>
-
-                            <DataGridTemplateColumn Header="Name" CanUserResize="False" IsReadOnly="True" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Height="25" Width="25" CornerRadius="50" Background="Green" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </DataTemplate> 
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
-                            <DataGridTemplateColumn Header="Course" CanUserResize="False" IsReadOnly="True" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Border Width="25" CornerRadius="50" Background="Green" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Course}" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
-                            <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Button Style="{StaticResource MaterialDesignFlatButton}">
-                                                <materialDesign:PackIcon Kind="PencilOutline"/>
-                                            </Button>
-                                            <Button Margin="5 0 0 0" Style="{StaticResource MaterialDesignFlatButton}">
-                                                <materialDesign:PackIcon Kind="DeleteOutline"/>
-                                            </Button>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
-                        </DataGrid.Columns>
-
-                    </DataGrid>
-                </Border>
+                        <Border Grid.Row="0" Margin="0 0 0 0" Background="White" Style="{StaticResource MaterialDesignToolBarMainPanelBorderStyle}" Effect="{StaticResource MaterialDesignElevationShadow2}">
+                            
+                        </Border>
+                        
+                    </Grid>
+                </materialDesign:Card>
             </Grid>
-
-            <!-- Scrollable Student Cards -->
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="10">
-                <ItemsControl ItemsSource="{Binding Students}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"  HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <materialDesign:Card Background="White" Style="{StaticResource MaterialDesignElevatedCard}" Width="200" Height="250" Margin="10" Padding="15" 
-                                                 Effect="{StaticResource MaterialDesignElevationShadow1}">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                                    <Image Source="{Binding ImagePath}" Width="100" Height="100" Margin="0,0,0,10" />
-                                    <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Margin="5" TextAlignment="Center" />
-                                    <TextBlock Text="{Binding ID}" FontSize="14" Margin="5" TextAlignment="Center" />
-                                    <TextBlock Text="{Binding Course}" FontSize="12" Foreground="Gray" Margin="5" TextAlignment="Center" />
-                                </StackPanel>
-                            </materialDesign:Card>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>

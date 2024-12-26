@@ -106,7 +106,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                     </Grid>
                     
                     <Grid Grid.Row="1">
-                        <ContentControl x:Name="MainContent" Height="640"/>
+                        <ContentControl x:Name="MainContent" Height="640" Margin="0 0 0 0" Padding="0 0 0 0"/>
                     </Grid>
                 </Grid>
             </Grid>
