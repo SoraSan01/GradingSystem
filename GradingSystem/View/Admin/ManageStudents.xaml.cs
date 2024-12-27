@@ -13,31 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GradingSystem.View
+namespace GradingSystem.View.Admin
 {
     /// <summary>
-    /// Interaction logic for Students.xaml
+    /// Interaction logic for ManageStudents.xaml
     /// </summary>
-    public partial class Students : UserControl
+    public partial class ManageStudents : UserControl
     {
-        public Students()
+        public ManageStudents()
         {
             InitializeComponent();
-        }
-
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Maximize(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

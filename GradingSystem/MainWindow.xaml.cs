@@ -1,4 +1,5 @@
 ﻿using GradingSystem.View;
+using GradingSystem.View.Admin;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -53,18 +54,12 @@ namespace GradingSystem
 
         private void ProfessorBtn(object sender, RoutedEventArgs e)
         {
-            if (MainContent.Content is not ProfessorForm)
-            {
-                MainContent.Content = new ProfessorForm();
-            }
+
         }
 
         private void studentsBtn(object sender, RoutedEventArgs e)
         {
-            if (MainContent.Content is not Students)
-            {
-                MainContent.Content = new Students();
-            }
+
         }
 
         private void Minimize(object sender, RoutedEventArgs e)
@@ -88,6 +83,14 @@ namespace GradingSystem
             if (result == MessageBoxResult.Yes)
             {
                 Application.Current.Shutdown();  // Close the application
+            }
+        }
+
+        private void managestudentBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageStudents)
+            {
+                MainContent.Content = new ManageStudents();
             }
         }
     }
