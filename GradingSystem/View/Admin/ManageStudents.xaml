@@ -5,8 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GradingSystem.View.Admin"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:viewModel="clr-namespace:GradingSystem.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
+
+    <UserControl.DataContext>
+        <!-- Set the DataContext to the StudentsViewModel -->
+        <viewModel:StudentsViewModel />
+    </UserControl.DataContext>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -68,11 +75,16 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid RowStyle="{StaticResource MaterialDesignDataGridRow}" 
-                      ColumnHeaderStyle="{StaticResource MaterialDesignDataGridColumnHeader}" 
-                      CellStyle="{StaticResource MaterialDesignDataGridCell}" 
-                      x:Name="studentsDataGrid" Style="{StaticResource MaterialDesignDataGrid}"
-                      CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Students}" AutoGenerateColumns="False">
+                            <DataGrid x:Name="studentsDataGrid"
+                      CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Students}"
+                                      AutoGenerateColumns="False" SelectionMode="Single">
+
+                                <!-- Define RowStyle to set background for all rows -->
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="Background" Value="White"/>
+                                    </Style>
+                                </DataGrid.RowStyle>
 
                                 <DataGrid.Columns>
 
@@ -81,7 +93,7 @@
                                     <DataGridTextColumn Header="Lastname" CanUserResize="False" Binding="{Binding LastName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Course}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >
                                         <DataGridTemplateColumn.CellTemplate>
@@ -90,7 +102,7 @@
                                                     <Button Style="{StaticResource gridEditButton}">
                                                         <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
+                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="deleteStudentBtn">
                                                         <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                 </StackPanel>

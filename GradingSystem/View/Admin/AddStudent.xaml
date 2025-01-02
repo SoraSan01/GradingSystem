@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Height="250" Width="670"
         WindowStartupLocation="CenterScreen" 
-        WindowStyle="None" Background="{x:Null}" AllowsTransparency="True">
+        WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
 
     <Grid>
         <Border Background="Black" Margin="05 05 05 05" CornerRadius="4">
@@ -48,7 +48,7 @@
 
                             <TextBox x:Name="FnameTxt" Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
                          Margin="0 10 20 0" Height="50" Width="300" FontSize="20"
-                         Grid.Column="0">
+                         Grid.Column="0" MaxLines="20">
                                 <materialDesign:HintAssist.Hint>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="First Name" VerticalAlignment="Center"/>
@@ -58,7 +58,7 @@
 
                             <TextBox x:Name="LnameTxt"  Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
                          Margin="0 10" Height="50" Width="300" FontSize="20"
-                         Grid.Column="1">
+                         Grid.Column="1" MaxLines="20">
                                 <materialDesign:HintAssist.Hint>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Last Name" VerticalAlignment="Center"/>
@@ -76,7 +76,7 @@
 
                             <ComboBox x:Name="courseCmb"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
                           Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
-                          Grid.Column="0">
+                          Grid.Column="0" SelectedValuePath="Content">
                                 <materialDesign:HintAssist.Hint>
                                     Course
                                 </materialDesign:HintAssist.Hint>
@@ -88,15 +88,15 @@
 
                             <ComboBox x:Name="yearCmb" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
                           Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
-                          Grid.Column="1">
+                          Grid.Column="1" SelectedValuePath="Content">
                                 <materialDesign:HintAssist.Hint>
                                     YearLevel
                                 </materialDesign:HintAssist.Hint>
 
-                                <ComboBoxItem>1</ComboBoxItem>
-                                <ComboBoxItem>2</ComboBoxItem>
-                                <ComboBoxItem>3</ComboBoxItem>
-                                <ComboBoxItem>4</ComboBoxItem>
+                                <ComboBoxItem>1st Year</ComboBoxItem>
+                                <ComboBoxItem>2nd Year</ComboBoxItem>
+                                <ComboBoxItem>3rd Year</ComboBoxItem>
+                                <ComboBoxItem>4th Year</ComboBoxItem>
                             </ComboBox>
                         </Grid>
                     </Grid>
