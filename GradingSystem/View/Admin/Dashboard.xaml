@@ -8,7 +8,7 @@
              xmlns:wpfAnimatedGif="http://wpfanimatedgif.codeplex.com" 
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="1106.25" MouseDown="UserControl_MouseDown">
+             d:DesignHeight="600" d:DesignWidth="1106.25">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -17,25 +17,10 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header Section with Buttons -->
-        <Grid Grid.Row="0" Margin="20 20 0 0">
-            <Grid HorizontalAlignment="Right">
-                <StackPanel Margin="0 0 20 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <!-- Minimize Button -->
-                    <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="MinimizeButton" Content="{materialDesign:PackIcon Kind=Minimize}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Minimize"/>
-                    <!-- Maximize Button -->
-                    <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="MaximizeButton" Content="{materialDesign:PackIcon Kind=Maximize}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Maximize"/>
-                    <!-- Close Button -->
-                    <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Close"/>
-                </StackPanel>
-            </Grid>
-        </Grid>
-
         <!-- Dashboard Title -->
-        <Grid Grid.Row="1" Margin="30 0 0 0">
+        <Grid Grid.Row="0" Margin="30 0 0 0">
             <TextBlock Text="Dashboard" 
                        FontSize="35"
                        Style="{StaticResource MaterialDesignCaptionTextBlock}" 
@@ -43,7 +28,7 @@
         </Grid>
 
         <!-- Cards Section -->
-        <Grid Grid.Row="2" Height="200" Margin="20 0 20 0">
+        <Grid Grid.Row="1" Height="200" Margin="20 0 20 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -61,11 +46,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid Grid.Column="0">
-                                <Image Width="200" Height="100" HorizontalAlignment="Center">
-                                    <wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                        <BitmapImage UriSource="../Resources/lecturer.gif"/>
-                                    </wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                </Image>
+                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
                             </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
@@ -89,11 +70,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid Grid.Column="0">
-                                <Image Width="200" Height="100" HorizontalAlignment="Center">
-                                    <wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                        <BitmapImage UriSource="../Resources/student.gif"/>
-                                    </wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                </Image>
+                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
                             </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
@@ -117,11 +94,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid Grid.Column="0">
-                                <Image Width="200" Height="100" HorizontalAlignment="Center">
-                                    <wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                        <BitmapImage UriSource="../Resources/leadership.gif"/>
-                                    </wpfAnimatedGif:ImageBehavior.AnimatedSource>
-                                </Image>
+                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
                             </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
@@ -135,7 +108,7 @@
             </Grid>
         </Grid>
         <!-- Additional Content Section -->
-        <Grid Margin="20 0 10 20" MinHeight="350" MaxHeight="500" Grid.Row="3">
+        <Grid Margin="20 0 10 20" MinHeight="350" MaxHeight="500" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <!-- Use * to distribute space equally between columns -->
                 <ColumnDefinition Width="*" />
@@ -144,7 +117,7 @@
 
             <!-- First Card -->
             <Grid Grid.Column="0" Margin="0">
-                <materialDesign:Card Margin="0" Height="350" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <materialDesign:Card Margin="0" Height="340" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                     <StackPanel>
                         <TextBlock Margin="10 10 0 0" Style="{StaticResource MaterialDesignHeadline4TextBlock}">Student Overview</TextBlock>
 
@@ -170,7 +143,7 @@
 
             <!-- Second Card -->
             <Grid Grid.Column="1" Margin="20 0 0 0">
-                <materialDesign:Card Margin="0" Height="350" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <materialDesign:Card Margin="0" Height="340" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>

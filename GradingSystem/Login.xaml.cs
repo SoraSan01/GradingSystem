@@ -26,7 +26,11 @@ namespace GradingSystem
 
         private void closeBtn(object sender, RoutedEventArgs e)
         {
-            Close();
+            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();  // Close the application
+            }
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

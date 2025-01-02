@@ -31,25 +31,5 @@ namespace GradingSystem.View
         {
 
         }
-
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-            var window = Window.GetWindow(this);
-            window.WindowState = WindowState.Minimized; // Minimize the window
-        }
-
-        private void Maximize(object sender, RoutedEventArgs e)
-        {
-            var window = Window.GetWindow(this);
-            if (window.WindowState == WindowState.Maximized)
-                window.WindowState = WindowState.Normal; // Restore window to normal
-            else
-                window.WindowState = WindowState.Maximized; // Maximize the window
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-            Application.Current.Shutdown();  // Close the application
-        }
     }
 }
