@@ -11,46 +11,45 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="addButton" TargetType="Button">
-            <Setter Property="Background" Value="#118AB2"/>
-            <Setter Property="Foreground" Value="#ffff"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="120"/>
-
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Margin" Value="15 3"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                        CornerRadius="10" 
-                        BorderBrush="Transparent" 
-                        BorderThickness="1">
-                            <ContentPresenter VerticalAlignment="Center" 
-                                      HorizontalAlignment="Center"
-                                      ContentSource="Content"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#116AB2"/>
-                    <Setter Property="Foreground" Value="#ffffff"/>
-                </Trigger>
-            </Style.Triggers>
-            </Style>
-
-            <Style x:Key="addButtonIcon" TargetType="materialDesign:PackIcon">
-                <Setter Property="Margin" Value="5 2 5 0" />
+            <!--grid edit button-->
+            <Style x:Key="gridEditButton" TargetType="Button">
+                <Setter Property="Background" Value="#512DA8" />
+                <Setter Property="BorderBrush" Value="#4A148C" />
+                <Setter Property="Foreground" Value="#ffffff" />
+                <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="Width" Value="10" />
-                <Setter Property="Height" Value="10" />
+                <Setter Property="Template" >
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" Padding="5" BorderThickness="1" CornerRadius="5">
+                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#673AB7" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
+            <Style x:Key="gridButtonIcon" TargetType="materialDesign:PackIcon">
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Width" Value="12" />
+                <Setter Property="Height" Value="12" />
+            </Style>
+
+            <!--grid remove button-->
+            <Style x:Key="gridRemoveButton" TargetType="Button" BasedOn="{StaticResource gridEditButton}">
+                <Setter Property="Background" Value="#D32F2F" />
+                <Setter Property="BorderBrush" Value="#B71C1C" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F44336" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
 
     </Application.Resources>

@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Height="720" Width="1200"
         WindowStartupLocation="CenterScreen" 
+        Title="Grading System"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
 
     <Window.Resources>

@@ -41,4 +41,8 @@
     <Resource Include="Resources\um-logo.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
