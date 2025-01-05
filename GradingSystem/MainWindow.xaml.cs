@@ -1,4 +1,5 @@
-﻿using GradingSystem.View;
+﻿using GradingSystem.Model;
+using GradingSystem.View;
 using GradingSystem.View.Admin;
 using System.Text;
 using System.Windows;
@@ -52,16 +53,6 @@ namespace GradingSystem
             }
         }
 
-        private void ProfessorBtn(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void studentsBtn(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void Minimize(object sender, RoutedEventArgs e)
         {
             var window = Window.GetWindow(this);
@@ -91,6 +82,14 @@ namespace GradingSystem
             if (MainContent.Content is not ManageStudents)
             {
                 MainContent.Content = new ManageStudents();
+            }
+        }
+
+        private void gradeBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageGrades)
+            {
+                MainContent.Content = new ManageGrades();
             }
         }
     }

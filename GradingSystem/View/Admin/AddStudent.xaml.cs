@@ -2,25 +2,12 @@
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin
 {
-    /// <summary>
-    /// Interaction logic for AddStudent.xaml
-    /// </summary>
     public partial class AddStudent : Window
     {
         public StudentsViewModel ViewModel { get; set; }
@@ -30,13 +17,8 @@ namespace GradingSystem.View.Admin
         public AddStudent(StudentsViewModel viewModel)
         {
             InitializeComponent();
-
-            // Set the ViewModel from the constructor parameter
             ViewModel = viewModel;
-
-            // Optional: Set DataContext if you want to bind to the ViewModel in XAML
             DataContext = ViewModel;
-
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -56,8 +38,10 @@ namespace GradingSystem.View.Admin
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(FnameTxt.Text) || string.IsNullOrWhiteSpace(LnameTxt.Text)
-                || courseCmb.SelectedItem == null || yearCmb.SelectedItem == null)
+            if (string.IsNullOrWhiteSpace(FnameTxt.Text?.Trim()) ||
+                string.IsNullOrWhiteSpace(LnameTxt.Text?.Trim()) ||
+                courseCmb.SelectedItem == null ||
+                yearCmb.SelectedItem == null)
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -70,8 +54,8 @@ namespace GradingSystem.View.Admin
                     var newStudent = new Student
                     {
                         StudentId = context.GenerateStudentId(),
-                        FirstName = FnameTxt.Text,
-                        LastName = LnameTxt.Text,
+                        FirstName = FnameTxt.Text.Trim(),
+                        LastName = LnameTxt.Text.Trim(),
                         Course = courseCmb.SelectedValue?.ToString(),
                         YearLevel = yearCmb.SelectedValue?.ToString(),
                     };
@@ -91,20 +75,19 @@ namespace GradingSystem.View.Admin
             }
         }
 
-
         private void clear()
         {
             FnameTxt.Clear();
             LnameTxt.Clear();
             courseCmb.SelectedIndex = -1;
             yearCmb.SelectedIndex = -1;
+            FnameTxt.Focus();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not TextBox && e.OriginalSource is not Button)
             {
-                // Call DragMove to allow the window to be dragged
                 this.DragMove();
             }
         }
