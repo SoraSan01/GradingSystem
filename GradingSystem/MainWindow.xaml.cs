@@ -92,5 +92,13 @@ namespace GradingSystem
                 MainContent.Content = new ManageGrades();
             }
         }
+
+        private void usersBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageUser)
+            {
+                MainContent.Content = new ManageUser();
+            }
+        }
     }
 }

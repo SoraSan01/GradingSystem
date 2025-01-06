@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace GradingSystem.Model
 {
-    class User
+    public class User
     {
         [Key]
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -30,10 +30,17 @@ namespace GradingSystem.Model
 
         [Required]
         public string Password { get; set; }
+
+        [Required]
+        public string Roles { get; set; }
+
         public DateTime CreatedAt { get; set; }
+
+        public string FullName => $"{FirstName} {LastName}";
 
         public User() {
             CreatedAt = DateTime.Now;
+
         }
     }
 }

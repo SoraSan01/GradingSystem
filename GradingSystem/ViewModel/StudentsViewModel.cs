@@ -13,6 +13,7 @@ namespace GradingSystem.ViewModel
 {
     public class StudentsViewModel
     {
+
         public ObservableCollection<Student> Students { get; set; }
 
         public StudentsViewModel()
