@@ -8,10 +8,6 @@
              xmlns:local="clr-namespace:GradingSystem.View.Admin"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
-    <UserControl.DataContext>
-        <!-- Set the DataContext to the StudentsViewModel -->
-        <viewModel:CourseViewModel/>
-    </UserControl.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -76,7 +72,7 @@
                         <Grid Grid.Row="1" Height="auto">
                             <DataGrid x:Name="studentsDataGrid"
                   CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Courses}"
-                                  AutoGenerateColumns="False" SelectionMode="Single">
+                                  AutoGenerateColumns="False">
 
                                 <!-- Define RowStyle to set background for all rows -->
                                 <DataGrid.RowStyle>

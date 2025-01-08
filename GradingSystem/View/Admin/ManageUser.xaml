@@ -8,10 +8,6 @@
              xmlns:local="clr-namespace:GradingSystem.View.Admin"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
-    <UserControl.DataContext>
-        <!-- Set the DataContext to the StudentsViewModel -->
-        <viewModel:UserViewModel/>
-    </UserControl.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -87,7 +83,7 @@
 
                                 <DataGrid.Columns>
 
-                                    <DataGridTextColumn Header="UserID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding StudentId}"/>
+                                    <DataGridTextColumn Header="UserID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding UserId}"/>
                                     <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding FullName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Username" CanUserResize="False" Binding="{Binding Username}" IsReadOnly="True" Width="*"/>

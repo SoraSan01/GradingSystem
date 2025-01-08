@@ -8,10 +8,6 @@
              xmlns:viewModel="clr-namespace:GradingSystem.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
-    <UserControl.DataContext>
-        <!-- Set the DataContext to the GradeViewModel -->
-        <viewModel:GradeViewModel />
-    </UserControl.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -87,9 +83,9 @@
 
                                 <DataGrid.Columns>
 
-                                    <DataGridTextColumn Header="UserID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding GradeId}"/>
-                                    <DataGridTextColumn Header="StudentName" CanUserResize="False" Binding="{Binding FirstName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Course}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="GradeID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding GradeId}"/>
+                                    <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding StudentName}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding StudentCourse}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="DateSubmitted" CanUserResize="False" Binding="{Binding DateSubmitted, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 

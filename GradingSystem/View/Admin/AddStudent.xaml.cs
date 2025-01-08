@@ -63,8 +63,6 @@ namespace GradingSystem.View.Admin
                     ViewModel.AddStudent(newStudent);
 
                     StudentAdded?.Invoke();
-                    MessageBox.Show("Student added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
                     clear();
                     this.Close();
                 }

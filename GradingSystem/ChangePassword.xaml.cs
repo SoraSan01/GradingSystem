@@ -20,20 +20,20 @@ namespace GradingSystem
     /// </summary>
     public partial class ChangePassword : Window
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
         private string _email;
 
         public ChangePassword(string email)
         {
             InitializeComponent();
-            _dbContext = new ApplicationDbContext();
+            _context = new ApplicationDbContext();
             _email = email; // Store the email passed from ForgotPasswordViewModel
         }
 
         private void submitBtn(object sender, RoutedEventArgs e)
         {
-            string newPassword = passTxt.Text;
-            string confirmPassword = confirmTxt.Text;
+            string newPassword = passTxt.Password;
+            string confirmPassword = confirmTxt.Password;
 
             // Check if both fields are filled in
             if (string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
@@ -70,7 +70,7 @@ namespace GradingSystem
             try
             {
                 // Find the user in the database
-                var user = _dbContext.Users.FirstOrDefault(u => u.Email == _email);
+                var user = _context.Users.FirstOrDefault(u => u.Email == _email);
 
                 if (user == null)
                 {
@@ -80,12 +80,12 @@ namespace GradingSystem
 
                 // Update the user's password (ensure proper hashing in real-world applications)
                 user.Password = newPassword;
-                _dbContext.SaveChanges();
+                _context.SaveChanges();
 
                 MessageBox.Show("Password successfully updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 // Redirect to the login screen after successful password update
-                Login login = new Login();
+                Login login = new Login(_context);
                 login.Show();
                 this.Close(); // Close the ChangePassword window
             }

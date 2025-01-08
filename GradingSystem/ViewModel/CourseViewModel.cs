@@ -19,31 +19,31 @@ namespace GradingSystem.ViewModel
             Courses = new ObservableCollection<Course>();
 
             // Load data (this can be from your database or a static list for testing)
-            LoadCourse();
+            //LoadCourse();
         }
 
-        public void LoadCourse()
-        {
-            try
-            {
-                using (var context = new ApplicationDbContext())
-                {
-                    // Query the database to get all students
-                    var courseList = context.Courses.ToList();
+        //public void LoadCourse()
+        //{
+        //    try
+        //    {
+        //        using (var context = new ApplicationDbContext())
+        //        {
+        //            // Query the database to get all students
+        //            var courseList = context.Courses.ToList();
 
-                    // Clear the ObservableCollection and add the students
-                    Courses.Clear();
-                    foreach (var Course in courseList)
-                    {
-                        Courses.Add(Course);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur
-                System.Windows.MessageBox.Show($"An error occurred: {ex.Message}");
-            }
-        }
+        //            // Clear the ObservableCollection and add the students
+        //            Courses.Clear();
+        //            foreach (var Course in courseList)
+        //            {
+        //                Courses.Add(Course);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Handle any exceptions that may occur
+        //        System.Windows.MessageBox.Show($"An error occurred: {ex.Message}");
+        //    }
+        //}
     }
 }

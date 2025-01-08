@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GradingSystem.Data;
+using GradingSystem.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +22,13 @@ namespace GradingSystem.View.Admin
     /// </summary>
     public partial class ManageUser : UserControl
     {
-        public ManageUser()
+        private readonly ApplicationDbContext _context;
+        public ManageUser(ApplicationDbContext context)
         {
             InitializeComponent();
+            _context = context;
+
+            DataContext = new UserViewModel(_context);
         }
     }
 }

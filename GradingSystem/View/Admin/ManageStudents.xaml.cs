@@ -10,11 +10,15 @@ namespace GradingSystem.View.Admin
 {
     public partial class ManageStudents : UserControl
     {
+        private readonly ApplicationDbContext _context;
+
         public StudentsViewModel ViewModel { get; set; }
 
-        public ManageStudents()
+        public ManageStudents(ApplicationDbContext context)
         {
             InitializeComponent();
+
+            _context = context;
             // Initialize the ViewModel
             ViewModel = new StudentsViewModel();
 
@@ -22,7 +26,7 @@ namespace GradingSystem.View.Admin
             DataContext = ViewModel;
         }
 
-        private void addStudentBtn(object sender, System.Windows.RoutedEventArgs e)
+        private void addStudentBtn(object sender, RoutedEventArgs e)
         {
             // Open the AddStudent window and pass the ViewModel
             var addStudentWindow = new AddStudent(ViewModel);
@@ -47,6 +51,29 @@ namespace GradingSystem.View.Admin
                 {
                     ViewModel.DeleteStudent(studentToDelete);
                 }
+            }
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedStudent = (Student)studentsDataGrid.SelectedItem; // Get selected student
+
+            if (selectedStudent != null)
+            {
+                // Pass the selected student to the EditStudent window
+                var editWindow = new EditStudent(selectedStudent); // Pass the selected student to the constructor
+
+                // You can also set the DataContext if needed
+                var viewModel = new StudentsViewModel();
+                viewModel.SelectedStudent = selectedStudent;
+                editWindow.DataContext = viewModel;
+
+                // Show the window
+                editWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Please select a student to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

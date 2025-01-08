@@ -34,6 +34,16 @@ namespace GradingSystem.Model
 
         public DateTime CreatedAt { get; set; }
 
+        // Computed property to return the student's name
+        public string StudentName
+        {
+            get { return Student != null ? $"{Student.FirstName} {Student.LastName}" : "Unknown"; }
+        }
+
+        public string StudentCourse
+        {
+            get { return Course != null ? $"{Course.CourseName}" : "Unknown"; }
+        }
         public Grade()
         {
             CreatedAt = DateTime.Now;

@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static MaterialDesignThemes.Wpf.Theme;
 
 namespace GradingSystem
 {
@@ -23,10 +24,15 @@ namespace GradingSystem
     public partial class Login : Window
     {
         private readonly LoginViewModel _viewModel;  // Declare _viewModel as a private field
+        private ApplicationDbContext _context;
 
-        public Login()
+        public Login(): this(new ApplicationDbContext()) { }
+
+        public Login(ApplicationDbContext context)
         {
             InitializeComponent();
+
+            _context = context;
 
             // Initialize _viewModel with the ApplicationDbContext
             _viewModel = new LoginViewModel();
@@ -55,6 +61,10 @@ namespace GradingSystem
 
         private void loginBtn(object sender, RoutedEventArgs e)
         {
+            loginFunc();
+        }
+
+        private void loginFunc() {
             // Retrieve user input
             _viewModel.Email = emailTxt.Text;
             _viewModel.Password = passwordTxt.Password;
@@ -63,6 +73,7 @@ namespace GradingSystem
             if (string.IsNullOrWhiteSpace(_viewModel.Email))
             {
                 MessageBox.Show("Please enter your email.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                clear();
                 return;
             }
 
@@ -71,6 +82,7 @@ namespace GradingSystem
             if (!System.Text.RegularExpressions.Regex.IsMatch(_viewModel.Email, emailPattern))
             {
                 MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                clear();
                 return;
             }
 
@@ -78,12 +90,14 @@ namespace GradingSystem
             if (string.IsNullOrWhiteSpace(_viewModel.Password))
             {
                 MessageBox.Show("Please enter your password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                clear();
                 return;
             }
 
             if (_viewModel.Password.Length < 6) // Example: minimum length of 6 characters
             {
                 MessageBox.Show("Password must be at least 6 characters long.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                clear();
                 return;
             }
 
@@ -91,12 +105,22 @@ namespace GradingSystem
             if (_viewModel.AuthenticateUser())
             {
                 // Open MainWindow upon successful login
-                var mainWindow = new MainWindow();
+                var mainWindow = new MainWindow(_context);
                 mainWindow.Show();
 
                 // Close the login window
                 this.Close();
             }
+            else
+            {
+                clear();
+            }
+        }
+
+        private void clear()
+        {
+            emailTxt.Text = "";
+            passwordTxt.Password = "";
         }
 
 
@@ -109,6 +133,13 @@ namespace GradingSystem
             ForgotPassword forgotPass = new ForgotPassword();
             forgotPass.Show();
             this.Close();
+        }
+
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter) { 
+                loginFunc();
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ namespace GradingSystem.ViewModel
     {
         public ObservableCollection<User> Users { get; set; }
 
-        public UserViewModel() {
+        public UserViewModel(ApplicationDbContext context) {
 
             // Initialize the ObservableCollection
             Users = new ObservableCollection<User>();

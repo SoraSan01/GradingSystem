@@ -9,11 +9,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
 
-    <UserControl.DataContext>
-        <!-- Set the DataContext to the StudentsViewModel -->
-        <viewModel:StudentsViewModel/>
-    </UserControl.DataContext>
-    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -99,7 +94,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Style="{StaticResource gridEditButton}">
+                                                    <Button Style="{StaticResource gridEditButton}" Click="EditButton_Click">
                                                         <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                     <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="deleteStudentBtn">

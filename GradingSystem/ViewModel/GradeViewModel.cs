@@ -19,31 +19,31 @@ namespace GradingSystem.ViewModel
             Grades = new ObservableCollection<Grade>();
 
             // Load data (this can be from your database or a static list for testing)
-            LoadStudents();
+            //LoadStudents();
         }
 
-        public void LoadStudents()
-        {
-            try
-            {
-                using (var context = new ApplicationDbContext())
-                {
-                    // Query the database to get all students
-                    var gradeList = context.Grades.ToList();
+        //public void LoadStudents()
+        //{
+        //    try
+        //    {
+        //        using (var context = new ApplicationDbContext())
+        //        {
+        //            // Query the database to get all students
+        //            var gradeList = context.Grades.ToList();
 
-                    // Clear the ObservableCollection and add the students
-                    Grades.Clear();
-                    foreach (var student in gradeList)
-                    {
-                        Grades.Add(student);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions that may occur
-                System.Windows.MessageBox.Show($"An error occurred: {ex.Message}");
-            }
-        }
+        //            // Clear the ObservableCollection and add the students
+        //            Grades.Clear();
+        //            foreach (var student in gradeList)
+        //            {
+        //                Grades.Add(student);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Handle any exceptions that may occur
+        //        System.Windows.MessageBox.Show($"An error occurred: {ex.Message}");
+        //    }
+        //}
     }
 }
