@@ -1,30 +1,24 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
+using GradingSystem.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin
 {
-    /// <summary>
-    /// Interaction logic for AddStudent.xaml
-    /// </summary>
     public partial class AddStudent : Window
     {
-        public AddStudent()
+        public StudentsViewModel ViewModel { get; set; }
+
+        public event Action StudentAdded;
+
+        public AddStudent(StudentsViewModel viewModel)
         {
             InitializeComponent();
+            ViewModel = viewModel;
+            DataContext = ViewModel;
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -32,55 +26,68 @@ namespace GradingSystem.View.Admin
             var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                this.Close();  // Close the application
+                this.Close();
             }
         }
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(FnameTxt.Text) || string.IsNullOrWhiteSpace(LnameTxt.Text)
-                || courseCmb.SelectedItem == null || yearCmb.SelectedItem == null)
+            if (ViewModel == null)
+            {
+                MessageBox.Show("ViewModel is not initialized.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(FnameTxt.Text?.Trim()) ||
+                string.IsNullOrWhiteSpace(LnameTxt.Text?.Trim()) ||
+                courseCmb.SelectedItem == null ||
+                yearCmb.SelectedItem == null)
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            else
+
+            try
             {
-                try
+                using (var context = new ApplicationDbContext())
                 {
-                    using (var context = new ApplicationDbContext())  // Create an instance of your DbContext
+                    var newStudent = new Student
                     {
-                        // Create a new student object and populate it with the input data
-                        var newStudent = new Student
-                        {
-                            StudentId = context.GenerateStudentId(), // Call GenerateStudentId using the context instance
-                            FirstName = FnameTxt.Text,       // Assuming 'FnameTxt' is for the first name
-                            LastName = LnameTxt.Text,        // Assuming 'LnameTxt' is for the last name
-                            Course = courseCmb.SelectedItem.ToString(), // Assuming 'courseCmb' is the course combo box
-                            YearLevel = yearCmb.SelectedItem.ToString(), // Assuming 'yearCmb' is the year combo box
-                        };
+                        StudentId = context.GenerateStudentId(),
+                        FirstName = FnameTxt.Text.Trim(),
+                        LastName = LnameTxt.Text.Trim(),
+                        Course = courseCmb.SelectedValue?.ToString(),
+                        YearLevel = yearCmb.SelectedValue?.ToString(),
+                    };
 
-                        // Add the new student to the database
-                        context.Students.Add(newStudent);
-                        context.SaveChanges();
-                    }
+                    ViewModel.AddStudent(newStudent);
 
-                    // Show success message
-                    MessageBox.Show("Student added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    // Optionally, clear the fields after adding the student
-                    FnameTxt.Clear();
-                    LnameTxt.Clear();
-                    courseCmb.SelectedIndex = -1;
-                    yearCmb.SelectedIndex = -1;
+                    StudentAdded?.Invoke();
+                    clear();
+                    this.Close();
                 }
-                catch (Exception ex)
-                {
-                    // Handle any exceptions that may occur
-                    MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
+        private void clear()
+        {
+            FnameTxt.Clear();
+            LnameTxt.Clear();
+            courseCmb.SelectedIndex = -1;
+            yearCmb.SelectedIndex = -1;
+            FnameTxt.Focus();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not TextBox && e.OriginalSource is not Button)
+            {
+                this.DragMove();
+            }
+        }
     }
 }

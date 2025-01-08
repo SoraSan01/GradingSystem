@@ -4,50 +4,76 @@ using System.Windows.Controls;
 using GradingSystem.View;
 using GradingSystem.Data;
 using System.Windows;
+using GradingSystem.ViewModel;
 
 namespace GradingSystem.View.Admin
 {
     public partial class ManageStudents : UserControl
     {
-        public ObservableCollection<Student> Students { get; set; }
+        private readonly ApplicationDbContext _context;
 
-        public ManageStudents()
+        public StudentsViewModel ViewModel { get; set; }
+
+        public ManageStudents(ApplicationDbContext context)
         {
             InitializeComponent();
 
-            // Bind to the DataGrid
-            Students = new ObservableCollection<Student>();
-            DataContext = this;
-            LoadStudents();
+            _context = context;
+            // Initialize the ViewModel
+            ViewModel = new StudentsViewModel();
 
+            // Set the DataContext for binding, if required
+            DataContext = ViewModel;
         }
 
-        private void addStudentBtn(object sender, System.Windows.RoutedEventArgs e)
+        private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            AddStudent addstudent = new AddStudent();
-            addstudent.ShowDialog();
-        }
-
-        private void LoadStudents()
-        {
-            try
+            // Open the AddStudent window and pass the ViewModel
+            var addStudentWindow = new AddStudent(ViewModel);
+            addStudentWindow.StudentAdded += () =>
             {
-                using (var context = new ApplicationDbContext())
-                {
-                    // Query the database to get all students
-                    var studentList = context.Students.ToList();
+                // Refresh the list of students when a new student is added
+                ViewModel.LoadStudents();
+            };
+            addStudentWindow.ShowDialog();
+        }
 
-                    // Clear the ObservableCollection and add the students
-                    Students.Clear();
-                    foreach (var student in studentList)
-                    {
-                        Students.Add(student);
-                    }
+        private void deleteStudentBtn(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var studentToDelete = button?.DataContext as Student;
+
+            if (studentToDelete != null)
+            {
+                var result = MessageBox.Show($"Are you sure you want to delete {studentToDelete.FirstName} {studentToDelete.LastName}?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    ViewModel.DeleteStudent(studentToDelete);
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void EditButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedStudent = (Student)studentsDataGrid.SelectedItem; // Get selected student
+
+            if (selectedStudent != null)
             {
-                MessageBox.Show($"An error occurred while loading students: {ex.Message}");
+                // Pass the selected student to the EditStudent window
+                var editWindow = new EditStudent(selectedStudent); // Pass the selected student to the constructor
+
+                // You can also set the DataContext if needed
+                var viewModel = new StudentsViewModel();
+                viewModel.SelectedStudent = selectedStudent;
+                editWindow.DataContext = viewModel;
+
+                // Show the window
+                editWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Please select a student to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿using GradingSystem.View;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
+using GradingSystem.View;
 using GradingSystem.View.Admin;
 using System.Text;
 using System.Windows;
@@ -18,10 +20,13 @@ namespace GradingSystem
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private ApplicationDbContext _context;
+
+        public MainWindow(ApplicationDbContext context)
         {
             InitializeComponent();
             MainContent.Content = new Dashboard();
+            _context = context;
         }
 
         private void dashboardBtn(object sender, RoutedEventArgs e)
@@ -36,7 +41,7 @@ namespace GradingSystem
             var result = MessageBox.Show("Are you sure you want to Log out?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                Login login = new Login();
+                Login login = new Login(_context);
                 login.Show();
 
                 this.Close();
@@ -50,16 +55,6 @@ namespace GradingSystem
                 // Call DragMove to allow the window to be dragged
                 this.DragMove();
             }
-        }
-
-        private void ProfessorBtn(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void studentsBtn(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void Minimize(object sender, RoutedEventArgs e)
@@ -90,7 +85,23 @@ namespace GradingSystem
         {
             if (MainContent.Content is not ManageStudents)
             {
-                MainContent.Content = new ManageStudents();
+                MainContent.Content = new ManageStudents(_context);
+            }
+        }
+
+        private void gradeBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageGrades)
+            {
+                MainContent.Content = new ManageGrades();
+            }
+        }
+
+        private void usersBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageUser)
+            {
+                MainContent.Content = new ManageUser(_context);
             }
         }
     }
