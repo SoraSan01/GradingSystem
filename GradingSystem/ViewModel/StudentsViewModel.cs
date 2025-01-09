@@ -55,6 +55,7 @@ namespace GradingSystem.ViewModel
         }
 
 
+
         public void AddStudent(Student newStudent)
         {
             try
@@ -63,7 +64,9 @@ namespace GradingSystem.ViewModel
                 {
                     // Check if a student with the same FirstName and LastName already exists
                     var existingStudent = context.Students
-                                                 .FirstOrDefault(s => s.FirstName == newStudent.FirstName && s.LastName == newStudent.LastName);
+                                                 .FirstOrDefault(s => (s.FirstName == newStudent.FirstName && s.LastName == newStudent.LastName) ||
+                                                 (s.Email == newStudent.Email) ||
+                                                 (s.StudentId == newStudent.StudentId));
 
                     if (existingStudent != null)
                     {
@@ -128,20 +131,24 @@ namespace GradingSystem.ViewModel
 
                     if (studentToUpdate != null)
                     {
-                        // Check if another student with the same name already exists (excluding the current student)
+                        // Check if another student with the same name or email already exists (excluding the current student)
                         var existingStudent = context.Students
-                                                     .FirstOrDefault(s => s.FirstName == updatedStudent.FirstName && s.LastName == updatedStudent.LastName && s.StudentId != updatedStudent.StudentId);
+                            .FirstOrDefault(s =>
+                                ((s.FirstName == updatedStudent.FirstName && s.LastName == updatedStudent.LastName) ||
+                                s.Email == updatedStudent.Email) &&
+                                s.StudentId != updatedStudent.StudentId); // Ensure StudentId is excluded
 
                         if (existingStudent != null)
                         {
                             // Show a message if a duplicate student is found
-                            MessageBox.Show("A student with the same name already exists.", "Duplicate Student", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            MessageBox.Show("A student with the same data already exists.", "Duplicate Student", MessageBoxButton.OK, MessageBoxImage.Warning);
                             return; // Stop execution if duplicate is found
                         }
 
                         // If no duplicate, update the student properties
                         studentToUpdate.FirstName = updatedStudent.FirstName;
                         studentToUpdate.LastName = updatedStudent.LastName;
+                        studentToUpdate.Email = updatedStudent.Email;
                         studentToUpdate.Course = updatedStudent.Course;
                         studentToUpdate.YearLevel = updatedStudent.YearLevel;
 
@@ -150,8 +157,7 @@ namespace GradingSystem.ViewModel
 
                         // Optional: Reflect changes in the ObservableCollection or other relevant UI components
                         MessageBox.Show("Student saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
+                    }else
                     {
                         // If student is not found
                         MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);

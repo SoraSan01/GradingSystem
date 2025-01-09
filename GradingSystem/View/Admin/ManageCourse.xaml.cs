@@ -1,4 +1,6 @@
-﻿using GradingSystem.ViewModel;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
+using GradingSystem.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,15 +23,50 @@ namespace GradingSystem.View.Admin
     /// </summary>
     public partial class ManageCourse : UserControl
     {
-        public StudentsViewModel ViewModel { get; set; }
+        public readonly ApplicationDbContext _context;
 
-        public ManageCourse()
+        public CourseViewModel course { get; set; }
+
+
+        public ManageCourse(ApplicationDbContext context)
         {
             InitializeComponent();
-            ViewModel = new StudentsViewModel();
+
+            _context = context;
+
+            // Initialize the ViewModel
+            course = new CourseViewModel();
 
             // Set the DataContext for binding, if required
-            DataContext = ViewModel;
-        } 
+            DataContext = course;
+        }
+
+        private void AddBtn(object sender, RoutedEventArgs e)
+        {
+            // Open the AddStudent window and pass the ViewModel
+            var addCourseWindow = new AddProgram(course);
+            addCourseWindow.ProgramAdded += () =>
+            {
+                // Refresh the list of students when a new student is added
+                course.LoadCourse();
+            };
+            addCourseWindow.ShowDialog();
+        }
+
+        private void DeleteBtn(object sender, MouseEventArgs e)
+        {
+            var button = sender as Button;
+            var CourseToDelete = button?.DataContext as Course;
+
+            if (CourseToDelete != null)
+            {
+                var result = MessageBox.Show($"Are you sure you want to delete {CourseToDelete.CourseName}?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    course.DeleteCourse(CourseToDelete);
+                }
+            }
+        }
     }
 }

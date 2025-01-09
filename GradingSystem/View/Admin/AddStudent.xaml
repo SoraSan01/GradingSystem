@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GradingSystem.View.Admin"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" Height="260" Width="670"
+        WindowStartupLocation="CenterScreen" Height="340" Width="670"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
 
     <Grid>
@@ -34,6 +34,7 @@
                     </Grid>
                     <Grid Grid.Row="1" Margin="20 05 20 20">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
@@ -66,7 +67,35 @@
                             </TextBox>
                         </Grid>
 
-                        <Grid Grid.Row="1" Margin="0 0 0 0">
+                        <Grid Grid.Row="1">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="idTxt" Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+ Margin="0 10 20 20" Height="50" Width="300" FontSize="20"
+ Grid.Column="0" MaxLength="20">
+                                <materialDesign:HintAssist.Hint>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Student ID" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </materialDesign:HintAssist.Hint>
+                            </TextBox>
+
+                            <TextBox x:Name="emailTxt"  Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+ Margin="0 10 0 20" Height="50" Width="300" FontSize="20"
+ Grid.Column="1" MaxLength="20">
+                                <materialDesign:HintAssist.Hint>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Email" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </materialDesign:HintAssist.Hint>
+                            </TextBox>
+                        </Grid>
+
+                        <Grid Grid.Row="2" Margin="0 0 0 0">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
@@ -74,15 +103,12 @@
                             </Grid.ColumnDefinitions>
 
                             <ComboBox x:Name="courseCmb"  Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
-                          Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
-                          Grid.Column="0" SelectedValuePath="Content">
+                                      Margin="0,10,20,0" Height="50" Width="300" FontSize="20" SelectedValuePath="CourseName"
+                                      Grid.Column="0" ItemsSource="{Binding Courses}"
+                                      DisplayMemberPath="CourseName">
                                 <materialDesign:HintAssist.Hint>
                                     Course
                                 </materialDesign:HintAssist.Hint>
-
-                                <ComboBoxItem>BSCS</ComboBoxItem>
-                                <ComboBoxItem>BSBA</ComboBoxItem>
-                                <ComboBoxItem>BSHM</ComboBoxItem>
                             </ComboBox>
 
                             <ComboBox x:Name="yearCmb" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 

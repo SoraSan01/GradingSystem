@@ -18,7 +18,7 @@ namespace GradingSystem.ViewModel
                 using (var context = new ApplicationDbContext())
                 {
                     // Check if user exists in the database with the provided credentials
-                    var user = context.Users.FirstOrDefault(u => u.Email == Email || u.Username == Email && u.Password == Password);
+                    var user = context.Users.FirstOrDefault(u => (u.Email == Email || u.Username == Email) && u.Password == Password);
 
                     if (user != null)
                     {

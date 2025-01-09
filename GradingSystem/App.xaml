@@ -72,6 +72,32 @@
                 </Setter>
             </Style>
 
+            <!-- Global style for DataGrid Row -->
+            <Style TargetType="DataGridRow">
+                <Setter Property="Background" Value="White"/>
+            </Style>
+
+            <!-- Global style for DataGrid Column Headers -->
+            <Style TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="DarkGreen" />
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Height" Value="40"/>
+                <Setter Property="Margin" Value="15 0 15 0"/>
+            </Style>
+
+            <!-- Optionally, define other global styles like for the DataGrid itself -->
+            <Style TargetType="DataGrid">
+                <Setter Property="CanUserSortColumns" Value="False" />
+                <Setter Property="CanUserReorderColumns" Value="False" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+                <Setter Property="IsReadOnly" Value="True" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="GridLinesVisibility" Value="None" />
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+            </Style>
+
         </ResourceDictionary>
 
     </Application.Resources>

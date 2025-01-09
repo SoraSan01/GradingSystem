@@ -16,6 +16,10 @@ namespace GradingSystem.Model
         [StringLength(50)]
         public string CourseName { get; set; }
 
+        [Required]
+        [StringLength(100)]
+        public string Description { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public Course()

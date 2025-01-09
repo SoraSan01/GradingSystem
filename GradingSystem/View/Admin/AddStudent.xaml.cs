@@ -11,13 +11,19 @@ namespace GradingSystem.View.Admin
     public partial class AddStudent : Window
     {
         public StudentsViewModel ViewModel { get; set; }
+        public CourseViewModel CourseViewModel { get; set; }
 
         public event Action StudentAdded;
 
-        public AddStudent(StudentsViewModel viewModel)
+        public AddStudent(StudentsViewModel viewModel, CourseViewModel courseViewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;
+            CourseViewModel = courseViewModel;
+
+            courseCmb.ItemsSource = CourseViewModel.Courses;  // Assuming `Courses` is an ObservableCollection in CourseViewModel
+
+
             DataContext = ViewModel;
         }
 
@@ -40,6 +46,8 @@ namespace GradingSystem.View.Admin
 
             if (string.IsNullOrWhiteSpace(FnameTxt.Text?.Trim()) ||
                 string.IsNullOrWhiteSpace(LnameTxt.Text?.Trim()) ||
+                string.IsNullOrWhiteSpace(idTxt.Text?.Trim()) ||
+                string.IsNullOrWhiteSpace(emailTxt.Text?.Trim()) ||
                 courseCmb.SelectedItem == null ||
                 yearCmb.SelectedItem == null)
             {
@@ -53,7 +61,8 @@ namespace GradingSystem.View.Admin
                 {
                     var newStudent = new Student
                     {
-                        StudentId = context.GenerateStudentId(),
+                        StudentId = idTxt.Text.Trim(),
+                        Email = emailTxt.Text.Trim(),
                         FirstName = FnameTxt.Text.Trim(),
                         LastName = LnameTxt.Text.Trim(),
                         Course = courseCmb.SelectedValue?.ToString(),
@@ -77,6 +86,8 @@ namespace GradingSystem.View.Admin
         {
             FnameTxt.Clear();
             LnameTxt.Clear();
+            idTxt.Clear();
+            emailTxt.Clear();
             courseCmb.SelectedIndex = -1;
             yearCmb.SelectedIndex = -1;
             FnameTxt.Focus();

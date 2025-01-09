@@ -21,6 +21,10 @@ namespace GradingSystem.Model
         public string LastName { get; set; }
 
         [Required]
+        [StringLength(100)]
+        public string Email { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string Course { get; set; }
 

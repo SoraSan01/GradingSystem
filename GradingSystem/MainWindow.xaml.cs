@@ -104,5 +104,13 @@ namespace GradingSystem
                 MainContent.Content = new ManageUser(_context);
             }
         }
+
+        private void courstBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageCourse)
+            {
+                MainContent.Content = new ManageCourse(_context);
+            }
+        }
     }
 }

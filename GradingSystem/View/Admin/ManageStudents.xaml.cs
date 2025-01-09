@@ -12,7 +12,7 @@ namespace GradingSystem.View.Admin
     {
         private readonly ApplicationDbContext _context;
 
-        public StudentsViewModel ViewModel { get; set; }
+        public StudentsViewModel students { get; set; }
 
         public ManageStudents(ApplicationDbContext context)
         {
@@ -20,20 +20,22 @@ namespace GradingSystem.View.Admin
 
             _context = context;
             // Initialize the ViewModel
-            ViewModel = new StudentsViewModel();
+            students = new StudentsViewModel();
 
             // Set the DataContext for binding, if required
-            DataContext = ViewModel;
+            DataContext = students;
         }
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
+            var courseViewModel = new CourseViewModel(); // Or fetch it from somewhere
+
             // Open the AddStudent window and pass the ViewModel
-            var addStudentWindow = new AddStudent(ViewModel);
+            var addStudentWindow = new AddStudent(students, courseViewModel);
             addStudentWindow.StudentAdded += () =>
             {
                 // Refresh the list of students when a new student is added
-                ViewModel.LoadStudents();
+                students.LoadStudents();
             };
             addStudentWindow.ShowDialog();
         }
@@ -49,7 +51,7 @@ namespace GradingSystem.View.Admin
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    ViewModel.DeleteStudent(studentToDelete);
+                    students.DeleteStudent(studentToDelete);
                 }
             }
         }
