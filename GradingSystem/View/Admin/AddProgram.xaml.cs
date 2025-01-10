@@ -22,11 +22,11 @@ namespace GradingSystem.View.Admin
     /// </summary>
     public partial class AddProgram : Window
     {
-        public CourseViewModel ViewModel { get; set; }
+        public ProgramViewModel ViewModel { get; set; }
 
         public event Action ProgramAdded;
 
-        public AddProgram(CourseViewModel viewModel)
+        public AddProgram(ProgramViewModel viewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;
@@ -54,14 +54,14 @@ namespace GradingSystem.View.Admin
             {
                 using (var context = new ApplicationDbContext())
                 {
-                    var newCourse = new Course
+                    var newProgram = new Program
                     {
-                        CourseId = ProgramIdTxt.Text.Trim(),
-                        CourseName = ProgramNameTxt.Text.Trim(),
+                        ProgramId = ProgramIdTxt.Text.Trim(),
+                        ProgramName = ProgramNameTxt.Text.Trim(),
                         Description = DescriptionTxt.Text.Trim(),
                     };
 
-                    ViewModel.AddCourse(newCourse);
+                    ViewModel.AddProgram(newProgram);
 
                     ProgramAdded?.Invoke();
                     clear();

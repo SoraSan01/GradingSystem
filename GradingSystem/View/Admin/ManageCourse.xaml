@@ -70,23 +70,24 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="courseDataGrid" ItemsSource="{Binding Courses}" AutoGenerateColumns="False">
+                            <DataGrid x:Name="programDataGrid" ItemsSource="{Binding Programs}" AutoGenerateColumns="False">
 
                                 <DataGrid.Columns>
 
-                                    <DataGridTextColumn Header="CourseID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding CourseId}"/>
-                                    <DataGridTextColumn Header="CourseName" CanUserResize="False" Binding="{Binding CourseName}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="ProgramID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding ProgramId}"/>
+                                    <DataGridTextColumn Header="ProgramName" CanUserResize="False" Binding="{Binding ProgramName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Description" CanUserResize="False" Binding="{Binding Description}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
-                                    <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="*" >
+                                    <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Style="{StaticResource gridEditButton}">
+                                                    <Button Style="{StaticResource gridEditButton}" Click="EditBtn">
                                                         <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" GotMouseCapture="DeleteBtn">
+                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}"
+                                                            Click="DeleteBtn" DataContext="{Binding}">
                                                         <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                 </StackPanel>

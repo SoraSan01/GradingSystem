@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GradingSystem.Model
 {
+    [Table("Grades")]
+
     public class Grade
     {
         [Key]
@@ -22,10 +24,10 @@ namespace GradingSystem.Model
         public virtual Subject Subject { get; set; }
 
         [Required]
-        public string CourseId { get; set; }
+        public string ProgramId { get; set; }
 
-        [ForeignKey("CourseId")]
-        public virtual Course Course { get; set; }
+        [ForeignKey("ProgramId")]
+        public virtual Program Program { get; set; }
 
         [Required]
         public decimal Grades { get; set; }
@@ -42,7 +44,7 @@ namespace GradingSystem.Model
 
         public string StudentCourse
         {
-            get { return Course != null ? $"{Course.CourseName}" : "Unknown"; }
+            get { return Program != null ? $"{Program.ProgramName}" : "Unknown"; }
         }
         public Grade()
         {

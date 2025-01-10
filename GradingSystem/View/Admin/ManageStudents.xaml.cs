@@ -28,7 +28,7 @@ namespace GradingSystem.View.Admin
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            var courseViewModel = new CourseViewModel(); // Or fetch it from somewhere
+            var courseViewModel = new ProgramViewModel(); // Or fetch it from somewhere
 
             // Open the AddStudent window and pass the ViewModel
             var addStudentWindow = new AddStudent(students, courseViewModel);

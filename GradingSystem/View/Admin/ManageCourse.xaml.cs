@@ -25,7 +25,7 @@ namespace GradingSystem.View.Admin
     {
         public readonly ApplicationDbContext _context;
 
-        public CourseViewModel course { get; set; }
+        public ProgramViewModel Programs { get; set; }
 
 
         public ManageCourse(ApplicationDbContext context)
@@ -35,37 +35,60 @@ namespace GradingSystem.View.Admin
             _context = context;
 
             // Initialize the ViewModel
-            course = new CourseViewModel();
+            Programs = new ProgramViewModel();
 
             // Set the DataContext for binding, if required
-            DataContext = course;
+            DataContext = Programs;
         }
 
         private void AddBtn(object sender, RoutedEventArgs e)
         {
             // Open the AddStudent window and pass the ViewModel
-            var addCourseWindow = new AddProgram(course);
+            var addCourseWindow = new AddProgram(Programs);
             addCourseWindow.ProgramAdded += () =>
             {
                 // Refresh the list of students when a new student is added
-                course.LoadCourse();
+                Programs.LoadProgramsAsync();
             };
             addCourseWindow.ShowDialog();
         }
 
-        private void DeleteBtn(object sender, MouseEventArgs e)
+        private void DeleteBtn(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            var CourseToDelete = button?.DataContext as Course;
+            var ProgramToDelete = button?.DataContext as Program;
 
-            if (CourseToDelete != null)
+            if (ProgramToDelete != null)
             {
-                var result = MessageBox.Show($"Are you sure you want to delete {CourseToDelete.CourseName}?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show($"Are you sure you want to delete {ProgramToDelete.ProgramName}?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    course.DeleteCourse(CourseToDelete);
+                    Programs.DeleteProgram(ProgramToDelete);
                 }
+            }
+        }
+
+        private void EditBtn(object sender, RoutedEventArgs e)
+        {
+            var SelectedProgram = (Program)programDataGrid.SelectedItem; // Get selected student
+
+            if (SelectedProgram != null)
+            {
+                // Pass the selected student to the EditStudent window
+                var editWindow = new EditProgram(SelectedProgram); // Pass the selected student to the constructor
+
+                // You can also set the DataContext if needed
+                var viewModel = new ProgramViewModel();
+                viewModel.SelectedProgram = SelectedProgram;
+                editWindow.DataContext = viewModel;
+
+                // Show the window
+                editWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Please select a Program to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

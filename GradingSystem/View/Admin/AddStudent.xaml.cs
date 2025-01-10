@@ -11,17 +11,17 @@ namespace GradingSystem.View.Admin
     public partial class AddStudent : Window
     {
         public StudentsViewModel ViewModel { get; set; }
-        public CourseViewModel CourseViewModel { get; set; }
+        public ProgramViewModel ProgramViewModel { get; set; }
 
         public event Action StudentAdded;
 
-        public AddStudent(StudentsViewModel viewModel, CourseViewModel courseViewModel)
+        public AddStudent(StudentsViewModel viewModel, ProgramViewModel programViewModel)
         {
             InitializeComponent();
             ViewModel = viewModel;
-            CourseViewModel = courseViewModel;
+            ProgramViewModel = programViewModel;
 
-            courseCmb.ItemsSource = CourseViewModel.Courses;  // Assuming `Courses` is an ObservableCollection in CourseViewModel
+            programCmb.ItemsSource = ProgramViewModel.Programs;  // Assuming `Courses` is an ObservableCollection in CourseViewModel
 
 
             DataContext = ViewModel;
@@ -48,7 +48,7 @@ namespace GradingSystem.View.Admin
                 string.IsNullOrWhiteSpace(LnameTxt.Text?.Trim()) ||
                 string.IsNullOrWhiteSpace(idTxt.Text?.Trim()) ||
                 string.IsNullOrWhiteSpace(emailTxt.Text?.Trim()) ||
-                courseCmb.SelectedItem == null ||
+                programCmb.SelectedItem == null ||
                 yearCmb.SelectedItem == null)
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -65,7 +65,7 @@ namespace GradingSystem.View.Admin
                         Email = emailTxt.Text.Trim(),
                         FirstName = FnameTxt.Text.Trim(),
                         LastName = LnameTxt.Text.Trim(),
-                        Course = courseCmb.SelectedValue?.ToString(),
+                        Program = programCmb.SelectedValue?.ToString(),
                         YearLevel = yearCmb.SelectedValue?.ToString(),
                     };
 
@@ -88,7 +88,7 @@ namespace GradingSystem.View.Admin
             LnameTxt.Clear();
             idTxt.Clear();
             emailTxt.Clear();
-            courseCmb.SelectedIndex = -1;
+            programCmb.SelectedIndex = -1;
             yearCmb.SelectedIndex = -1;
             FnameTxt.Focus();
         }
