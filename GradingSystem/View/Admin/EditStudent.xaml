@@ -101,7 +101,7 @@
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ComboBox x:Name="courseCmb" Text="{Binding SelectedStudent.Course}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
+                            <ComboBox x:Name="courseCmb" Text="{Binding SelectedStudent.Program}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
                        Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
                        Grid.Column="0" SelectedValuePath="Content">
                                 <materialDesign:HintAssist.Hint>
