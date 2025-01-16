@@ -23,5 +23,20 @@ namespace GradingSystem.View.Admin
         {
             InitializeComponent();
         }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void BulkInsertBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

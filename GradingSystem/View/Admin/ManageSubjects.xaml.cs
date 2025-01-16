@@ -32,12 +32,13 @@ namespace GradingSystem.View.Admin
 
             _context = context;
 
-            Subjects = new SubjectViewModel();
+            Subjects = new SubjectViewModel(_context);
         }
 
         private void AddSubject(object sender, RoutedEventArgs e)
         {
-
+            BulkInsertCourse bulkInsert = new BulkInsertCourse(_context);
+            bulkInsert.ShowDialog();
         }
     }
 }

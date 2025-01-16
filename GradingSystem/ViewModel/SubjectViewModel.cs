@@ -1,5 +1,6 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace GradingSystem.ViewModel
 {
     public class SubjectViewModel : INotifyPropertyChanged
     {
+        private readonly ApplicationDbContext _context;
+
         private ObservableCollection<Subject> _subjects;
         public ObservableCollection<Subject> Subjects
         {
@@ -30,8 +33,9 @@ namespace GradingSystem.ViewModel
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public SubjectViewModel()
+        public SubjectViewModel(ApplicationDbContext context)
         {
+            _context = context;
             Subjects = new ObservableCollection<Subject>();
             LoadSubjectsAsync();
         }
@@ -40,14 +44,13 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                var subjectList = await Task.Run(() => _context.Subjects.ToList());
+                Subjects.Clear();
+
+                // Ensure UI updates happen on the UI thread
+                foreach (var subject in subjectList)
                 {
-                    var subjectList = await Task.Run(() => context.Subjects.ToList());
-                    Subjects.Clear();
-                    foreach (var subject in subjectList)
-                    {
-                        Subjects.Add(subject);
-                    }
+                    Subjects.Add(subject);
                 }
             }
             catch (Exception ex)

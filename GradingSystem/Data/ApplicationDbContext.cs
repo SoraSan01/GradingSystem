@@ -1,5 +1,6 @@
 ﻿using GradingSystem.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -64,6 +65,9 @@ namespace GradingSystem.Data
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
             optionsBuilder.UseSqlServer(connectionString);
+
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
         }
 
     }

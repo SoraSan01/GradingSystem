@@ -50,6 +50,8 @@ namespace GradingSystem.ViewModel
             Programs = new ObservableCollection<Program>();
 
             // Load data (this can be from your database or a static list for testing)
+            
+            
             LoadProgramsAsync();
         }
 
