@@ -33,6 +33,7 @@ namespace GradingSystem.View.Admin
             _context = context;
 
             Subjects = new SubjectViewModel(_context);
+            DataContext = Subjects;
         }
 
         private void AddSubject(object sender, RoutedEventArgs e)

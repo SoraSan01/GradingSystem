@@ -69,7 +69,10 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="subjectsDataGrid" ItemsSource="{Binding Subjects}" AutoGenerateColumns="False">
+                            <DataGrid x:Name="subjectsDataGrid" ItemsSource="{Binding Subjects}" 
+                                      AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto" EnableRowVirtualization="True" 
+                                      EnableColumnVirtualization="True">
 
                                 <DataGrid.Columns>
 

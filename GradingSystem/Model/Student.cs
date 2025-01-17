@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,6 +31,10 @@ namespace GradingSystem.Model
         [Required]
         [StringLength(50)]
         public string Program { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Semester { get; set; }
 
         [Required]
         public string YearLevel { get; set; }

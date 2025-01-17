@@ -43,5 +43,14 @@ namespace GradingSystem.View.Admin
                 this.DragMove();
             }
         }
+
+        private void Close(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                this.Close();
+            }
+        }
     }
 }

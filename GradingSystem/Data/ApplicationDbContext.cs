@@ -21,6 +21,8 @@ namespace GradingSystem.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<GradeRequest> GradeRequests { get; set; }
 
+        public DbSet<StudentSubject> StudentSubjects { get; set; }
+
         public string GenerateUserId()
         {
             string year = DateTime.Now.Year.ToString();

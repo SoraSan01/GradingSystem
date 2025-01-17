@@ -44,7 +44,7 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                var subjectList = await Task.Run(() => _context.Subjects.ToList());
+                var subjectList = await Task.Run(() => _context.Subjects.ToListAsync());
                 Subjects.Clear();
 
                 // Ensure UI updates happen on the UI thread

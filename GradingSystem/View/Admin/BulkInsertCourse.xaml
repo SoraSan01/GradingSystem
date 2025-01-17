@@ -36,6 +36,9 @@
                             </Grid.RowDefinitions>
 
                             <Grid Grid.Row="0">
+                                <StackPanel Margin="0 0 0 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=WindowClose}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Close"/>
+                                </StackPanel>
                             </Grid>
                             
                             <Grid Grid.Row="1">

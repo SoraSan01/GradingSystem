@@ -91,6 +91,7 @@ namespace GradingSystem
 
         private void gradeBtn(object sender, RoutedEventArgs e)
         {
+            
             if (MainContent.Content is not ManageGrades)
             {
                 MainContent.Content = new ManageGrades();
