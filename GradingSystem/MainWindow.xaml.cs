@@ -91,6 +91,7 @@ namespace GradingSystem
 
         private void gradeBtn(object sender, RoutedEventArgs e)
         {
+            
             if (MainContent.Content is not ManageGrades)
             {
                 MainContent.Content = new ManageGrades();
@@ -102,6 +103,22 @@ namespace GradingSystem
             if (MainContent.Content is not ManageUser)
             {
                 MainContent.Content = new ManageUser(_context);
+            }
+        }
+
+        private void courstBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageCourse)
+            {
+                MainContent.Content = new ManageCourse(_context);
+            }
+        }
+
+        private void subjectBtn(object sender, RoutedEventArgs e)
+        {
+            if (MainContent.Content is not ManageSubjects)
+            {
+                MainContent.Content = new ManageSubjects(_context);
             }
         }
     }

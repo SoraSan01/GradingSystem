@@ -70,16 +70,7 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="studentsDataGrid"
-                  CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Users}"
-                                  AutoGenerateColumns="False" SelectionMode="Single">
-
-                                <!-- Define RowStyle to set background for all rows -->
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="Background" Value="White"/>
-                                    </Style>
-                                </DataGrid.RowStyle>
+                            <DataGrid x:Name="studentsDataGrid" ItemsSource="{Binding Users}">
 
                                 <DataGrid.Columns>
 

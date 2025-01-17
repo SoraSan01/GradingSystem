@@ -1,24 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GradingSystem.Model
 {
-    public class Course
+    [Table("Program")]
+    public class Program
     {
         [Key]
-        public string CourseId { get; set; }
+        public string ProgramId { get; set; }
 
         [Required]
         [StringLength(50)]
-        public string CourseName { get; set; }
+        public string ProgramName { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Description { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        public Course()
+        public Program()
         {
             CreatedAt = DateTime.Now;
         }

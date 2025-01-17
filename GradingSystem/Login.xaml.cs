@@ -64,39 +64,43 @@ namespace GradingSystem
             loginFunc();
         }
 
-        private void loginFunc() {
+        private void loginFunc()
+        {
             // Retrieve user input
             _viewModel.Email = emailTxt.Text;
             _viewModel.Password = passwordTxt.Password;
 
-            // Validate email
+            // Validate username or email
             if (string.IsNullOrWhiteSpace(_viewModel.Email))
             {
-                MessageBox.Show("Please enter your email.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please enter your email or username.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 clear();
                 return;
             }
 
-            // Check email format using regular expression
+            // Check if input is an email format
             var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            if (!System.Text.RegularExpressions.Regex.IsMatch(_viewModel.Email, emailPattern))
+            bool isEmail = System.Text.RegularExpressions.Regex.IsMatch(_viewModel.Email, emailPattern);
+
+            if (isEmail)
             {
-                MessageBox.Show("Please enter a valid email address.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                clear();
-                return;
+                // Additional email-specific validation (if needed)
+            }
+            else
+            {
+                // Validate username format (optional)
+                if (_viewModel.Email.Contains(" ")) // Example: no spaces allowed in username
+                {
+                    MessageBox.Show("Username cannot contain spaces.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    clear();
+                    return;
+                }
             }
 
             // Validate password
             if (string.IsNullOrWhiteSpace(_viewModel.Password))
             {
                 MessageBox.Show("Please enter your password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                clear();
-                return;
-            }
-
-            if (_viewModel.Password.Length < 6) // Example: minimum length of 6 characters
-            {
-                MessageBox.Show("Password must be at least 6 characters long.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 clear();
                 return;
             }

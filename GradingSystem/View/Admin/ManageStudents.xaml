@@ -70,24 +70,16 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="studentsDataGrid"
-                      CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Students}"
-                                      AutoGenerateColumns="False" SelectionMode="Single">
-
-                                <!-- Define RowStyle to set background for all rows -->
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="Background" Value="White"/>
-                                    </Style>
-                                </DataGrid.RowStyle>
+                            <DataGrid x:Name="studentsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Students}">
 
                                 <DataGrid.Columns>
 
-                                    <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding StudentId}"/>
+                                    <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding StudentId}"/>
                                     <DataGridTextColumn Header="Firstname" CanUserResize="False" Binding="{Binding FirstName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Lastname" CanUserResize="False" Binding="{Binding LastName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Course}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="auto"/>
+                                    <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >

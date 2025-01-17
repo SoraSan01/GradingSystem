@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace GradingSystem.Model
 {
+    [Table("GradeRequests")]
+
     public class GradeRequest
     {
         [Key]
