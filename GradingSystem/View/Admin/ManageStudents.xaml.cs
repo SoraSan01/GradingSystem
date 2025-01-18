@@ -19,9 +19,8 @@ namespace GradingSystem.View.Admin
             InitializeComponent();
 
             _context = context;
-            // Initialize the ViewModel
-            students = new StudentsViewModel();
-
+            // Initialize the Viewodel
+            students = new StudentsViewModel(_context);
             // Set the DataContext for binding, if required
             DataContext = students;
         }
@@ -30,13 +29,17 @@ namespace GradingSystem.View.Admin
         {
             var courseViewModel = new ProgramViewModel(); // Or fetch it from somewhere
 
-            // Open the AddStudent window and pass the ViewModel
-            var addStudentWindow = new AddStudent(students, courseViewModel);
+            // Pass the context when creating the AddStudent window
+            var addStudentWindow = new AddStudent(students, courseViewModel, _context);
+
+            // Handle the event when a new student is added
             addStudentWindow.StudentAdded += () =>
             {
                 // Refresh the list of students when a new student is added
-                students.LoadStudents();
+                students.LoadStudentsAsync();
             };
+
+            // Show the dialog
             addStudentWindow.ShowDialog();
         }
 
@@ -51,7 +54,7 @@ namespace GradingSystem.View.Admin
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    students.DeleteStudent(studentToDelete);
+                    students.DeleteStudentAsync(studentToDelete);
                 }
             }
         }
@@ -66,7 +69,7 @@ namespace GradingSystem.View.Admin
                 var editWindow = new EditStudent(selectedStudent); // Pass the selected student to the constructor
 
                 // You can also set the DataContext if needed
-                var viewModel = new StudentsViewModel();
+                var viewModel = new StudentsViewModel(_context);
                 viewModel.SelectedStudent = selectedStudent;
                 editWindow.DataContext = viewModel;
 

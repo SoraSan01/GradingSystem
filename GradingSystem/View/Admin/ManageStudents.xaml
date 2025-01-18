@@ -80,6 +80,7 @@
                                     <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="auto"/>
+                                    <DataGridTextColumn Header="Semester" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >

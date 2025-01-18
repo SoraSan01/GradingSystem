@@ -1,38 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace GradingSystem.Command
 {
     public class RelayCommand : ICommand
     {
-        private Action<object> _execute;
-        private Func<object, bool> _canExecute;
+        private readonly Action<object> _execute;
+        private readonly Func<object, bool> _canExecute;
 
-        public RelayCommand(Action<object> execute) : this(execute, null) { }
-
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute)
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
-        public bool CanExecute(object parameter)
+
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
         {
-            return _canExecute == null || _canExecute(parameter);
+            _execute = execute != null ? new Action<object>(_ => execute()) : throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute != null ? new Func<object, bool>(_ => canExecute()) : null;
         }
 
-        public void Execute(object parameter)
-        {
-            _execute(parameter);
-        }
+        public bool CanExecute(object parameter) => _canExecute?.Invoke(parameter) ?? true;
 
-        public event EventHandler CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
-        }
+        public void Execute(object parameter) => _execute(parameter);
+
+        public event EventHandler CanExecuteChanged;
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
     }
 }

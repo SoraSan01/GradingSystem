@@ -1,4 +1,5 @@
 ﻿using GradingSystem.Model;
+using LiveCharts.Wpf;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
@@ -27,50 +28,55 @@ namespace GradingSystem.Data
         {
             string year = DateTime.Now.Year.ToString();
 
-            // Fetch the latest ID from the database that matches the current year
-            string latestId = null;
-
-            try
-            {
-                using (var context = new ApplicationDbContext())
-                {
-                    latestId = context.Users
+            // Fetch the latest ID from the database that matches the current year using the injected context
+            string latestId = this.Users
                                       .Where(u => u.UserId.StartsWith(year))
                                       .OrderByDescending(u => u.UserId)
                                       .Select(u => u.UserId)
                                       .FirstOrDefault();
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (adjust based on your logging framework)
-                System.Diagnostics.Debug.WriteLine($"Error fetching latest UserId: {ex.Message}");
-            }
 
             int nextNumber = 1;
 
             if (!string.IsNullOrEmpty(latestId))
             {
-                // Safely parse the numeric part of the ID
                 if (int.TryParse(latestId.Substring(4), out int numericPart))
                 {
                     nextNumber = numericPart + 1;
                 }
             }
 
-            // Generate the new UserId with zero-padded number
             return $"{year}{nextNumber:D4}";
+        }
+
+        public async Task<string> GenerateUniqueStudentSubjectId(ApplicationDbContext context, string studentId, string subjectId)
+        {
+            string uniqueId;
+            do
+            {
+                uniqueId = $"{studentId}-{subjectId}-{DateTime.Now:yyyyMMddHHmmssfff}";
+            }
+            while (await context.StudentSubjects.AnyAsync(ss => ss.Id == uniqueId));
+
+            return uniqueId;
         }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
-            optionsBuilder.UseSqlServer(connectionString);
+            if (!optionsBuilder.IsConfigured)
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
+                optionsBuilder.UseSqlServer(connectionString);
+            }
 
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<StudentSubject>()
+                .HasKey(ss => ss.Id);
+            // Additional configurations if necessary
+        }
     }
 }

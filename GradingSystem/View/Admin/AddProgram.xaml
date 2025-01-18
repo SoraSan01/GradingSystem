@@ -56,7 +56,7 @@
 
                             <TextBox x:Name="ProgramNameTxt"  Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
                         Margin="0 10 0 20" Height="50" Width="300" FontSize="20"
-                        Grid.Column="1" MaxLength="20">
+                        Grid.Column="1" MaxLength="255">
                                 <materialDesign:HintAssist.Hint>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Program Name" VerticalAlignment="Center"/>
@@ -73,7 +73,7 @@
 
                             <TextBox x:Name="DescriptionTxt" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                                      Margin="0 10 0 20" Height="50" Width="620" FontSize="20"
-                                     Grid.Column="1" MaxLength="50">
+                                     Grid.Column="1" MaxLength="255">
                                 <materialDesign:HintAssist.Hint>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="Program Description" VerticalAlignment="Center"/>

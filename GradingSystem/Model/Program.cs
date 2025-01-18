@@ -15,11 +15,11 @@ namespace GradingSystem.Model
         public string ProgramId { get; set; }
 
         [Required]
-        [StringLength(50)]
+        [StringLength(255)]
         public string ProgramName { get; set; }
 
         [Required]
-        [StringLength(100)]
+        [StringLength(255)]
         public string Description { get; set; }
 
         public DateTime CreatedAt { get; set; }

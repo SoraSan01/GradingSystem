@@ -5,11 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace GradingSystem.Model
 {
     [Table("Grades")]
-
     public class Grade
     {
         [Key]
         public string GradeId { get; set; }
+
+        [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
 
         [Required]
         public string StudentId { get; set; }
@@ -18,21 +23,13 @@ namespace GradingSystem.Model
         public virtual Student Student { get; set; }
 
         [Required]
-        public string SubjectId { get; set; }
-
-        [ForeignKey("SubjectId")]
-        public virtual Subject Subject { get; set; }
+        public string Program { get; set; }
 
         [Required]
-        public string ProgramId { get; set; }
-
-        [ForeignKey("ProgramId")]
-        public virtual Program Program { get; set; }
+        public string YearLevel { get; set; }
 
         [Required]
-        public decimal Grades { get; set; }
-
-        public DateTime DateSubmitted { get; set; }
+        public string Semester {  get; set; } 
 
         public DateTime CreatedAt { get; set; }
 
@@ -42,14 +39,9 @@ namespace GradingSystem.Model
             get { return Student != null ? $"{Student.FirstName} {Student.LastName}" : "Unknown"; }
         }
 
-        public string StudentCourse
-        {
-            get { return Program != null ? $"{Program.ProgramName}" : "Unknown"; }
-        }
         public Grade()
         {
             CreatedAt = DateTime.Now;
-            DateSubmitted = DateTime.Now;
         }
     }
 }

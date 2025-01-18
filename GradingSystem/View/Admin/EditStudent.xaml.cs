@@ -47,7 +47,7 @@ namespace GradingSystem.View.Admin
                 {
                     // Call the ViewModel's EditStudent method
                     var viewModel = (StudentsViewModel)this.DataContext;
-                    viewModel.EditStudent(SelectedStudent); // Update the student in the database
+                    viewModel.EditStudentAsync(SelectedStudent); // Update the student in the database
 
                     // Close the window after editing
                     this.Close();

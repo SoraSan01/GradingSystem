@@ -1,203 +1,227 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace GradingSystem.ViewModel
 {
     public class StudentsViewModel : INotifyPropertyChanged
     {
+        private readonly ApplicationDbContext _context;
+
         public ObservableCollection<Student> Students { get; set; }
         public Student SelectedStudent { get; set; }
 
-        public StudentsViewModel()
+        public StudentsViewModel(ApplicationDbContext context)
         {
-            // Initialize the ObservableCollection
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             Students = new ObservableCollection<Student>();
-
-            // Load data (this can be from your database or a static list for testing)
-            LoadStudents();
+            LoadStudentsAsync();
         }
 
-        // Method to load students from the database
-        public void LoadStudents()
+        // Load all students asynchronously with error handling
+        public async Task LoadStudentsAsync()
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                var studentList = await _context.Students.ToListAsync();
+                Students.Clear();
+                foreach (var student in studentList)
                 {
-                    // Query the database to get all students
-                    var studentList = context.Students.ToList();
-
-                    // Clear the ObservableCollection and add the students
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Students.Clear();
-                        foreach (var student in studentList)
-                        {
-                            Students.Add(student);
-                        }
-                    });
+                    Students.Add(student);
                 }
             }
             catch (Exception ex)
             {
-                // Handle any exceptions that may occur
-                MessageBox.Show($"An error occurred while loading students: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                HandleError("loading students", ex);
             }
         }
 
-        // Method to add a new student
-        public void AddStudent(Student newStudent)
+        // Add a new student with async handling
+        public async Task AddStudentAsync(Student newStudent, string year, string semester, string program)
+        {
+            if (newStudent == null) throw new ArgumentNullException(nameof(newStudent));
+
+            try
+            {
+                if (await IsStudentDuplicateAsync(newStudent.StudentId))
+                {
+                    ShowMessage("Duplicate student found.", "Warning", MessageBoxImage.Warning);
+                    return;
+                }
+
+                _context.Students.Add(newStudent);
+                await _context.SaveChangesAsync();
+
+                // Assign grade info to the student
+                await AddStudentGradeInfoAsync(newStudent.StudentId, program, year, semester, newStudent.FirstName, newStudent.LastName);
+
+                // Assign subjects to the student
+                await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, program);
+
+                Students.Add(newStudent);
+                ShowMessage("Student added successfully.", "Success", MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                HandleError("adding student", ex);
+            }
+        }
+
+        // Check if the student is already registered
+        private async Task<bool> IsStudentDuplicateAsync(string studentId)
+        {
+            return await _context.Students.AnyAsync(s => s.StudentId == studentId);
+        }
+
+        // Assign subjects to student
+        private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string program)
+        {
+            var subjects = await _context.Subjects
+                .Where(s => s.YearLevel == year && s.Semester == semester && s.Program == program)
+                .ToListAsync();
+
+            foreach (var subject in subjects)
+            {
+                var studentSubjectId = $"{studentId}_{subject.SubjectId}";
+                _context.StudentSubjects.Add(new StudentSubject
+                {
+                    StudentId = studentId,
+                    SubjectId = subject.SubjectId,
+                    Id = studentSubjectId
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        // Add student's grade info
+        public async Task AddStudentGradeInfoAsync(string studentId, string program, string year, string semester, string Fname, string Lname)
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                // Check if grade information already exists for this combination of student, program, year, and semester
+                if (await _context.Grades.AnyAsync(g => g.StudentId == studentId && g.Program == program && g.YearLevel == year && g.Semester == semester))
                 {
-                    // Check if a student with the same name, email, or student ID already exists
-                    var existingStudent = context.Students
-                                                 .FirstOrDefault(s =>
-                                                     (s.FirstName == newStudent.FirstName && s.LastName == newStudent.LastName) ||
-                                                     (s.Email == newStudent.Email) ||
-                                                     (s.StudentId == newStudent.StudentId));
+                    ShowMessage("Grade information already exists for this student, program, year, and semester.", "Warning", MessageBoxImage.Warning);
+                    return;
+                }
 
-                    if (existingStudent != null)
-                    {
-                        // Show message if student already exists and return immediately
-                        MessageBox.Show("A student with the same name, email, or student ID already exists.", "Duplicate Student", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        return; // Stop execution if duplicate is found
-                    }
+                var grade = new Grade
+                {
+                    GradeId = Guid.NewGuid().ToString(),
+                    StudentId = studentId,
+                    Program = program,
+                    YearLevel = year,
+                    Semester = semester,
+                    FirstName = Fname,
+                    LastName = Lname
+                };
 
-                    // If no duplicate, add the new student
-                    context.Students.Add(newStudent);
-                    context.SaveChanges();
+                _context.Grades.Add(grade);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                HandleError("adding grade information", ex);
+            }
+        }
 
-                    // After saving, refresh the ObservableCollection and show success message
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Students.Add(newStudent);
-                    });
+        // Edit student details
+        public async Task EditStudentAsync(Student updatedStudent)
+        {
+            if (updatedStudent == null) throw new ArgumentNullException(nameof(updatedStudent));
 
-                    MessageBox.Show("Student added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            try
+            {
+                var studentToUpdate = await _context.Students.FindAsync(updatedStudent.StudentId);
+                if (studentToUpdate == null)
+                {
+                    ShowMessage("Student not found.", "Error", MessageBoxImage.Error);
+                    return;
+                }
+
+                if (await IsStudentDuplicateAsync(updatedStudent.StudentId))
+                {
+                    ShowMessage("Duplicate student detected.", "Error", MessageBoxImage.Error);
+                    return;
+                }
+
+                studentToUpdate.FirstName = updatedStudent.FirstName;
+                studentToUpdate.LastName = updatedStudent.LastName;
+                studentToUpdate.Email = updatedStudent.Email;
+                studentToUpdate.Program = updatedStudent.Program;
+                studentToUpdate.YearLevel = updatedStudent.YearLevel;
+
+                await _context.SaveChangesAsync();
+
+                UpdateStudentInUI(updatedStudent);
+                ShowMessage("Student updated successfully.", "Success", MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                HandleError("editing student", ex);
+            }
+        }
+
+        // Update student in the ObservableCollection
+        private void UpdateStudentInUI(Student updatedStudent)
+        {
+            var studentInCollection = Students.FirstOrDefault(s => s.StudentId == updatedStudent.StudentId);
+            if (studentInCollection != null)
+            {
+                studentInCollection.FirstName = updatedStudent.FirstName;
+                studentInCollection.LastName = updatedStudent.LastName;
+                studentInCollection.Email = updatedStudent.Email;
+                studentInCollection.Program = updatedStudent.Program;
+                studentInCollection.YearLevel = updatedStudent.YearLevel;
+            }
+        }
+
+        // Delete student
+        public async Task DeleteStudentAsync(Student student)
+        {
+            if (student == null) throw new ArgumentNullException(nameof(student));
+
+            try
+            {
+                var confirmResult = MessageBox.Show($"Are you sure you want to delete the student '{student.FirstName} {student.LastName}'?",
+                    "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (confirmResult == MessageBoxResult.Yes)
+                {
+                    _context.Students.Remove(student);
+                    await _context.SaveChangesAsync();
+
+                    Students.Remove(student);
+                    ShowMessage("Student deleted successfully.", "Success", MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                // Show error message in case of any failure
-                MessageBox.Show($"An error occurred while adding the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                HandleError("deleting student", ex);
             }
         }
 
-        // Method to delete a student
-        public void DeleteStudent(Student student)
+        // Show generic message in MessageBox
+        private void ShowMessage(string message, string caption, MessageBoxImage icon)
         {
-            try
-            {
-                // Confirm deletion
-                if (MessageBox.Show($"Are you sure you want to delete the student '{student.FirstName} {student.LastName}'?",
-                    "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
-                {
-                    using (var context = new ApplicationDbContext())
-                    {
-                        var studentToDelete = context.Students.Find(student.StudentId);
-
-                        if (studentToDelete != null)
-                        {
-                            context.Students.Remove(studentToDelete);
-                            context.SaveChanges();
-
-                            // Remove the student from ObservableCollection
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                Students.Remove(student);
-                            });
-
-                            MessageBox.Show("Student deleted successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while deleting the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
         }
 
-        // Method to edit an existing student
-        public void EditStudent(Student updatedStudent)
+        // Show error message in MessageBox
+        private void HandleError(string action, Exception ex)
         {
-            try
-            {
-                using (var context = new ApplicationDbContext())
-                {
-                    // Find the student by StudentId
-                    var studentToUpdate = context.Students.Find(updatedStudent.StudentId);
-
-                    if (studentToUpdate != null)
-                    {
-                        // Check if another student with the same name, email, or student ID already exists (excluding the current student)
-                        var existingStudent = context.Students
-                            .FirstOrDefault(s =>
-                                ((s.FirstName == updatedStudent.FirstName && s.LastName == updatedStudent.LastName) ||
-                                s.Email == updatedStudent.Email || s.StudentId == updatedStudent.StudentId) &&
-                                s.StudentId != updatedStudent.StudentId); // Ensure StudentId is excluded
-
-                        if (existingStudent != null)
-                        {
-                            // Show a message if a duplicate student is found
-                            MessageBox.Show("A student with the same data already exists.", "Duplicate Student", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            return; // Stop execution if duplicate is found
-                        }
-
-                        // If no duplicate, update the student properties
-                        studentToUpdate.FirstName = updatedStudent.FirstName;
-                        studentToUpdate.LastName = updatedStudent.LastName;
-                        studentToUpdate.Email = updatedStudent.Email;
-                        studentToUpdate.Program = updatedStudent.Program;
-                        studentToUpdate.YearLevel = updatedStudent.YearLevel;
-
-                        // Save changes to the database
-                        context.SaveChanges();
-
-                        // Reflect changes in the ObservableCollection (if necessary)
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            var studentInCollection = Students.FirstOrDefault(s => s.StudentId == updatedStudent.StudentId);
-                            if (studentInCollection != null)
-                            {
-                                studentInCollection.FirstName = updatedStudent.FirstName;
-                                studentInCollection.LastName = updatedStudent.LastName;
-                                studentInCollection.Email = updatedStudent.Email;
-                                studentInCollection.Program = updatedStudent.Program;
-                                studentInCollection.YearLevel = updatedStudent.YearLevel;
-                            }
-                        });
-
-                        MessageBox.Show("Student updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                    }
-                    else
-                    {
-                        // If student is not found
-                        MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Show error message in case of any failure
-                MessageBox.Show($"An error occurred while editing the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            ShowMessage($"An error occurred while {action}: {ex.Message}", "Error", MessageBoxImage.Error);
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
+
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

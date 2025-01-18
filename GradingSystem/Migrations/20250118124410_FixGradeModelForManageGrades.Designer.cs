@@ -4,6 +4,7 @@ using GradingSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GradingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250118124410_FixGradeModelForManageGrades")]
+    partial class FixGradeModelForManageGrades
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,17 +33,9 @@ namespace GradingSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FirstName")
+                    b.Property<string>("ProgramId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Program")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Semester")
                         .IsRequired()
@@ -50,13 +45,21 @@ namespace GradingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("StudentSubjectId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("YearLevel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("GradeId");
 
+                    b.HasIndex("ProgramId");
+
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("StudentSubjectId");
 
                     b.ToTable("Grades");
                 });
@@ -270,13 +273,29 @@ namespace GradingSystem.Migrations
 
             modelBuilder.Entity("GradingSystem.Model.Grade", b =>
                 {
+                    b.HasOne("GradingSystem.Model.Program", "Program")
+                        .WithMany()
+                        .HasForeignKey("ProgramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("GradingSystem.Model.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GradingSystem.Model.StudentSubject", "StudentSubject")
+                        .WithMany()
+                        .HasForeignKey("StudentSubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Program");
+
                     b.Navigation("Student");
+
+                    b.Navigation("StudentSubject");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.GradeRequest", b =>

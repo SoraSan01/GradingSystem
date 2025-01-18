@@ -4,6 +4,7 @@ using GradingSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GradingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250118131352_FromGradesChangeProgramIdToProgram")]
+    partial class FromGradesChangeProgramIdToProgram
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,14 +33,6 @@ namespace GradingSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Program")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -50,6 +45,10 @@ namespace GradingSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("StudentSubjectId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("YearLevel")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -57,6 +56,8 @@ namespace GradingSystem.Migrations
                     b.HasKey("GradeId");
 
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("StudentSubjectId");
 
                     b.ToTable("Grades");
                 });
@@ -276,7 +277,15 @@ namespace GradingSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GradingSystem.Model.StudentSubject", "StudentSubject")
+                        .WithMany()
+                        .HasForeignKey("StudentSubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Student");
+
+                    b.Navigation("StudentSubject");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.GradeRequest", b =>

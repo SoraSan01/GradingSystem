@@ -94,6 +94,8 @@
                 <Setter Property="IsReadOnly" Value="True" />
                 <Setter Property="SelectionMode" Value="Single" />
                 <Setter Property="GridLinesVisibility" Value="None" />
+                <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
                 <Setter Property="ScrollViewer.CanContentScroll" Value="True" />
                 <Setter Property="AutoGenerateColumns" Value="False"/>
             </Style>

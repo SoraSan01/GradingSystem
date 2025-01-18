@@ -33,7 +33,7 @@
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
                                     HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}"
-                                    Foreground="black" Click="dashboardBtn">
+                                    Foreground="black" Click="DashboardBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="ViewDashboardOutline" Foreground="White"/>
                                 </StackPanel>
@@ -43,7 +43,7 @@
                         <!-- Students -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="managestudentBtn">
+            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageStudentsBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="AccountStudentOutline" Foreground="White"/>
                                 </StackPanel>
@@ -53,7 +53,7 @@
                         <!-- Grades -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="gradeBtn">
+            HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageGradesBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="CalculatorVariantOutline" Foreground="White"/>
                                 </StackPanel>
@@ -63,7 +63,7 @@
                         <!-- Program -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="courstBtn">
+HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageCourseBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="FolderOutline" Foreground="White"/>
                                 </StackPanel>
@@ -73,7 +73,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                         <!-- Subject -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="subjectBtn">
+HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageSubjectsBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="BookOutline" Foreground="White"/>
                                 </StackPanel>
@@ -83,7 +83,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                         <!-- Users -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="usersBtn">
+HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageUserBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="UsersOutline" Foreground="White"/>
                                 </StackPanel>
@@ -104,7 +104,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                         <!-- Logout -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0 0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="logoutBtn">
+HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="LogoutBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="ExitToApp" Foreground="White"/>
                                 </StackPanel>
@@ -128,13 +128,13 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                                 <!-- Maximize Button -->
                                 <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="MaximizeButton" Content="{materialDesign:PackIcon Kind=Maximize}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Maximize"/>
                                 <!-- Close Button -->
-                                <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Close"/>
+                                <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="CloseWindow"/>
                             </StackPanel>
                         </Grid>
                     </Grid>
-                    
-                    <Grid Grid.Row="1" Margin="20 20 20 20">
-                        <ContentControl x:Name="MainContent" Height="600" Margin="0 0 0 0" Padding="0 0 0 0"/>
+
+                    <Grid Grid.Row="1" Margin="20">
+                        <ContentControl x:Name="MainContent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0" Padding="0"/>
                     </Grid>
                 </Grid>
             </Grid>
