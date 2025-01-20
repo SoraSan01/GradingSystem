@@ -13,23 +13,18 @@ namespace GradingSystem
         private readonly ApplicationDbContext _context;
 
         private Dashboard _dashboard;
-        private ManageStudents _manageStudents;
-        private ManageGrades _manageGrades;
-        private ManageUser _manageUser;
-        private ManageCourse _manageCourse;
-        private ManageSubjects _manageSubjects;
+        private ManageStudents? _manageStudents;
+        private ManageGrades? _manageGrades;
+        private ManageUser? _manageUser;
+        private ManageCourse? _manageCourse;
+        private ManageSubjects? _manageSubjects;
 
         public MainWindow(ApplicationDbContext context)
         {
             InitializeComponent();
             _context = context;
 
-            // Initialize dashboard
             _dashboard = new Dashboard();
-
-            // Initialize ManageGrades and subscribe to its event
-            _manageGrades = new ManageGrades(_context);
-            // Set initial content to dashboard
             MainContent.Content = _dashboard;
         }
 

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GradingSystem.Model
 {
+    [Table("StudentSubjects")]
     public class StudentSubject
     {
         [Key]
@@ -31,6 +32,16 @@ namespace GradingSystem.Model
         // This ensures the CourseCode is not saved to the database
         [NotMapped]
         public string CourseCode => Subject?.CourseCode;
+
+        // These are the additional properties you need
+        [NotMapped]
+        public string Professor => Subject?.ProfessorName;
+
+        [NotMapped]
+        public string Schedule => Subject?.Schedule;
+
+        [NotMapped]
+        public bool IsGradeLow => Grade < 75;
 
         // Constructor to set CreatedAt
         public StudentSubject()

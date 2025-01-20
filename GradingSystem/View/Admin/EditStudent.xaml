@@ -101,29 +101,22 @@
                                 <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <ComboBox x:Name="courseCmb" Text="{Binding SelectedStudent.Program}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
-                       Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
-                       Grid.Column="0" SelectedValuePath="Content">
-                                <materialDesign:HintAssist.Hint>
-                                    Course
-                                </materialDesign:HintAssist.Hint>
-
-                                <ComboBoxItem>BSCS</ComboBoxItem>
-                                <ComboBoxItem>BSBA</ComboBoxItem>
-                                <ComboBoxItem>BSHM</ComboBoxItem>
+                            <ComboBox x:Name="programCmb" Text="{Binding SelectedStudent.Program}" Style="{StaticResource MaterialDesignOutlinedComboBox}" 
+                       Margin="0,10,20,0" Height="50" Width="300" FontSize="20" ItemsSource="{Binding Programs}" 
+                                      DisplayMemberPath="ProgramName" 
+                                      SelectedValuePath="ProgramId"
+                                      Padding="10 0 10 0"
+                                      Grid.Column="0" materialDesign:HintAssist.Hint="Program">
                             </ComboBox>
 
-                            <ComboBox x:Name="yearCmb" Text="{Binding SelectedStudent.YearLevel}" Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
-                       Margin="0,10,20,0" Height="50" Width="300" FontSize="20"
-                       Grid.Column="1" SelectedValuePath="Content">
-                                <materialDesign:HintAssist.Hint>
-                                    YearLevel
-                                </materialDesign:HintAssist.Hint>
+                            <ComboBox x:Name="yearCmb" Text="{Binding SelectedStudent.YearLevel}" Style="{StaticResource MaterialDesignOutlinedComboBox}" 
+                       Margin="0,10,20,0" Height="50" Width="300" FontSize="20" Padding="10 0 10 0"
+                       Grid.Column="1" SelectedValuePath="Content" materialDesign:HintAssist.Hint="Year Level">
 
-                                <ComboBoxItem>1st Year</ComboBoxItem>
-                                <ComboBoxItem>2nd Year</ComboBoxItem>
-                                <ComboBoxItem>3rd Year</ComboBoxItem>
-                                <ComboBoxItem>4th Year</ComboBoxItem>
+                                <ComboBoxItem>First Year</ComboBoxItem>
+                                <ComboBoxItem>Second Year</ComboBoxItem>
+                                <ComboBoxItem>Third Year</ComboBoxItem>
+                                <ComboBoxItem>Fourth Year</ComboBoxItem>
                             </ComboBox>
                         </Grid>
                     </Grid>

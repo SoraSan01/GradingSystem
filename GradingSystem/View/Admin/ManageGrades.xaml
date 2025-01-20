@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GradingSystem.View.Admin"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:viewModel="clr-namespace:GradingSystem.ViewModel"
+             xmlns:viewModel="clr-namespace:GradingSystem.ViewModel" 
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
     <Grid>
@@ -53,7 +53,11 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource MaterialDesignTextBox}" Width="200" Height="40"/>
+                                            <TextBox 
+                                                Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                                Width="200" 
+                                                Height="40" FontSize="15" Padding="10 0 0 0"
+                                                materialDesign:HintAssist.Hint="Search"/>
                                         </Grid>
                                         <Grid Grid.Column="1">
                                             <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Width="100" Click="AddGradeBtn" >
@@ -63,7 +67,6 @@
                                             </Button>
                                         </Grid>
                                         <Grid Grid.Column="2">
-                                            <Button Content="Print Grades" Width="100" HorizontalAlignment="Left" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Command="{Binding PrintGradesCommand}"/>
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -71,18 +74,13 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="studentsDataGrid"
-                                      CanUserSortColumns="False" CanUserReorderColumns="False" ItemsSource="{Binding Grades}"
-                                      AutoGenerateColumns="False" SelectionMode="Single">
-
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="Background" Value="White"/>
-                                    </Style>
-                                </DataGrid.RowStyle>
+                            <DataGrid x:Name="studentsDataGrid" Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}" ItemsSource="{Binding Students}">
 
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="GradeID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding GradeId}"/>
+                                    <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding StudentId}"/>
                                     <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding StudentName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Year" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="*"/>
@@ -93,14 +91,10 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Margin="0 0 0 0" Style="{StaticResource gridEditButton}" Background="Green" Cursor="Hand" Click="ShowGradeBtn">
+                                                    <Button Margin="0 0 0 0" Style="{StaticResource gridEditButton}" 
+                                                            Background="Green" Cursor="Hand" Click="ShowGradeBtn"
+                                                             >
                                                         <materialDesign:PackIcon Kind="Eye" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridEditButton}">
-                                                        <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
-                                                        <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                 </StackPanel>
                                             </DataTemplate>

@@ -22,12 +22,18 @@ namespace GradingSystem.View.Admin
     public partial class EditStudent : Window
     {
         public Student SelectedStudent { get; set; }
+        public ProgramViewModel ProgramViewModel { get; set; }
 
-        public EditStudent(Student student)
+        public EditStudent(Student student, ProgramViewModel Programs)
         {
             InitializeComponent();
+
+            ProgramViewModel = Programs;
             this.SelectedStudent = student;
             this.DataContext = this;
+
+            programCmb.ItemsSource = ProgramViewModel.Programs;
+
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -47,7 +53,7 @@ namespace GradingSystem.View.Admin
                 {
                     // Call the ViewModel's EditStudent method
                     var viewModel = (StudentsViewModel)this.DataContext;
-                    viewModel.EditStudentAsync(SelectedStudent); // Update the student in the database
+                    _ = viewModel.EditStudentAsync(SelectedStudent); // Update the student in the database
 
                     // Close the window after editing
                     this.Close();

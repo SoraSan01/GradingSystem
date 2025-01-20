@@ -1,10 +1,8 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace GradingSystem.ViewModel
@@ -13,8 +11,8 @@ namespace GradingSystem.ViewModel
     {
         private readonly ApplicationDbContext _context;
 
-        private ObservableCollection<Subject> _subjects;
-        public ObservableCollection<Subject> Subjects
+        private ObservableCollection<Subject>? _subjects;
+        public ObservableCollection<Subject>? Subjects
         {
             get => _subjects;
             set
@@ -23,26 +21,41 @@ namespace GradingSystem.ViewModel
                 {
                     _subjects = value;
                     OnPropertyChanged(nameof(Subjects));
+                    ApplySearch(); // Update filtered list when subjects change
                 }
             }
         }
 
-        // Property for loading status
-        private bool _isLoading;
-        public bool IsLoading
+        private ObservableCollection<Subject>? _filteredSubjects;
+        public ObservableCollection<Subject>? FilteredSubjects
         {
-            get => _isLoading;
+            get => _filteredSubjects;
             set
             {
-                if (_isLoading != value)
+                if (_filteredSubjects != value)
                 {
-                    _isLoading = value;
-                    OnPropertyChanged(nameof(IsLoading));
+                    _filteredSubjects = value;
+                    OnPropertyChanged(nameof(FilteredSubjects));
                 }
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private string? _searchText;
+        public string? SearchText
+        {
+            get => _searchText;
+            set
+            {
+                if (_searchText != value)
+                {
+                    _searchText = value;
+                    OnPropertyChanged(nameof(SearchText));
+                    ApplySearch(); // Update filtered list when search text changes
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
@@ -53,33 +66,37 @@ namespace GradingSystem.ViewModel
         {
             _context = context;
             Subjects = new ObservableCollection<Subject>();
-            IsLoading = false; // Set to false initially
-            LoadSubjectsAsync();
+            FilteredSubjects = new ObservableCollection<Subject>();
+            _ = LoadSubjectsAsync();
         }
 
-        // This method loads subjects asynchronously with better error handling
         public async Task LoadSubjectsAsync()
         {
             try
             {
-                // Set loading indicator
-                IsLoading = true;
-
-                // Use Task.Run to run the database query on a separate thread to prevent UI freezing
                 var subjects = await Task.Run(() => _context.Subjects.ToList());
-
-                // After data is loaded, update the ObservableCollection
                 Subjects = new ObservableCollection<Subject>(subjects);
-
-                // Reset loading indicator
-                IsLoading = false;
+                FilteredSubjects = new ObservableCollection<Subject>(Subjects);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error loading subjects: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-                // Reset loading indicator in case of error
-                IsLoading = false;
+        private void ApplySearch()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                FilteredSubjects = new ObservableCollection<Subject>(Subjects);
+            }
+            else
+            {
+                var lowerSearch = SearchText.ToLower();
+                FilteredSubjects = new ObservableCollection<Subject>(Subjects.Where(s =>
+                    (s.SubjectName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                    (s.ProfessorName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                    (s.Schedule ?? string.Empty).ToLower().Contains(lowerSearch)));
             }
         }
     }

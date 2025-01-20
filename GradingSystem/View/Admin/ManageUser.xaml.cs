@@ -30,5 +30,10 @@ namespace GradingSystem.View.Admin
 
             DataContext = new UserViewModel(_context);
         }
+
+        private void DeleteUserBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

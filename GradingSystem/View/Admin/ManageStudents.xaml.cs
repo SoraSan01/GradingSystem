@@ -19,18 +19,16 @@ namespace GradingSystem.View.Admin
             InitializeComponent();
 
             _context = context;
-            // Initialize the Viewodel
-            students = new StudentsViewModel(_context);
-            // Set the DataContext for binding, if required
+            students = new StudentsViewModel(context);
             DataContext = students;
         }
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            var courseViewModel = new ProgramViewModel(); // Or fetch it from somewhere
+            var programViewModel = new ProgramViewModel(); // Or fetch it from somewhere
 
             // Pass the context when creating the AddStudent window
-            var addStudentWindow = new AddStudent(students, courseViewModel, _context);
+            var addStudentWindow = new AddStudent(students, programViewModel, _context);
 
             // Handle the event when a new student is added
             addStudentWindow.StudentAdded += () =>
@@ -61,12 +59,13 @@ namespace GradingSystem.View.Admin
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
+            var programViewModel = new ProgramViewModel(); // Or fetch it from somewhere
             var selectedStudent = (Student)studentsDataGrid.SelectedItem; // Get selected student
 
             if (selectedStudent != null)
             {
                 // Pass the selected student to the EditStudent window
-                var editWindow = new EditStudent(selectedStudent); // Pass the selected student to the constructor
+                var editWindow = new EditStudent(selectedStudent, programViewModel); // Pass the selected student to the constructor
 
                 // You can also set the DataContext if needed
                 var viewModel = new StudentsViewModel(_context);

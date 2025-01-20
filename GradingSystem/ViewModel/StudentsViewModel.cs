@@ -1,7 +1,6 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -13,10 +12,20 @@ namespace GradingSystem.ViewModel
     public class StudentsViewModel : INotifyPropertyChanged
     {
         private readonly ApplicationDbContext _context;
-
         public ObservableCollection<Student> Students { get; set; }
-        public Student SelectedStudent { get; set; }
 
+        private ObservableCollection<StudentSubject> _studentSubjects = new ObservableCollection<StudentSubject>();
+        public ObservableCollection<StudentSubject> StudentSubjects
+        {
+            get { return _studentSubjects; }
+            set
+            {
+                _studentSubjects = value;
+                OnPropertyChanged(nameof(StudentSubjects));
+            }
+        }
+
+        // Constructor with dependency injection for ApplicationDbContext
         public StudentsViewModel(ApplicationDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -24,26 +33,104 @@ namespace GradingSystem.ViewModel
             LoadStudentsAsync();
         }
 
-        // Load all students asynchronously with error handling
-        public async Task LoadStudentsAsync()
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
         {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        // Select a student and load their subjects
+        public async Task SelectStudentAsync(Student student)
+        {
+            if (student == null)
+            {
+                await ShowMessageAsync("No student selected.", "Error", MessageBoxImage.Error);
+                return;
+            }
+
+            SelectedStudent = student;
+        }
+
+        private Student? _selectedStudent;
+        public Student? SelectedStudent
+        {
+            get => _selectedStudent;
+            set
+            {
+                if (_selectedStudent != value)
+                {
+                    _selectedStudent = value;
+                    OnPropertyChanged(nameof(SelectedStudent));
+                    LoadStudentSubjectsAsync(_selectedStudent.StudentId);
+                }
+            }
+        }
+
+        public async Task LoadStudentSubjectsAsync(string studentId)
+        {
+            if (string.IsNullOrWhiteSpace(studentId)) return;
+
             try
             {
-                var studentList = await _context.Students.ToListAsync();
-                Students.Clear();
-                foreach (var student in studentList)
+                using (var context = new ApplicationDbContext())
                 {
-                    Students.Add(student);
+                    var subjects = await context.StudentSubjects
+                        .Include(ss => ss.Subject)
+                        .Where(ss => ss.StudentId == studentId)
+                        .ToListAsync();
+
+                    StudentSubjects.Clear();
+                    foreach (var subject in subjects)
+                    {
+                        StudentSubjects.Add(subject);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                HandleError("loading students", ex);
+                await HandleErrorAsync("loading subjects", ex);
             }
         }
 
-        // Add a new student with async handling
-        public async Task AddStudentAsync(Student newStudent, string year, string semester, string program)
+
+        // Load student data (general method for both editing and selecting)
+        public async Task LoadStudentDataAsync(Student student)
+        {
+            if (student == null)
+            {
+                await ShowMessageAsync("No student selected.", "Error", MessageBoxImage.Error);
+                return;
+            }
+
+            SelectedStudent = student;
+            await LoadStudentSubjectsAsync(student.StudentId);
+        }
+
+        // Load all students asynchronously and update the UI
+        public async Task LoadStudentsAsync()
+        {
+            using var context = new ApplicationDbContext();
+            try
+            {
+                var studentsList = await context.Students.ToListAsync().ConfigureAwait(false); // Avoid UI thread dependency
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Students.Clear();
+                    foreach (var student in studentsList)
+                    {
+                        Students.Add(student);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                await HandleErrorAsync("loading students", ex);
+            }
+        }
+
+        // Add a new student to the database
+        public async Task AddStudentAsync(Student newStudent, string year, string semester, string programid)
         {
             if (newStudent == null) throw new ArgumentNullException(nameof(newStudent));
 
@@ -51,88 +138,98 @@ namespace GradingSystem.ViewModel
             {
                 if (await IsStudentDuplicateAsync(newStudent.StudentId))
                 {
-                    ShowMessage("Duplicate student found.", "Warning", MessageBoxImage.Warning);
+                    await ShowMessageAsync("Duplicate student found.", "Warning", MessageBoxImage.Warning);
                     return;
                 }
 
                 _context.Students.Add(newStudent);
                 await _context.SaveChangesAsync();
 
-                // Assign grade info to the student
-                await AddStudentGradeInfoAsync(newStudent.StudentId, program, year, semester, newStudent.FirstName, newStudent.LastName);
+                await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, programid);
 
-                // Assign subjects to the student
-                await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, program);
+                Students.Add(newStudent); // ObservableCollection auto-updates the UI.
 
-                Students.Add(newStudent);
-                ShowMessage("Student added successfully.", "Success", MessageBoxImage.Information);
+                await ShowMessageAsync("Student added successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                HandleError("adding student", ex);
+                await HandleErrorAsync("adding student", ex);
             }
         }
 
-        // Check if the student is already registered
+        // Check if a student is a duplicate based on StudentId
         private async Task<bool> IsStudentDuplicateAsync(string studentId)
         {
             return await _context.Students.AnyAsync(s => s.StudentId == studentId);
         }
 
-        // Assign subjects to student
-        private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string program)
+        // Assign subjects to a student after adding them
+        private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string programId)
         {
-            var subjects = await _context.Subjects
-                .Where(s => s.YearLevel == year && s.Semester == semester && s.Program == program)
-                .ToListAsync();
-
-            foreach (var subject in subjects)
+            // Ensure programId is not null or empty
+            if (string.IsNullOrWhiteSpace(programId))
             {
-                var studentSubjectId = $"{studentId}_{subject.SubjectId}";
-                _context.StudentSubjects.Add(new StudentSubject
-                {
-                    StudentId = studentId,
-                    SubjectId = subject.SubjectId,
-                    Id = studentSubjectId
-                });
+                await ShowMessageAsync("Program ID is invalid.", "Error", MessageBoxImage.Error);
+                return;
             }
 
-            await _context.SaveChangesAsync();
-        }
-
-        // Add student's grade info
-        public async Task AddStudentGradeInfoAsync(string studentId, string program, string year, string semester, string Fname, string Lname)
-        {
             try
             {
-                // Check if grade information already exists for this combination of student, program, year, and semester
-                if (await _context.Grades.AnyAsync(g => g.StudentId == studentId && g.Program == program && g.YearLevel == year && g.Semester == semester))
+                // Retrieve the program based on the programId
+                var program = await _context.Programs
+                    .FirstOrDefaultAsync(p => p.ProgramId == programId);
+
+                // Check if the program was found
+                if (program == null)
                 {
-                    ShowMessage("Grade information already exists for this student, program, year, and semester.", "Warning", MessageBoxImage.Warning);
+                    await ShowMessageAsync("Program not found.", "Error", MessageBoxImage.Error);
                     return;
                 }
 
-                var grade = new Grade
-                {
-                    GradeId = Guid.NewGuid().ToString(),
-                    StudentId = studentId,
-                    Program = program,
-                    YearLevel = year,
-                    Semester = semester,
-                    FirstName = Fname,
-                    LastName = Lname
-                };
+                // Fetch subjects based on the given year, semester, and programId
+                var subjects = await _context.Subjects
+                    .Where(s => s.YearLevel == year && s.Semester == semester && s.ProgramId == programId) // Corrected filter to use ProgramId
+                    .ToListAsync();
 
-                _context.Grades.Add(grade);
-                await _context.SaveChangesAsync();
+                // Check if any subjects were found
+                if (!subjects.Any())
+                {
+                    await ShowMessageAsync("No subjects found for the given year, semester, and program.", "Warning", MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Create the StudentSubject entries for each subject found
+                var studentSubjects = subjects.Select(subject => new StudentSubject
+                {
+                    StudentId = studentId,
+                    SubjectId = subject.SubjectId,
+                    Id = $"{studentId}_{subject.SubjectId}"
+                }).ToList();
+
+                // Add the new StudentSubjects to the context
+                _context.StudentSubjects.AddRange(studentSubjects);
+
+                // Save changes to the database
+                var saveResult = await _context.SaveChangesAsync();
+
+                // If no changes were made, notify the user
+                if (saveResult == 0)
+                {
+                    await ShowMessageAsync("No subjects were assigned. Please check the input details and try again.", "Error", MessageBoxImage.Error);
+                    return;
+                }
+
+                // Optionally show a success message with the program name
+                await ShowMessageAsync($"Subjects assigned to the student for program '{program.ProgramName}' successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                HandleError("adding grade information", ex);
+                // Log and display the error
+                await HandleErrorAsync($"Error assigning subjects for program ID {programId}", ex);
             }
         }
 
-        // Edit student details
+        // Edit an existing student
         public async Task EditStudentAsync(Student updatedStudent)
         {
             if (updatedStudent == null) throw new ArgumentNullException(nameof(updatedStudent));
@@ -142,13 +239,7 @@ namespace GradingSystem.ViewModel
                 var studentToUpdate = await _context.Students.FindAsync(updatedStudent.StudentId);
                 if (studentToUpdate == null)
                 {
-                    ShowMessage("Student not found.", "Error", MessageBoxImage.Error);
-                    return;
-                }
-
-                if (await IsStudentDuplicateAsync(updatedStudent.StudentId))
-                {
-                    ShowMessage("Duplicate student detected.", "Error", MessageBoxImage.Error);
+                    await ShowMessageAsync("Student not found.", "Error", MessageBoxImage.Error);
                     return;
                 }
 
@@ -161,15 +252,16 @@ namespace GradingSystem.ViewModel
                 await _context.SaveChangesAsync();
 
                 UpdateStudentInUI(updatedStudent);
-                ShowMessage("Student updated successfully.", "Success", MessageBoxImage.Information);
+
+                await ShowMessageAsync("Student updated successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                HandleError("editing student", ex);
+                await HandleErrorAsync("editing student", ex);
             }
         }
 
-        // Update student in the ObservableCollection
+        // Update the student details in the UI
         private void UpdateStudentInUI(Student updatedStudent)
         {
             var studentInCollection = Students.FirstOrDefault(s => s.StudentId == updatedStudent.StudentId);
@@ -183,7 +275,7 @@ namespace GradingSystem.ViewModel
             }
         }
 
-        // Delete student
+        // Delete a student from the database
         public async Task DeleteStudentAsync(Student student)
         {
             if (student == null) throw new ArgumentNullException(nameof(student));
@@ -199,32 +291,29 @@ namespace GradingSystem.ViewModel
                     await _context.SaveChangesAsync();
 
                     Students.Remove(student);
-                    ShowMessage("Student deleted successfully.", "Success", MessageBoxImage.Information);
+
+                    await ShowMessageAsync("Student deleted successfully.", "Success", MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                HandleError("deleting student", ex);
+                await HandleErrorAsync("deleting student", ex);
             }
         }
 
-        // Show generic message in MessageBox
-        private void ShowMessage(string message, string caption, MessageBoxImage icon)
+        // Centralized method for displaying messages asynchronously
+        private async Task ShowMessageAsync(string message, string caption, MessageBoxImage icon)
         {
-            MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
+            });
         }
 
-        // Show error message in MessageBox
-        private void HandleError(string action, Exception ex)
+        // Centralized error handling method
+        private async Task HandleErrorAsync(string action, Exception ex)
         {
-            ShowMessage($"An error occurred while {action}: {ex.Message}", "Error", MessageBoxImage.Error);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            await ShowMessageAsync($"An error occurred while {action}: {ex.Message}", "Error", MessageBoxImage.Error);
         }
     }
 }

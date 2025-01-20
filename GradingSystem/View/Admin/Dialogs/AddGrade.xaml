@@ -51,6 +51,7 @@
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Descriptive Title" Binding="{Binding Subject.SubjectName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Professor" Binding="{Binding ProfessorName}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Grade" Binding="{Binding Grade}" />
                             </DataGrid.Columns>
                         </DataGrid>

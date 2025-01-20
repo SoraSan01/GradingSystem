@@ -76,7 +76,6 @@ namespace GradingSystem.Data
         {
             modelBuilder.Entity<StudentSubject>()
                 .HasKey(ss => ss.Id);
-            // Additional configurations if necessary
         }
     }
 }

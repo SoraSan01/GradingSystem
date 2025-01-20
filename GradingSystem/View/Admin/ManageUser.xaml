@@ -53,8 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource searchBoxes}" Width="200"
-                                 Height="30">
+                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Width="200"
+                                                     materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0"
+                                                     Height="30">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">
@@ -70,7 +71,10 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="studentsDataGrid" ItemsSource="{Binding Users}">
+                            <DataGrid x:Name="studentsDataGrid" Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}" ItemsSource="{Binding Users}">
 
                                 <DataGrid.Columns>
 
@@ -87,7 +91,7 @@
                                                     <Button Style="{StaticResource gridEditButton}">
                                                         <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
+                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteUserBtn">
                                                         <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                 </StackPanel>

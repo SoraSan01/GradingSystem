@@ -11,9 +11,11 @@ namespace GradingSystem.Model
         public string GradeId { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string FirstName { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string LastName { get; set; }
 
         [Required]
@@ -23,21 +25,21 @@ namespace GradingSystem.Model
         public virtual Student Student { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string Program { get; set; }
 
         [Required]
+        [StringLength(10)]
         public string YearLevel { get; set; }
 
         [Required]
-        public string Semester {  get; set; } 
+        [StringLength(20)]
+        public string Semester { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
-        // Computed property to return the student's name
-        public string StudentName
-        {
-            get { return Student != null ? $"{Student.FirstName} {Student.LastName}" : "Unknown"; }
-        }
+        // Updated StudentName property
+        public string StudentName => $"{FirstName} {LastName}";
 
         public Grade()
         {

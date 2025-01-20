@@ -5,9 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:viewModel="clr-namespace:GradingSystem.ViewModel"
-             xmlns:local="clr-namespace:GradingSystem.View.Admin"
+             xmlns:local="clr-namespace:GradingSystem.View.Admin" 
+             d:DataContext="{d:DesignInstance Type=viewModel:SubjectViewModel}"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1106.25">
+             d:MinHeight="600" d:MinWidth="1106.25">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -23,12 +24,12 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <Border Background="Black" Margin="10 10 10 10" CornerRadius="4">
+            <Border Background="Black" VerticalAlignment="Stretch" Margin="10 10 10 10" CornerRadius="4">
                 <materialDesign:Card Background="White" Height="500">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0" Effect="{StaticResource MaterialDesignElevationShadow1}">
@@ -52,8 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource searchBoxes}" Width="200"
-                                  Height="30">
+                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                                     Width="200" Height="30" materialDesign:HintAssist.Hint="Search" MaxLength="10"
+                                                     Padding="10 0 0 0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">
@@ -68,38 +70,44 @@
                             </materialDesign:Card>
                         </Grid>
 
-                        <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="subjectsDataGrid" ItemsSource="{Binding Subjects}" 
-                                      AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Auto" EnableRowVirtualization="True" 
-                                      EnableColumnVirtualization="True">
+                        <Grid Grid.Row="1" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DataGrid Grid.Row="0" x:Name="subjectsDataGrid" Style="{StaticResource DataGridStyle1}"
+                                          RowStyle="{DynamicResource DataGridRowStyle1}"
+                                          ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                          CellStyle="{DynamicResource DataGridCellStyle1}" 
+                                          HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
+                                          VerticalAlignment="Stretch"
+                                          VerticalScrollBarVisibility="Auto" ItemsSource="{Binding FilteredSubjects}" >
 
-                                <DataGrid.Columns>
-
-                                    <DataGridTextColumn Header="SubjectID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding SubjectId}"/>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="SubjectID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding SubjectId}"/>
+                                    <DataGridTextColumn Header="Course Code" CanUserResize="False" Binding="{Binding CourseCode}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding SubjectName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Schedule" CanUserResize="False" Binding="{Binding LastName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Professor" CanUserResize="False" Binding="{Binding ProfessorName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
+                                        <DataGridTextColumn Header="Schedule" CanUserResize="False" Binding="{Binding Schedule}" IsReadOnly="True" Width="*"/>
+                                        <DataGridTextColumn Header="Professor" CanUserResize="False" Binding="{Binding ProfessorName}" IsReadOnly="True" Width="*"/>
+                                        <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
-                                    <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Button Style="{StaticResource gridEditButton}">
-                                                        <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
-                                                    <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
-                                                        <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button Style="{StaticResource gridEditButton}">
+                                                            <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
+                                                        </Button>
+                                                        <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}">
+                                                            <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
 
-                                </DataGrid.Columns>
+                                    </DataGrid.Columns>
 
-                            </DataGrid>
+                                </DataGrid>
                         </Grid>
 
                     </Grid>

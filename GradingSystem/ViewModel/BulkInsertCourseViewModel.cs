@@ -47,14 +47,14 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                 {
                     Courses.Clear();
 
+                    // Iterate through all worksheets in the Excel package
                     foreach (var worksheet in package.Workbook.Worksheets)
                     {
                         if (worksheet.Dimension == null) continue;
 
                         int rowCount = worksheet.Dimension.Rows;
-                        int colCount = worksheet.Dimension.Columns;
 
-                        string program = "";
+                        Program program = null;
                         string currentYear = "";
                         string currentSemester = "";
 
@@ -63,90 +63,32 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                             string cellValue = worksheet.Cells[row, 1].Text?.Trim();
 
                             // Extract Program Name
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("BACHELOR OF SCIENCE", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("BACHELOR OF SECONDARY EDUCATION", StringComparison.OrdinalIgnoreCase)))
+                            if (IsProgramName(cellValue))
                             {
-                                program = cellValue;
+                                program = await GetProgramByNameAsync(cellValue);
+                                currentYear = ""; // Reset year/semester after program
+                                currentSemester = "";
                                 continue;
                             }
 
                             // Extract Year Level
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("First Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Second Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Third Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Fourth Year", StringComparison.OrdinalIgnoreCase)))
+                            if (IsYearLevel(cellValue))
                             {
                                 currentYear = cellValue;
                                 continue;
                             }
 
                             // Extract Semester
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("First Semester", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Second Semester", StringComparison.OrdinalIgnoreCase)))
+                            if (IsSemester(cellValue))
                             {
                                 currentSemester = cellValue;
                                 continue;
                             }
 
-                            // Parse Course Data
-                            if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester))
+                            // Parse Course Data if Year, Semester, and Program are set
+                            if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester) && program != null)
                             {
-                                string courseCode1 = worksheet.Cells[row, 1].Text?.Trim();
-                                string descriptiveTitle1 = worksheet.Cells[row, 2].Text?.Trim();
-                                string unitsText1 = worksheet.Cells[row, 4].Text?.Trim();
-
-                                string courseCode2 = worksheet.Cells[row, 5].Text?.Trim();
-                                string descriptiveTitle2 = worksheet.Cells[row, 6].Text?.Trim();
-                                string unitsText2 = worksheet.Cells[row, 7].Text?.Trim();
-
-                                // First Semester Data
-                                if (!string.IsNullOrWhiteSpace(courseCode1) && !string.IsNullOrWhiteSpace(descriptiveTitle1))
-                                {
-                                    if (!courseCode1.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        int.TryParse(unitsText1?.Replace("(", "").Replace(")", ""), out int units1);
-
-                                        if (!Courses.Any(c => c.CourseCode == courseCode1 && c.YearLevel == currentYear && c.Semester == "First Semester"))
-                                        {
-                                            Courses.Add(new Subject
-                                            {
-                                                SubjectId = Subject.GenerateSubjectId(descriptiveTitle1, Courses.Select(c => c.SubjectId).ToList()),
-                                                CourseCode = courseCode1,
-                                                SubjectName = descriptiveTitle1,
-                                                Units = units1,
-                                                Program = program,
-                                                YearLevel = currentYear,
-                                                Semester = "First Semester"
-                                            });
-                                        }
-                                    }
-                                }
-
-                                // Second Semester Data
-                                if (!string.IsNullOrWhiteSpace(courseCode2) && !string.IsNullOrWhiteSpace(descriptiveTitle2))
-                                {
-                                    if (!courseCode2.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        int.TryParse(unitsText2?.Replace("(", "").Replace(")", ""), out int units2);
-
-                                        if (!Courses.Any(c => c.CourseCode == courseCode2 && c.YearLevel == currentYear && c.Semester == "Second Semester"))
-                                        {
-                                            Courses.Add(new Subject
-                                            {
-                                                SubjectId = Subject.GenerateSubjectId(descriptiveTitle2, Courses.Select(c => c.SubjectId).ToList()),
-                                                CourseCode = courseCode2,
-                                                SubjectName = descriptiveTitle2,
-                                                Units = units2,
-                                                Program = program,
-                                                YearLevel = currentYear,
-                                                Semester = "Second Semester"
-                                            });
-                                        }
-                                    }
-                                }
+                                ParseCourseData(worksheet, row, program, currentYear, currentSemester);
                             }
                         }
                     }
@@ -159,6 +101,73 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool IsProgramName(string cellValue)
+    {
+        return !string.IsNullOrEmpty(cellValue) &&
+               (cellValue.Contains("BACHELOR OF SCIENCE", StringComparison.OrdinalIgnoreCase) ||
+                cellValue.Contains("BACHELOR OF SECONDARY EDUCATION", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool IsYearLevel(string cellValue)
+    {
+        return !string.IsNullOrEmpty(cellValue) &&
+               (cellValue.Contains("First Year", StringComparison.OrdinalIgnoreCase) ||
+                cellValue.Contains("Second Year", StringComparison.OrdinalIgnoreCase) ||
+                cellValue.Contains("Third Year", StringComparison.OrdinalIgnoreCase) ||
+                cellValue.Contains("Fourth Year", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private bool IsSemester(string cellValue)
+    {
+        return !string.IsNullOrEmpty(cellValue) &&
+               (cellValue.Contains("First Semester", StringComparison.OrdinalIgnoreCase) ||
+                cellValue.Contains("Second Semester", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task<Program> GetProgramByNameAsync(string programName)
+    {
+        return await _context.Programs
+            .FirstOrDefaultAsync(p => EF.Functions.Like(p.ProgramName, programName));
+    }
+
+    private void ParseCourseData(ExcelWorksheet worksheet, int row, Program program, string yearLevel, string semester)
+    {
+        string courseCode1 = worksheet.Cells[row, 1].Text?.Trim();
+        string descriptiveTitle1 = worksheet.Cells[row, 2].Text?.Trim();
+        string unitsText1 = worksheet.Cells[row, 4].Text?.Trim();
+
+        string courseCode2 = worksheet.Cells[row, 5].Text?.Trim();
+        string descriptiveTitle2 = worksheet.Cells[row, 6].Text?.Trim();
+        string unitsText2 = worksheet.Cells[row, 7].Text?.Trim();
+
+        // Process first course
+        AddCourse(courseCode1, descriptiveTitle1, unitsText1, program, yearLevel, semester, "First Semester");
+
+        // Process second course
+        AddCourse(courseCode2, descriptiveTitle2, unitsText2, program, yearLevel, semester, "Second Semester");
+    }
+
+    private void AddCourse(string courseCode, string descriptiveTitle, string unitsText, Program program, string yearLevel, string semester, string semesterType)
+    {
+        if (!string.IsNullOrWhiteSpace(courseCode) && !string.IsNullOrWhiteSpace(descriptiveTitle) && !courseCode.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
+        {
+            int.TryParse(unitsText?.Replace("(", "").Replace(")", ""), out int units);
+
+            if (!Courses.Any(c => c.CourseCode == courseCode && c.YearLevel == yearLevel && c.Semester == semesterType))
+            {
+                Courses.Add(new Subject
+                {
+                    SubjectId = Subject.GenerateSubjectId(descriptiveTitle, Courses.Select(c => c.SubjectId).ToList()),
+                    CourseCode = courseCode,
+                    SubjectName = descriptiveTitle,
+                    Units = units,
+                    Program = program,
+                    YearLevel = yearLevel,
+                    Semester = semesterType
+                });
+            }
+        }
+    }
     private void SaveData(object parameter)
     {
         // Call a method to save data to your database

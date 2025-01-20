@@ -40,6 +40,7 @@ namespace GradingSystem.Model
         public string YearLevel { get; set; }
         public DateTime CreatedAt { get; set; }
 
+        public string StudentName => $"{FirstName} {LastName}";
 
         public Student()
         {

@@ -53,8 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource searchBoxes}" Width="200"
-                                     Height="30">
+                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                                     materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" Width="200"
+                                                     Height="30">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">
@@ -70,7 +71,10 @@
                         </Grid>
 
                         <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="studentsDataGrid" AutoGenerateColumns="False" ItemsSource="{Binding Students}">
+                            <DataGrid x:Name="studentsDataGrid" Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}" ItemsSource="{Binding Students}">
 
                                 <DataGrid.Columns>
 
@@ -78,7 +82,7 @@
                                     <DataGridTextColumn Header="Firstname" CanUserResize="False" Binding="{Binding FirstName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Lastname" CanUserResize="False" Binding="{Binding LastName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Course" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="auto"/>
+                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="Semester" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
