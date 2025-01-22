@@ -48,7 +48,7 @@ namespace GradingSystem.View.Admin
             addCourseWindow.ProgramAdded += () =>
             {
                 // Refresh the list of students when a new student is added
-                Programs.LoadProgramsAsync();
+                _ = Programs.LoadProgramsAsync();
             };
             addCourseWindow.ShowDialog();
         }

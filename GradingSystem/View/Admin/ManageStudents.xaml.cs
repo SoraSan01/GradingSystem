@@ -38,7 +38,7 @@ namespace GradingSystem.View.Admin
             };
 
             // Show the dialog
-            addStudentWindow.ShowDialog();
+            addStudentWindow.Show();
         }
 
         private void deleteStudentBtn(object sender, RoutedEventArgs e)

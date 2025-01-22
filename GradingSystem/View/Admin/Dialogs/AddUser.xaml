@@ -1,10 +1,10 @@
-﻿<Window x:Class="GradingSystem.View.Admin.EditProgram"
+﻿<Window x:Class="GradingSystem.View.Admin.Dialogs.AddUser"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:GradingSystem.View.Admin"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:GradingSystem.View.Admin.Dialogs"
         mc:Ignorable="d" Title="Edit Program"
         WindowStartupLocation="CenterScreen" Width="800" Height="500"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
@@ -30,25 +30,25 @@
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0">
                                         <TextBlock Text="The University of Manila" Foreground="white"
-                                    FontFamily="Tahoma" Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                    FontSize="25" VerticalAlignment="Bottom" TextWrapping="Wrap" TextAlignment="Center"
-                                    HorizontalAlignment="Center"/>
+                            FontFamily="Tahoma" Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                            FontSize="25" VerticalAlignment="Bottom" TextWrapping="Wrap" TextAlignment="Center"
+                            HorizontalAlignment="Center"/>
                                     </Grid>
                                     <Image Grid.Row="1" Source="/Resources/man.png" 
-                            Height="130" Margin="10" 
-                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    Height="130" Margin="10" 
+                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <Grid Grid.Row="2">
                                         <TextBlock Text="Let's get you set Up" Foreground="white"
-                                    FontFamily="Tahoma"
-                                    FontSize="20" Margin="0 0 0 0"
-                                    VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                            FontFamily="Tahoma"
+                            FontSize="20" Margin="0 0 0 0"
+                            VerticalAlignment="Top" HorizontalAlignment="Center"/>
                                         <TextBlock Text="It should just take a few minutes of your time." Foreground="white"
-                                    FontFamily="Tahoma" TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}"
-                                    FontSize="15" Margin="10 40 10 0" TextAlignment="Center"
-                                    VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                            FontFamily="Tahoma" TextWrapping="Wrap" Style="{StaticResource MaterialDesignBody1TextBlock}"
+                            FontSize="15" Margin="10 40 10 0" TextAlignment="Center"
+                            VerticalAlignment="Top" HorizontalAlignment="Center"/>
                                         <Image Grid.Row="1" Source="/Resources/next.png" 
-                                Height="50" Margin="0 20 0 0"
-                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        Height="50" Margin="0 20 0 0"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -69,12 +69,12 @@
                                     <StackPanel Margin="0 0 20 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <!-- Minimize Button -->
                                         <Button Style="{StaticResource MaterialDesignIconButton}" Foreground="black"
-                                 x:Name="MinimizeButton" Content="{materialDesign:PackIcon Kind=Minimize}" 
-                                 Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Minimize"/>
+                         x:Name="MinimizeButton" Content="{materialDesign:PackIcon Kind=Minimize}" 
+                         Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Minimize"/>
                                         <!-- Close Button -->
                                         <Button Style="{StaticResource MaterialDesignIconButton}" Foreground="black"
-                                 x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" 
-                                 Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="CloseWindow"/>
+                         x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=Close}" 
+                         Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="CloseWindow"/>
                                     </StackPanel>
                                 </Grid>
                             </Grid>
@@ -102,37 +102,63 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Program ID -->
-                                        <TextBlock Text="Program ID" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <TextBox x:Name="ProgramIdTxt" Text="{Binding SelectedProgram.ProgramId}"
+                                        <!-- User ID -->
+                                        <TextBlock Text="User ID" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <TextBox x:Name="UserIdTxt"
                                                  Style="{StaticResource MaterialDesignFilledTextBox}" 
-                                         Height="25" Width="200" FontSize="15" HorizontalAlignment="left" Margin="30 0 0 0"
-                                         Grid.Column="1" Grid.Row="2" Padding="10 0 0 0">
+                                                 Height="25" Width="200" FontSize="15" HorizontalAlignment="left" Margin="30 0 0 0"
+                                                 Grid.Column="1" Grid.Row="0" Padding="10 0 0 0">
                                         </TextBox>
 
-                                        <!-- Program Name -->
-                                        <TextBlock Grid.Row="3" Text="Program Name" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <TextBox x:Name="ProgramNameTxt" Text="{Binding SelectedProgram.ProgramName}"
+                                        <!-- First Name -->
+                                        <TextBlock Grid.Row="1" Text="First Name" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <TextBox x:Name="FnameTxt"
                                                  Style="{StaticResource MaterialDesignFilledTextBox}" 
-                                         HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                         Grid.Column="1" Grid.Row="3">
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
+                                                 Grid.Column="1" Grid.Row="1">
                                         </TextBox>
 
-                                        <!-- Program Major -->
-                                        <TextBlock Grid.Row="4" Text="Program Major" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <TextBox x:Name="MajorTxt" Text="{Binding SelectedProgram.Major}"
+                                        <!-- Last Name -->
+                                        <TextBlock Grid.Row="2" Text="Last Name" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <TextBox x:Name="LnameTxt"
                                                  Style="{StaticResource MaterialDesignFilledTextBox}" 
-                                         HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                         Grid.Column="1" Grid.Row="4">
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
+                                                 Grid.Column="1" Grid.Row="2">
                                         </TextBox>
 
-                                        <!-- Description -->
-                                        <TextBlock Grid.Row="5" Text="Description" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <TextBox x:Name="DescriptionTxt" Text="{Binding SelectedProgram.Description}"
+                                        <!-- Email -->
+                                        <TextBlock Grid.Row="3" Text="Email Address" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <TextBox x:Name="EmailTxt"
                                                  Style="{StaticResource MaterialDesignFilledTextBox}" 
-                                         HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                         Grid.Column="1" Grid.Row="5">
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
+                                                 Grid.Column="1" Grid.Row="3">
                                         </TextBox>
+
+                                        <!-- Username -->
+                                        <TextBlock Grid.Row="4" Text="Username" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <TextBox x:Name="UsernameTxt"
+                                                 Style="{StaticResource MaterialDesignFilledTextBox}" 
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
+                                                 Grid.Column="1" Grid.Row="4">
+                                        </TextBox>
+
+                                        <!-- Password -->
+                                        <TextBlock Grid.Row="5" Text="Password" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+                                        <PasswordBox x:Name="PasswordTxt" Style="{StaticResource MaterialDesignFilledRevealPasswordBox}"
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 10 0"
+                                                 Grid.Column="1" Grid.Row="5">
+                                        </PasswordBox>
+
+                                        <!-- Roles -->
+                                        <TextBlock Grid.Row="6" Text="Role" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
+
+                                        <ComboBox x:Name="RoleCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
+                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
+                                                  Grid.Column="1" Grid.Row="6" 
+                                                  SelectedValuePath="Content" Padding="10 0 10 0">
+                                            <ComboBoxItem>Staff</ComboBoxItem>
+                                            <ComboBoxItem>Encoder</ComboBoxItem>
+                                        </ComboBox>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid>
@@ -144,13 +170,13 @@
                                             </Grid.ColumnDefinitions>
                                             <Grid Grid.Column="1">
                                                 <Button VerticalAlignment="Top" Margin="0 0 0 5" Background="Gray"
-                                         Style="{StaticResource MaterialDesignFlatDarkBgButton}" 
-                                         Click="CancelBtn">Cancel</Button>
+                                 Style="{StaticResource MaterialDesignFlatDarkBgButton}" 
+                                 Click="CancelBtn">Cancel</Button>
                                             </Grid>
                                             <Grid Grid.Column="2">
                                                 <Button Margin="5 0 0 0" VerticalAlignment="Top" 
-                                         Style="{StaticResource MaterialDesignFlatDarkBgButton}" 
-                                         Click="SaveBtn">Save</Button>
+                                 Style="{StaticResource MaterialDesignFlatDarkBgButton}" 
+                                 Click="SaveBtn">Save</Button>
                                             </Grid>
                                         </Grid>
                                     </Grid>

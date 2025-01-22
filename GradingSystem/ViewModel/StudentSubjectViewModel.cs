@@ -24,6 +24,26 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
         SaveCommand = new RelayCommand(async () => await SaveGrades(), CanSaveGrades);
     }
 
+    public async Task AddStudentSubjectAsync(StudentSubject studentSubject)
+    {
+        _context.StudentSubjects.Add(studentSubject);
+        await _context.SaveChangesAsync();
+    }
+
+    private string _grade;
+    public string Grade
+    {
+        get { return _grade; }
+        set
+        {
+            if (_grade != value)
+            {
+                _grade = value;
+                OnPropertyChanged(nameof(Grade));
+            }
+        }
+    }
+
     // Method to load subjects asynchronously
     public async Task LoadSubjects(string studentId)
     {
@@ -118,8 +138,14 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
 
     public async Task UpdateGradeAsync(StudentSubject studentSubject)
     {
-        _context.StudentSubjects.Update(studentSubject);
-        await _context.SaveChangesAsync();
+        // Example async method for database updates
+        var existingSubject = await _context.StudentSubjects
+                                             .FirstOrDefaultAsync(ss => ss.Id == studentSubject.Id);
+        if (existingSubject != null)
+        {
+            existingSubject.Grade = studentSubject.Grade;
+            await _context.SaveChangesAsync();
+        }
     }
 
     // Property changed event for data binding

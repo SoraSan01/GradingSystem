@@ -18,6 +18,9 @@ namespace GradingSystem.Model
         [StringLength(255)]
         public string ProgramName { get; set; }
 
+        [StringLength(255)]
+        public string? Major { get; set; }
+
         [Required]
         [StringLength(255)]
         public string Description { get; set; }

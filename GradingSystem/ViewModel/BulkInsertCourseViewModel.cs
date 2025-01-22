@@ -14,17 +14,14 @@ using Microsoft.EntityFrameworkCore;
 public class BulkInsertCourseViewModel : INotifyPropertyChanged
 {
     public ICommand SaveCommand { get; set; }
-
-    public ObservableCollection<Subject> Courses { get; set; }
-
     private readonly ApplicationDbContext _context;
+    public ObservableCollection<Subject> Subject { get; set; }
 
     public BulkInsertCourseViewModel(ApplicationDbContext context)
     {
         _context = context;
-        Courses = new ObservableCollection<Subject>();
+        Subject = new ObservableCollection<Subject>();
         SaveCommand = new RelayCommand(SaveData);
-
     }
 
     public async Task ChooseFileAsync()
@@ -33,151 +30,101 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
 
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
-            Title = "Select an Excel File.",
-            Filter = "Excel Files (*.xlsx; *.xls)|*.xlsx;*.xls"
+            Title = "Select an Excel file.",
+            Filter = "Excel Files (.xlsx;.xls)|*.xlsx;*.xls"
         };
 
         if (openFileDialog.ShowDialog() == true)
         {
             string filepath = openFileDialog.FileName;
 
-            try
+            using (var package = new ExcelPackage(new FileInfo(filepath)))
             {
-                using (var package = new ExcelPackage(new FileInfo(filepath)))
+                Subject.Clear();
+
+
+
+                foreach (var worksheet in package.Workbook.Worksheets)
                 {
-                    Courses.Clear();
+                    int rowCount = worksheet.Dimension.Rows;
 
-                    // Iterate through all worksheets in the Excel package
-                    foreach (var worksheet in package.Workbook.Worksheets)
+                    string currentYear = "";
+                    string currentSemester = "";
+                    string program = "";
+
+                    // Loop through all rows
+                    for (int row = 1; row <= rowCount; row++)
                     {
-                        if (worksheet.Dimension == null) continue;
+                        var cellValue = worksheet.Cells[row, 1].Text?.Trim();
 
-                        int rowCount = worksheet.Dimension.Rows;
-
-                        Program program = null;
-                        string currentYear = "";
-                        string currentSemester = "";
-
-                        for (int row = 1; row <= rowCount; row++)
+                        // Identify Program
+                        if (cellValue?.Contains("BACHELOR OF SCIENCE IN", StringComparison.OrdinalIgnoreCase) == true)
                         {
-                            string cellValue = worksheet.Cells[row, 1].Text?.Trim();
+                            program = cellValue;
+                            continue; // Move to the next row after identifying the program
+                        }
 
-                            // Extract Program Name
-                            if (IsProgramName(cellValue))
-                            {
-                                program = await GetProgramByNameAsync(cellValue);
-                                currentYear = ""; // Reset year/semester after program
-                                currentSemester = "";
+                        // Identify Year Level
+                        if (cellValue?.ToLowerInvariant().Contains("first year") == true ||
+    cellValue?.ToLowerInvariant().Contains("second year") == true ||
+    cellValue?.ToLowerInvariant().Contains("third year") == true ||
+    cellValue?.ToLowerInvariant().Contains("fourth year") == true)
+                        {
+                            currentYear = cellValue;
+                            continue; // Move to the next row after identifying the year level
+                        }
+
+
+                        // Identify Semester
+                        if (cellValue?.Contains("First Semester", StringComparison.OrdinalIgnoreCase) == true ||
+                            cellValue?.Contains("Second Semester", StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            currentSemester = cellValue;
+                            continue; // Move to the next row after identifying the semester
+                        }
+
+                        // Add subject details only when all required fields are identified
+                        if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester) && !string.IsNullOrWhiteSpace(program))
+                        {
+                            var courseCode = worksheet.Cells[row, 1].Text?.Trim();
+                            var descriptiveTitle = worksheet.Cells[row, 2].Text?.Trim();
+                            var unitsText = worksheet.Cells[row, 4].Text?.Trim();
+
+                            // Skip rows with invalid course data
+                            if (string.IsNullOrWhiteSpace(courseCode) || string.IsNullOrWhiteSpace(descriptiveTitle))
                                 continue;
-                            }
 
-                            // Extract Year Level
-                            if (IsYearLevel(cellValue))
-                            {
-                                currentYear = cellValue;
+                            // Skip headers or irrelevant data
+                            if (courseCode.Contains("Course Code") || descriptiveTitle.Contains("Descriptive Title") || descriptiveTitle.Contains("UNITS"))
                                 continue;
-                            }
 
-                            // Extract Semester
-                            if (IsSemester(cellValue))
-                            {
-                                currentSemester = cellValue;
-                                continue;
-                            }
+                            // Parse units
+                            int.TryParse(unitsText, out int units);
 
-                            // Parse Course Data if Year, Semester, and Program are set
-                            if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester) && program != null)
+                            // Add subject to the ObservableCollection
+                            Subject.Add(new Subject
                             {
-                                ParseCourseData(worksheet, row, program, currentYear, currentSemester);
-                            }
+                                CourseCode = courseCode,
+                                SubjectName = descriptiveTitle,
+                                Units = units,
+                                ProgramId = program,
+                                YearLevel = currentYear,
+                                Semester = currentSemester
+                            });
                         }
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while processing the file: {ex.Message}");
-            }
+
+            MessageBox.Show("Data extraction completed successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 
-    private bool IsProgramName(string cellValue)
-    {
-        return !string.IsNullOrEmpty(cellValue) &&
-               (cellValue.Contains("BACHELOR OF SCIENCE", StringComparison.OrdinalIgnoreCase) ||
-                cellValue.Contains("BACHELOR OF SECONDARY EDUCATION", StringComparison.OrdinalIgnoreCase));
-    }
-
-    private bool IsYearLevel(string cellValue)
-    {
-        return !string.IsNullOrEmpty(cellValue) &&
-               (cellValue.Contains("First Year", StringComparison.OrdinalIgnoreCase) ||
-                cellValue.Contains("Second Year", StringComparison.OrdinalIgnoreCase) ||
-                cellValue.Contains("Third Year", StringComparison.OrdinalIgnoreCase) ||
-                cellValue.Contains("Fourth Year", StringComparison.OrdinalIgnoreCase));
-    }
-
-    private bool IsSemester(string cellValue)
-    {
-        return !string.IsNullOrEmpty(cellValue) &&
-               (cellValue.Contains("First Semester", StringComparison.OrdinalIgnoreCase) ||
-                cellValue.Contains("Second Semester", StringComparison.OrdinalIgnoreCase));
-    }
-
-    private async Task<Program> GetProgramByNameAsync(string programName)
-    {
-        return await _context.Programs
-            .FirstOrDefaultAsync(p => EF.Functions.Like(p.ProgramName, programName));
-    }
-
-    private void ParseCourseData(ExcelWorksheet worksheet, int row, Program program, string yearLevel, string semester)
-    {
-        string courseCode1 = worksheet.Cells[row, 1].Text?.Trim();
-        string descriptiveTitle1 = worksheet.Cells[row, 2].Text?.Trim();
-        string unitsText1 = worksheet.Cells[row, 4].Text?.Trim();
-
-        string courseCode2 = worksheet.Cells[row, 5].Text?.Trim();
-        string descriptiveTitle2 = worksheet.Cells[row, 6].Text?.Trim();
-        string unitsText2 = worksheet.Cells[row, 7].Text?.Trim();
-
-        // Process first course
-        AddCourse(courseCode1, descriptiveTitle1, unitsText1, program, yearLevel, semester, "First Semester");
-
-        // Process second course
-        AddCourse(courseCode2, descriptiveTitle2, unitsText2, program, yearLevel, semester, "Second Semester");
-    }
-
-    private void AddCourse(string courseCode, string descriptiveTitle, string unitsText, Program program, string yearLevel, string semester, string semesterType)
-    {
-        if (!string.IsNullOrWhiteSpace(courseCode) && !string.IsNullOrWhiteSpace(descriptiveTitle) && !courseCode.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
-        {
-            int.TryParse(unitsText?.Replace("(", "").Replace(")", ""), out int units);
-
-            if (!Courses.Any(c => c.CourseCode == courseCode && c.YearLevel == yearLevel && c.Semester == semesterType))
-            {
-                Courses.Add(new Subject
-                {
-                    SubjectId = Subject.GenerateSubjectId(descriptiveTitle, Courses.Select(c => c.SubjectId).ToList()),
-                    CourseCode = courseCode,
-                    SubjectName = descriptiveTitle,
-                    Units = units,
-                    Program = program,
-                    YearLevel = yearLevel,
-                    Semester = semesterType
-                });
-            }
-        }
-    }
-    private void SaveData(object parameter)
-    {
-        // Call a method to save data to your database
-        SaveCoursesToDatabase();
-    }
     private async void SaveCoursesToDatabase()
     {
         try
         {
-            foreach (var course in Courses)
+            foreach (var course in Subject)
             {
                 // Check if the subject already exists in the database (optional)
                 var existingCourse = await _context.Subjects
@@ -210,6 +157,12 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
         {
             MessageBox.Show($"An unexpected error occurred: {ex.Message}");
         }
+    }
+
+    private void SaveData(object parameter)
+    {
+        // Call a method to save data to your database
+        SaveCoursesToDatabase();
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

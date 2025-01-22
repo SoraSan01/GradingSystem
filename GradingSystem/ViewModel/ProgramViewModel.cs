@@ -50,9 +50,9 @@ namespace GradingSystem.ViewModel
             Programs = new ObservableCollection<Program>();
 
             // Load data (this can be from your database or a static list for testing)
-            
-            
-            LoadProgramsAsync();
+
+
+            _ = LoadProgramsAsync();
         }
 
         public async Task LoadProgramsAsync()
@@ -123,7 +123,7 @@ namespace GradingSystem.ViewModel
                     // Update the properties of the found program
                     programToUpdate.ProgramName = program.ProgramName;
                     programToUpdate.Description = program.Description;
-
+                    programToUpdate.Major = program.Major;
                     // Save changes to the database
                     context.SaveChanges();
 

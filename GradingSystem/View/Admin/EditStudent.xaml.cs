@@ -76,5 +76,64 @@ namespace GradingSystem.View.Admin
                 this.DragMove();
             }
         }
+
+        private void IdTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsDigit(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void FnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void LnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void emailTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 50))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void CancelBtn(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -43,7 +43,8 @@ namespace GradingSystem.View.Admin
 
             if (string.IsNullOrWhiteSpace(ProgramIdTxt.Text?.Trim()) ||
                 string.IsNullOrWhiteSpace(ProgramNameTxt.Text?.Trim()) ||
-                string.IsNullOrWhiteSpace(DescriptionTxt.Text?.Trim()))
+                string.IsNullOrWhiteSpace(DescriptionTxt.Text?.Trim()) ||
+                string.IsNullOrWhiteSpace(MajorTxt.Text?.Trim()))
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -59,6 +60,7 @@ namespace GradingSystem.View.Admin
                         ProgramId = ProgramIdTxt.Text.Trim(),
                         ProgramName = ProgramNameTxt.Text.Trim(),
                         Description = DescriptionTxt.Text.Trim(),
+                        Major = MajorTxt.Text.Trim(),
                     };
 
                     ViewModel.AddProgram(newProgram);
@@ -82,20 +84,27 @@ namespace GradingSystem.View.Admin
             }
         }
 
-        private void Close(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                this.Close();
-            }
-        }
-
         private void clear()
         {
             ProgramNameTxt.Clear();
             ProgramIdTxt.Clear();
             DescriptionTxt.Clear();
+            MajorTxt.Clear();
+        }
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void CancelBtn(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

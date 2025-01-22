@@ -81,7 +81,7 @@ namespace GradingSystem.View.Admin
                         Roles = rolesCmb.SelectedValue?.ToString(),
                     };
 
-                    ViewModel.AddUser(newUser);
+                    ViewModel.AddUserAsync(newUser);
 
                     UserAdded?.Invoke();
                     MessageBox.Show("User added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);

@@ -28,7 +28,7 @@ namespace GradingSystem.View.Admin
             InitializeComponent();
 
             _viewModel = new BulkInsertCourseViewModel(context);
-            DataContext = _viewModel;
+            this.DataContext = new BulkInsertCourseViewModel(new ApplicationDbContext());
         }
 
         private async void BrowseBtn(object sender, RoutedEventArgs e)

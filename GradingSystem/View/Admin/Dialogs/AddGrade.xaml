@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:GradingSystem.View.Admin.Dialogs" 
-        mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" Height="300" Width="700"
+        mc:Ignorable="d" Title="Show Grade"
+        WindowStartupLocation="CenterScreen" Height="700" Width="900"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
 
     <Grid>
@@ -19,42 +19,144 @@
                     </Grid.ColumnDefinitions>
 
                     <Grid>
-                        <materialDesign:Card Background="Green">
+                        <materialDesign:Card Background="DarkGreen">
                             <Grid>
                                 <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
                                 <Grid>
-                                    <TextBox x:Name="idTxt"  Style="{StaticResource MaterialDesignOutlinedTextBox}" 
-                                             Margin="0 0 0 0" Height="40" Width="130" FontSize="15" Padding="5 0 0 0" Background="White"
-                                             Grid.Column="1" MaxLength="15" KeyDown="StudentIdTxt_KeyDown">
-                                        <materialDesign:HintAssist.Hint>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="Student ID" VerticalAlignment="Center"/>
-                                            </StackPanel>
-                                        </materialDesign:HintAssist.Hint>
-                                    </TextBox>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0">
+                                            <TextBox x:Name="idTxt"  Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                                     Margin="0 0 0 0" Height="40" Width="130" FontSize="15" 
+                                                     Padding="5 0 0 0" Background="White"
+                                                     Grid.Row="1" MaxLength="15" KeyDown="StudentIdTxt_KeyDown">
+                                                <materialDesign:HintAssist.Hint>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Student ID" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </materialDesign:HintAssist.Hint>
+                                            </TextBox>
+                                        </Grid>
+                                        <Grid Grid.Row="1">
+                                            <TextBlock x:Name="studentNameTxt" Text="Jim Ernest Concepcion" Foreground="White" HorizontalAlignment="Center" 
+               VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
+               Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                                        </Grid>
+                                        <Grid Grid.Row="2">
+                                            <TextBlock x:Name="courseTxt" Text="Computer Science" Foreground="White" HorizontalAlignment="Center" 
+               VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
+               Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                                        </Grid>
+                                        <Grid Grid.Row="3">
+                                            <TextBlock x:Name="semesterTxt" Text="First Semester" Foreground="White" HorizontalAlignment="Center" 
+               VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
+               Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                                        </Grid>
+                                        <Grid Grid.Row="4">
+                                            <TextBlock x:Name="yearLevelTxt" Text="First Year" Foreground="White" HorizontalAlignment="Center" 
+               VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
+               Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                                        </Grid>
+                                        <Grid Grid.Row="5">
+                                            <TextBlock x:Name="scholarshipTxt" Text="Scholar" Foreground="White" HorizontalAlignment="Center" 
+               VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
+               Style="{StaticResource MaterialDesignBody1TextBlock}"/>
+                                        </Grid>
+
+                                    </Grid>
                                 </Grid>
                             </Grid>
                         </materialDesign:Card>
                     </Grid>
                     <Grid Grid.Column="1">
-                        <DataGrid ItemsSource="{Binding StudentSubjects}" 
-                                  AutoGenerateColumns="False" 
-                                  CanUserAddRows="False" 
-                                  CanUserDeleteRows="False"
-                                  IsReadOnly="False" CellEditEnding="DataGrid_CellEditEnding">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Descriptive Title" Binding="{Binding Subject.SubjectName}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Professor" Binding="{Binding ProfessorName}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Grade" Binding="{Binding Grade}" />
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <DataGrid ItemsSource="{Binding StudentSubjects}"  Style="{StaticResource DataGridStyle1}"
+                                          RowStyle="{DynamicResource DataGridRowStyle1}" x:Name="StudentSubjectDatagrid"
+                                          ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                          CellStyle="{DynamicResource DataGridCellStyle1}" 
+                                          HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
+                                          VerticalAlignment="Stretch"
+                                          VerticalScrollBarVisibility="Auto" CellEditEnding="DataGrid_CellEditEnding">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Descriptive Title" Binding="{Binding Subject.SubjectName}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Professor" Binding="{Binding ProfessorName}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Grade" Binding="{Binding Grade}" IsReadOnly="False">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Setter Property="Background" Value="White"/>
+                                                <Setter Property="Foreground" Value="Black"/>
+                                                <Setter Property="Padding" Value="10"/>
+                                                <Setter Property="Height" Value="30"/>
+                                                <Setter Property="BorderBrush" Value="DarkGray"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <materialDesign:Card Background="DarkGreen">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="220"/>
+                                            <ColumnDefinition Width="170"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Grid.Column="0" Background="White" Margin="10" Width="200" HorizontalAlignment="Left"
+                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                                 materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0">
+                                        </TextBox>
+
+                                        <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Background="Green"
+                                                Width="150" Grid.Column="1" HorizontalAlignment="Left" Click="AddSubjectBtn" >
+                                            <TextBlock Text="ADD SUB"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Background="DarkRed"
+                                                Width="150" Grid.Column="2" HorizontalAlignment="Left" >
+                                            <TextBlock Text="REMOVE SUB"/>
+                                        </Button>
+                                    </Grid>
+                                </materialDesign:Card>
+                            </Grid>
+                            <DataGrid ItemsSource="{Binding FilteredSubjects}" x:Name="SubjectListDataGrid" Style="{StaticResource DataGridStyle1}"
+                                          RowStyle="{DynamicResource DataGridRowStyle1}"
+                                          ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                          CellStyle="{DynamicResource DataGridCellStyle1}" 
+                                          HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
+                                          VerticalAlignment="Stretch"
+                                          VerticalScrollBarVisibility="Auto" CellEditEnding="DataGrid_CellEditEnding">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ID" Binding="{Binding SubjectId}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Descriptive Title" Binding="{Binding SubjectName}" IsReadOnly="True"/>
+                                    <DataGridTextColumn Header="Professor" Binding="{Binding ProfessorName}" IsReadOnly="True"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </Grid>
                 </Grid>
             </materialDesign:Card>

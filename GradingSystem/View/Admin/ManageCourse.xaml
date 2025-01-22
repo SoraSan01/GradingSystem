@@ -87,6 +87,7 @@
                                     <DataGridTextColumn Header="ProgramID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding ProgramId}"/>
                                     <DataGridTextColumn Header="ProgramName" CanUserResize="False" Binding="{Binding ProgramName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Description" CanUserResize="False" Binding="{Binding Description}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Major" CanUserResize="False" Binding="{Binding Major}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >

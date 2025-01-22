@@ -28,7 +28,6 @@ namespace GradingSystem.Model
         [ForeignKey("Program")]
         public string ProgramId { get; set; }  // The ProgramId links to the Program
 
-        // Navigation property to the Program model
         public Program Program { get; set; }
 
         public string YearLevel { get; set; }

@@ -30,7 +30,7 @@ namespace GradingSystem.ViewModel
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             Students = new ObservableCollection<Student>();
-            LoadStudentsAsync();
+            _ = LoadStudentsAsync();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -130,7 +130,7 @@ namespace GradingSystem.ViewModel
         }
 
         // Add a new student to the database
-        public async Task AddStudentAsync(Student newStudent, string year, string semester, string programid)
+        public async Task AddStudentAsync(Student newStudent, string year, string semester, string programId, string status)
         {
             if (newStudent == null) throw new ArgumentNullException(nameof(newStudent));
 
@@ -138,22 +138,33 @@ namespace GradingSystem.ViewModel
             {
                 if (await IsStudentDuplicateAsync(newStudent.StudentId))
                 {
-                    await ShowMessageAsync("Duplicate student found.", "Warning", MessageBoxImage.Warning);
+                    await ShowMessageAsync("A student with this ID already exists.", "Duplicate Entry", MessageBoxImage.Warning);
                     return;
                 }
 
+                // Validate the program ID
+                var program = await _context.Programs.FirstOrDefaultAsync(p => p.ProgramId == programId);
+                if (program == null)
+                {
+                    await ShowMessageAsync("Selected program does not exist.", "Error", MessageBoxImage.Error);
+                    return;
+                }
+
+                // Add the student
                 _context.Students.Add(newStudent);
                 await _context.SaveChangesAsync();
 
-                await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, programid);
+                // Assign subjects to the student
+                await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, programId);
 
-                Students.Add(newStudent); // ObservableCollection auto-updates the UI.
+                // Update the ObservableCollection on the UI thread
+                Application.Current.Dispatcher.Invoke(() => Students.Add(newStudent));
 
-                await ShowMessageAsync("Student added successfully.", "Success", MessageBoxImage.Information);
+                await ShowMessageAsync("Student added and subjects assigned successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                await HandleErrorAsync("adding student", ex);
+                await HandleErrorAsync("adding the student", ex);
             }
         }
 
@@ -166,66 +177,39 @@ namespace GradingSystem.ViewModel
         // Assign subjects to a student after adding them
         private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string programId)
         {
-            // Ensure programId is not null or empty
-            if (string.IsNullOrWhiteSpace(programId))
+            if (string.IsNullOrWhiteSpace(studentId) || string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(semester) || string.IsNullOrWhiteSpace(programId))
             {
-                await ShowMessageAsync("Program ID is invalid.", "Error", MessageBoxImage.Error);
+                await ShowMessageAsync("Invalid input for assigning subjects.", "Error", MessageBoxImage.Error);
                 return;
             }
 
             try
             {
-                // Retrieve the program based on the programId
-                var program = await _context.Programs
-                    .FirstOrDefaultAsync(p => p.ProgramId == programId);
-
-                // Check if the program was found
-                if (program == null)
-                {
-                    await ShowMessageAsync("Program not found.", "Error", MessageBoxImage.Error);
-                    return;
-                }
-
-                // Fetch subjects based on the given year, semester, and programId
                 var subjects = await _context.Subjects
-                    .Where(s => s.YearLevel == year && s.Semester == semester && s.ProgramId == programId) // Corrected filter to use ProgramId
+                    .Where(s => s.YearLevel == year && s.Semester == semester && s.ProgramId == programId)
                     .ToListAsync();
 
-                // Check if any subjects were found
                 if (!subjects.Any())
                 {
-                    await ShowMessageAsync("No subjects found for the given year, semester, and program.", "Warning", MessageBoxImage.Warning);
+                    await ShowMessageAsync("No matching subjects found for the selected year, semester, and program.", "Warning", MessageBoxImage.Warning);
                     return;
                 }
 
-                // Create the StudentSubject entries for each subject found
-                var studentSubjects = subjects.Select(subject => new StudentSubject
+                var studentSubjects = subjects.Select(s => new StudentSubject
                 {
                     StudentId = studentId,
-                    SubjectId = subject.SubjectId,
-                    Id = $"{studentId}_{subject.SubjectId}"
+                    SubjectId = s.SubjectId,
+                    Id = $"{studentId}_{s.SubjectId}"
                 }).ToList();
 
-                // Add the new StudentSubjects to the context
                 _context.StudentSubjects.AddRange(studentSubjects);
+                await _context.SaveChangesAsync();
 
-                // Save changes to the database
-                var saveResult = await _context.SaveChangesAsync();
-
-                // If no changes were made, notify the user
-                if (saveResult == 0)
-                {
-                    await ShowMessageAsync("No subjects were assigned. Please check the input details and try again.", "Error", MessageBoxImage.Error);
-                    return;
-                }
-
-                // Optionally show a success message with the program name
-                await ShowMessageAsync($"Subjects assigned to the student for program '{program.ProgramName}' successfully.", "Success", MessageBoxImage.Information);
+                await ShowMessageAsync($"Successfully assigned {subjects.Count} subjects to the student.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                // Log and display the error
-                await HandleErrorAsync($"Error assigning subjects for program ID {programId}", ex);
+                await HandleErrorAsync("assigning subjects", ex);
             }
         }
 

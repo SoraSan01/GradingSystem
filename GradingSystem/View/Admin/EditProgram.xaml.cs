@@ -49,7 +49,10 @@ namespace GradingSystem.View.Admin
         private void SaveBtn(object sender, RoutedEventArgs e)
         {
             // Validate the input values
-            if (string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.ProgramName) || string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.Description))
+            if (string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.ProgramName) ||
+                string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.Description) ||
+                string.IsNullOrEmpty(ViewModel.SelectedProgram.ProgramId)
+                )
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -62,13 +65,23 @@ namespace GradingSystem.View.Admin
             this.Close();
         }
 
-        private void Close(object sender, RoutedEventArgs e)
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
                 this.Close();
             }
+        }
+
+        private void CancelBtn(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

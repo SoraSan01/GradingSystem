@@ -12,7 +12,7 @@ namespace GradingSystem.View.Admin
     public partial class AddStudent : Window
     {
         public StudentsViewModel ViewModel { get; set; }
-        public ProgramViewModel ProgramViewModel { get; set; }
+        public ProgramViewModel Program { get; set; }
 
         public event Action StudentAdded;
 
@@ -23,20 +23,11 @@ namespace GradingSystem.View.Admin
         {
             InitializeComponent();
             ViewModel = viewModel;
-            ProgramViewModel = programViewModel;
+            Program = programViewModel;
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
-            programCmb.ItemsSource = ProgramViewModel.Programs;
+            programCmb.ItemsSource = Program.Programs;
             DataContext = ViewModel;
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-            {
-                this.Close();
-            }
         }
 
         private async void AddStudentBtn(object sender, RoutedEventArgs e)
@@ -51,18 +42,25 @@ namespace GradingSystem.View.Admin
                 var newStudent = CreateStudent();
                 string year = yearCmb.SelectedValue?.ToString();
                 string semester = semesterCmb.SelectedValue?.ToString();
-                string program = programCmb.SelectedValue?.ToString();
+                string programId = programCmb.SelectedValue?.ToString();
+                string status = scholarCmb.SelectedValue?.ToString();
 
-                // Pass year and semester to AddStudentAsync
-                await ViewModel.AddStudentAsync(newStudent, year, semester, program);
+                if (string.IsNullOrWhiteSpace(programId))
+                {
+                    MessageBox.Show("Please select a valid program.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-                StudentAdded?.Invoke();
+                await ViewModel.AddStudentAsync(newStudent, year, semester, programId, status);
+
+                StudentAdded?.Invoke(); // Notify parent component
                 clear();
+                MessageBox.Show("Student added successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"An error occurred while adding the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -92,9 +90,10 @@ namespace GradingSystem.View.Admin
                 Email = emailTxt.Text.Trim(),
                 FirstName = FnameTxt.Text.Trim(),
                 LastName = LnameTxt.Text.Trim(),
-                Program = programCmb.SelectedValue?.ToString(),
+                ProgramId = programCmb.SelectedValue?.ToString(),
                 YearLevel = yearCmb.SelectedValue?.ToString(),
                 Semester = semesterCmb.SelectedValue?.ToString(),
+                Status = scholarCmb.SelectedValue?.ToString()
             };
         }
 
@@ -118,6 +117,69 @@ namespace GradingSystem.View.Admin
             {
                 this.DragMove();
             }
+        }
+
+        private void FnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void LnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void IdTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 15 || !char.IsDigit(e.Text, 0)))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                this.Close();
+            }
+        }
+
+        private void emailTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            // Check if text length exceeds the limit or if the character is not a letter
+            if (textBox != null && (textBox.Text.Length >= 50))
+            {
+                e.Handled = true; // Prevent further input if either condition is met
+            }
+        }
+
+        private void CancelBtn(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

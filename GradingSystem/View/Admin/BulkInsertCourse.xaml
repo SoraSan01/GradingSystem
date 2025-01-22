@@ -20,7 +20,7 @@
                     <Border Background="Black" Margin="05 05 05 05" CornerRadius="5" Width="800" HorizontalAlignment="Left">
                         <materialDesign:Card Effect="{StaticResource MaterialDesignElevationShadow1}" Width="auto">
 
-                            <DataGrid ItemsSource="{Binding Courses}" Style="{StaticResource DataGridStyle1}"
+                            <DataGrid x:Name="SubjectDataGrid" ItemsSource="{Binding Subject}" Style="{StaticResource DataGridStyle1}"
                                       RowStyle="{DynamicResource DataGridRowStyle1}"
                                       ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
                                       CellStyle="{DynamicResource DataGridCellStyle1}">

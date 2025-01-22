@@ -13,12 +13,15 @@ namespace GradingSystem.View.Admin.Dialogs
 {
     public partial class ShowGrade : Window
     {
+        public string CurrentDate => DateTime.Now.ToString("MM/dd/yyyy hh:mm tt");
+
         private readonly ApplicationDbContext _context;
         public StudentsViewModel students { get; set; }
 
         public ShowGrade(Student student, ApplicationDbContext context)
         {
             InitializeComponent();
+            DateText.DataContext = CurrentDate;
             _context = context;
 
             // Initialize the ViewModel
@@ -59,7 +62,7 @@ namespace GradingSystem.View.Admin.Dialogs
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Close();
+            this.Close();
         }
 
         private void PrintButton_Click(object sender, RoutedEventArgs e)
@@ -71,6 +74,14 @@ namespace GradingSystem.View.Admin.Dialogs
         private void PrintDialog()
         {
             PrintDialog printDialog = new PrintDialog();
+
+            // Find the buttons you want to exclude from printing
+            var closeButton = CloseButton; // Assuming CloseButton is the x:Name of the close button
+            var printButton = PrintButton; // Assuming PrintButton is the x:Name of the print button
+
+            // Temporarily hide the buttons
+            closeButton.Visibility = Visibility.Collapsed;
+            printButton.Visibility = Visibility.Collapsed;
 
             if (printDialog.ShowDialog() == true)
             {
@@ -116,7 +127,10 @@ namespace GradingSystem.View.Admin.Dialogs
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // Initially print the content when the window is loaded
+        }
+
+        private void PrintBtn(object sender, RoutedEventArgs e)
+        {
             PrintDialog();
         }
     }

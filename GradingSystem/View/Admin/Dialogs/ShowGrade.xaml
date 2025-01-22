@@ -8,200 +8,228 @@
         xmlns:viewmodel="clr-namespace:GradingSystem.ViewModel" 
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" Height="641" Width="700"
+        WindowStartupLocation="CenterScreen" Height="740" Width="700"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown" Loaded="Window_Loaded">
     <Grid>
-        <Border Background="Black" Padding="1" CornerRadius="3">
-            <materialDesign:Card>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="100"/>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Header Section -->
-                    <Grid Grid.Row="0" Background="#2E7D32" Width="Auto">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Logo Section -->
-                        <Image Source="/Resources/um-logo.png" Width="90" Height="90" 
-                               HorizontalAlignment="Left" Grid.Column="0" Margin="5"
-                               VerticalAlignment="Top"/>
-
-                        <!-- Title and Text Section -->
-                        <StackPanel HorizontalAlignment="Left" Margin="0,10,0,10" Grid.Column="1">
-                            <TextBlock Text="The University of Manila" FontSize="26" Foreground="White" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,5"/>
-                            <TextBlock Text="546 Mariano V. delos Santos Street, Sampaloc Manila, Philippines 1008"
-                                       FontSize="14"
-                                       Foreground="White"
-                                       HorizontalAlignment="Left" Margin="0,2" TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <!-- Right-side Extra Info Section -->
-                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Grid.Column="2">
-                            <TextBlock Text="Contact: 8735-5085" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
-                            <TextBlock Text="Website: http://www.um.edu.ph" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
-                            <TextBlock Text="Email: umnla.edu.ph@gmail.com" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <!-- Title Section -->
-                    <Grid Grid.Row="1">
-                        <Border>
-                            <materialDesign:Card Background="#388E3C" Margin="0,5">
-                                <Grid>
-                                    <TextBlock Text="Grade Verification" FontSize="22" Foreground="white"
-                                               Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                               Style="{StaticResource MaterialDesignCaptionTextBlock}"/>
-                                </Grid>
-                            </materialDesign:Card>
-                        </Border>
-                    </Grid>
-
-                    <!-- Content Section -->
-                    <Grid Grid.Row="2">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="70"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" x:Name="GradePrintPreview">
+                <Border Background="Black" Padding="1" CornerRadius="3">
+                    <materialDesign:Card>
                         <Grid>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="750"/>
+                                <RowDefinition Height="100"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Student Information Section -->
-                            <Grid Grid.Row="0" Margin="0,0,0,520">
-                                <Border Margin="10,10,10,115" CornerRadius="5" BorderBrush="#BDBDBD" BorderThickness="1">
-                                    <materialDesign:Card Background="White" Margin="0,0,0,0">
+                            <!-- Header Section -->
+                            <Grid Grid.Row="0" Background="#2E7D32" Width="Auto">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Logo Section -->
+                                <Image Source="/Resources/um-logo.png" Width="90" Height="90" 
+                       HorizontalAlignment="Left" Grid.Column="0" Margin="5"
+                       VerticalAlignment="Top"/>
+
+                                <!-- Title and Text Section -->
+                                <StackPanel HorizontalAlignment="Left" Margin="0,10,0,10" Grid.Column="1">
+                                    <TextBlock Text="The University of Manila" FontSize="26" Foreground="White" FontWeight="Bold" HorizontalAlignment="Left" Margin="0,5"/>
+                                    <TextBlock Text="546 Mariano V. delos Santos Street, Sampaloc Manila, Philippines 1008"
+                               FontSize="14"
+                               Foreground="White"
+                               HorizontalAlignment="Left" Margin="0,2" TextWrapping="Wrap"/>
+                                </StackPanel>
+
+                                <!-- Right-side Extra Info Section -->
+                                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Grid.Column="2">
+                                    <TextBlock Text="Contact: 8735-5085" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
+                                    <TextBlock Text="Website: http://www.um.edu.ph" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
+                                    <TextBlock Text="Email: umnla.edu.ph@gmail.com" FontSize="14" Foreground="White" HorizontalAlignment="Right" Margin="0,2"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Title Section -->
+                            <Grid Grid.Row="1">
+                                <Border>
+                                    <materialDesign:Card Background="#388E3C" Margin="0,5">
                                         <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-
-                                            <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    Full Name:
-                                                </TextBlock>
-                                            </Grid>
-                                            <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    <TextBlock.Text>
-                                                        <MultiBinding StringFormat="{}{0} {1}">
-                                                            <Binding Path="SelectedStudent.FirstName"/>
-                                                            <Binding Path="SelectedStudent.LastName"/>
-                                                        </MultiBinding>
-                                                    </TextBlock.Text>
-                                                </TextBlock>
-                                            </Grid>
-
-                                            <!-- Program Caption and Value -->
-                                            <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    Program:
-                                                </TextBlock>
-                                            </Grid>
-                                            <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" Text="{Binding SelectedStudent.Program}" FontSize="15"
-                                                           Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
-                                            </Grid>
-
-                                            <Grid Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    Semester:
-                                                </TextBlock>
-                                            </Grid>
-                                            <Grid Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="70,0,0,30" Grid.RowSpan="2">
-                                                <TextBlock Margin="5" Text="{Binding SelectedStudent.Semester}" FontSize="15"
-                                                           Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
-                                            </Grid>
-
-                                            <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    Email:
-                                                </TextBlock>
-                                            </Grid>
-                                            <Grid Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" Text="{Binding SelectedStudent.Email}" FontSize="15"
-                                                           Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
-                                            </Grid>
-
-                                            <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left">
-                                                <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                    Year Level:
-                                                </TextBlock>
-                                            </Grid>
-                                            <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" Margin="75,0,0,0">
-                                                <TextBlock Margin="9,5,1,5" Text="{Binding SelectedStudent.YearLevel}" FontSize="15"
-                                                           Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
-                                            </Grid>
+                                            <TextBlock Text="Grade Verification" FontSize="22" Foreground="white"
+                                       Padding="10" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"/>
                                         </Grid>
                                     </materialDesign:Card>
                                 </Border>
                             </Grid>
 
-                            <!-- Student Grades Section -->
-                            <Grid Margin="0,230,0,70">
-                                <DataGrid x:Name="GradeDataGrid" ItemsSource="{Binding StudentSubjects}" AutoGenerateColumns="False" Background="White" Margin="10,-108,10,200">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="*"/>
-                                        <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" Width="*"/>
-                                        <DataGridTextColumn Header="Professor" Binding="{Binding Professor}" Width="*"/>
-                                        <DataGridTextColumn Header="Schedule" Binding="{Binding Schedule}" Width="*"/>
-                                        <DataGridTemplateColumn Header="Grade" Width="*">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Grade}" 
-                                                               Style="{StaticResource GradeTextBlockStyle}" 
-                                                               Padding="10"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Grid>
+                            <!-- Content Section -->
+                            <Grid Grid.Row="2">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="110"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
 
-                            <!-- Signature Section -->
-                            <Grid Margin="0,680,0,0">
-                                <Border Margin="10" CornerRadius="5" BorderBrush="#BDBDBD" BorderThickness="1">
-                                    <materialDesign:Card Background="White">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
+                                    <!-- Student Information Section -->
+                                    <Grid Grid.Row="0" Margin="0,0,0,0">
+                                        <Border Margin="10,10,10,0" CornerRadius="5" BorderBrush="#BDBDBD" BorderThickness="1">
+                                            <materialDesign:Card Background="White" Margin="0,0,0,0">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
 
-                                            <Grid Grid.Column="0" Margin="0,10,100,35">
-                                                <Border BorderBrush="Black" BorderThickness="1" Margin="10,25,4,-2" RenderTransformOrigin="0.5,0.5">
-                                                    <TextBlock FontWeight="Bold" Margin="10" FontSize="13">
-                                                        <TextBlock.Text>Subject Teacher's Signature</TextBlock.Text>
-                                                    </TextBlock>
-                                                </Border>
-                                            </Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
 
-                                            <Grid Grid.Column="1" Margin="100,10,0,35">
-                                                <Border BorderBrush="Black" BorderThickness="1" Margin="10,25,4,-2">
-                                                    <TextBlock FontWeight="Bold" Margin="10" FontSize="13">
-                                                        <TextBlock.Text>Registrar's Signature</TextBlock.Text>
-                                                    </TextBlock>
-                                                </Border>
-                                            </Grid>
-                                        </Grid>
-                                    </materialDesign:Card>
-                                </Border>
+                                                    <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                                            Full Name:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding StringFormat="{}{0} {1}">
+                                                                    <Binding Path="SelectedStudent.FirstName"/>
+                                                                    <Binding Path="SelectedStudent.LastName"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                                            Date:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Margin="54,0,0,30" Grid.RowSpan="2">
+                                                        <TextBlock x:Name="DateText" Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}"
+                                                                   Text="{Binding CurrentDate}"/>
+                                                    </Grid>
+
+                                                    <!-- Program Caption and Value -->
+                                                    <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                            Program:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Program}" FontSize="15"
+                                                   Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                            Semester:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="70,0,0,30" Grid.RowSpan="2">
+                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Semester}" FontSize="15"
+                                                   Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                            Email:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Email}" FontSize="15"
+                                                   Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
+                                                    </Grid>
+
+                                                    <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left">
+                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
+                                            Year Level:
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" Margin="75,0,0,0">
+                                                        <TextBlock Margin="9,5,1,5" Text="{Binding SelectedStudent.YearLevel}" FontSize="15"
+                                                   Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
+                                                    </Grid>
+                                                </Grid>
+                                            </materialDesign:Card>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Student Grades Section -->
+                                    <Grid Grid.Row="1">
+                                        <DataGrid x:Name="GradeDataGrid" Style="{StaticResource DataGridStyle1}"
+              RowStyle="{DynamicResource DataGridRowStyle1}"
+              ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+              CellStyle="{DynamicResource DataGridCellStyle1}" 
+              HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
+              VerticalAlignment="Stretch"
+              VerticalScrollBarVisibility="Auto"
+              ItemsSource="{Binding StudentSubjects}" AutoGenerateColumns="False" Padding="0" Background="White">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" FontSize="15" Width="*"/>
+                                                <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" FontSize="15" Width="*"/>
+                                                <DataGridTextColumn Header="Professor" Binding="{Binding Professor}" FontSize="15" Width="*"/>
+                                                <DataGridTextColumn Header="Schedule" Binding="{Binding Schedule}" FontSize="15" Width="*"/>
+                                                <DataGridTemplateColumn Header="Grade" Width="*">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock FontSize="15" Text="{Binding Grade}"
+                                   Style="{StaticResource GradeTextBlockStyle}" 
+                                   Padding="0"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </Grid>
                             </Grid>
                         </Grid>
+                    </materialDesign:Card>
+                </Border>
+            </Grid>
+            <Grid Grid.Row="1">
+                <materialDesign:Card>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="150"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Signature Section -->
+                        <Grid Margin="0">
+                            <TextBox Style="{StaticResource MaterialDesignTextBoxBase}" Margin="0 0 0 10" Width="300" >
+                            </TextBox>
+                        </Grid>
+
+                        <Grid Grid.Column="1">
+                            <Button Margin="5" x:Name="CloseButton"
+            Background="DarkRed" Style="{StaticResource MaterialDesignFlatDarkBgButton}">
+                                <TextBlock Text="CLOSE"/>
+                            </Button>
+                        </Grid>
+                        <Grid Grid.Column="2">
+
+                            <Button Margin="5" x:Name="PrintButton"
+                                    Style="{StaticResource MaterialDesignFlatDarkBgButton}" Click="PrintBtn">
+                                <TextBlock Text="PRINT"/>
+                            </Button>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </materialDesign:Card>
-        </Border>
+                </materialDesign:Card>
+            </Grid>
+        </Grid>
+
     </Grid>
 </Window>

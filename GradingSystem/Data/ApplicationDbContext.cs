@@ -76,6 +76,10 @@ namespace GradingSystem.Data
         {
             modelBuilder.Entity<StudentSubject>()
                 .HasKey(ss => ss.Id);
+
+            modelBuilder.Entity<Program>()
+                .Property(p => p.ProgramId)
+                .ValueGeneratedOnAdd();
         }
     }
 }
