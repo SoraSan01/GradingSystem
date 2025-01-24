@@ -1,16 +1,19 @@
-﻿using GradingSystem.Data;
+﻿using GradingSystem.Command;
+using GradingSystem.Data;
 using GradingSystem.Model;
+using GradingSystem.View.Admin.Dialogs;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace GradingSystem.ViewModel
 {
     public class SubjectViewModel : INotifyPropertyChanged
     {
-        private string? _searchText;
         private ObservableCollection<Subject> _subjects = new();
         private ObservableCollection<Subject> _filteredSubjects = new();
 
@@ -19,49 +22,43 @@ namespace GradingSystem.ViewModel
         public SubjectViewModel(ApplicationDbContext context)
         {
             _context = context;
-            LoadSubjectsAsync().ConfigureAwait(false);
+            // Load subjects asynchronously when the ViewModel is initialized
+            LoadSubjectsAsync();
         }
 
-        // Binding to the list of all subjects.
         public ObservableCollection<Subject> Subjects
         {
             get => _subjects;
-            set
+            private set
             {
-                if (_subjects != value)
-                {
-                    _subjects = value;
-                    OnPropertyChanged(nameof(Subjects));
-                    ApplySearch(); // Apply search whenever the subjects collection is updated.
-                }
+                _subjects = value;
+                OnPropertyChanged(nameof(Subjects));
+                ApplySearch();
             }
         }
 
-        // Filtered subjects based on the search.
         public ObservableCollection<Subject> FilteredSubjects
         {
             get => _filteredSubjects;
-            set
+            private set
             {
-                if (_filteredSubjects != value)
-                {
-                    _filteredSubjects = value;
-                    OnPropertyChanged(nameof(FilteredSubjects));
-                }
+                _filteredSubjects = value;
+                OnPropertyChanged(nameof(FilteredSubjects));
             }
         }
 
-        // Search text property for binding to the UI.
-        public string? SearchText
+        public string? SearchText { get; set; }
+
+        private Subject? _SelectedSubject;
+        public Subject? SelectedSubject
         {
-            get => _searchText;
+            get => _SelectedSubject;
             set
             {
-                if (_searchText != value)
+                if (_SelectedSubject != value)
                 {
-                    _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    ApplySearch(); // Apply search whenever the text changes.
+                    _SelectedSubject = value;
+                    OnPropertyChanged(nameof(SelectedSubject));
                 }
             }
         }
@@ -71,17 +68,13 @@ namespace GradingSystem.ViewModel
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        // Load subjects from the database.
         public async Task LoadSubjectsAsync()
         {
             try
             {
-                var subjects = await Task.Run(() => _context.Subjects.ToList());
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Subjects = new ObservableCollection<Subject>(subjects);
-                    FilteredSubjects = new ObservableCollection<Subject>(Subjects); // Initialize FilteredSubjects with all subjects
-                });
+                // Fetch subjects from the database asynchronously
+                var subjects = await _context.Subjects.ToListAsync();
+                Subjects = new ObservableCollection<Subject>(subjects);
             }
             catch (Exception ex)
             {
@@ -89,28 +82,42 @@ namespace GradingSystem.ViewModel
             }
         }
 
-        // Apply the search filter to the subjects.
         public void ApplySearch()
         {
             if (string.IsNullOrWhiteSpace(SearchText))
             {
-                // If no search text, show all subjects.
                 FilteredSubjects = new ObservableCollection<Subject>(Subjects);
             }
             else
             {
                 var lowerSearch = SearchText.ToLower();
-                var filtered = Subjects.Where(s =>
-                    (s.SubjectName ?? string.Empty).ToLower().Contains(lowerSearch) ||
-                    (s.ProfessorName ?? string.Empty).ToLower().Contains(lowerSearch) ||
-                    (s.Schedule ?? string.Empty).ToLower().Contains(lowerSearch)
-                ).ToList();
-
-                FilteredSubjects = new ObservableCollection<Subject>(filtered); // Assign the filtered list.
+                var filtered = _context.Subjects
+                    .Where(s => (s.SubjectName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.ProfessorName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.Schedule ?? string.Empty).ToLower().Contains(lowerSearch))
+                    .ToList();
+                FilteredSubjects = new ObservableCollection<Subject>(filtered);
             }
         }
 
-        // Delete a subject from the database.
+        public async Task AddSubjectAsync(Subject newSubject)
+        {
+            try
+            {
+                _context.Subjects.Add(newSubject);
+                await _context.SaveChangesAsync();
+
+                Subjects.Add(newSubject);
+                ApplySearch();
+
+                ShowMessage("Subject added successfully.", "Success", MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Error adding subject: {ex.Message}", "Error", MessageBoxImage.Error);
+            }
+        }
+
         public async Task DeleteSubjectAsync(Subject subject)
         {
             if (subject == null)
@@ -138,12 +145,12 @@ namespace GradingSystem.ViewModel
                     }
 
                     _context.Subjects.Remove(subjectToDelete);
-                    await _context.SaveChangesAsync().ConfigureAwait(false);
+                    await _context.SaveChangesAsync();
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Subjects.Remove(subject); // Remove from Subjects collection
-                        ApplySearch(); // Reapply search after deletion to update FilteredSubjects
+                        Subjects.Remove(subject);
+                        ApplySearch();
                     });
 
                     ShowMessage("Subject deleted successfully.", "Success", MessageBoxImage.Information);
@@ -151,11 +158,10 @@ namespace GradingSystem.ViewModel
             }
             catch (Exception ex)
             {
-                ShowMessage($"An error occurred while deleting the subject: {ex.Message}", "Error", MessageBoxImage.Error);
+                ShowMessage($"Error deleting subject: {ex.Message}", "Error", MessageBoxImage.Error);
             }
         }
 
-        // Helper method to show message boxes.
         private void ShowMessage(string message, string caption, MessageBoxImage icon) =>
             Application.Current.Dispatcher.Invoke(() =>
                 MessageBox.Show(message, caption, MessageBoxButton.OK, icon));

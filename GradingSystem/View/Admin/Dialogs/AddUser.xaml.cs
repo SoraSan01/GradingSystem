@@ -1,17 +1,10 @@
-﻿using GradingSystem.Model;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
+using GradingSystem.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
@@ -20,50 +13,86 @@ namespace GradingSystem.View.Admin.Dialogs
     /// </summary>
     public partial class AddUser : Window
     {
-        public AddUser()
+        private readonly UserViewModel _userViewModel;
+
+        public AddUser(UserViewModel userViewModel)
         {
             InitializeComponent();
+            _userViewModel = userViewModel ?? throw new ArgumentNullException(nameof(userViewModel));
+            DataContext = _userViewModel;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not TextBox && e.OriginalSource is not Button)
+            {
+                DragMove();
+            }
         }
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-
+            if (MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                Close();
+            }
         }
 
         private void CancelBtn(object sender, RoutedEventArgs e)
         {
-
+            Close();
         }
 
-        private void SaveBtn(object sender, RoutedEventArgs e)
+        private async void SaveBtn(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrWhiteSpace(UserIdTxt.Text) ||
+                    string.IsNullOrWhiteSpace(FnameTxt.Text) ||
+                    string.IsNullOrWhiteSpace(LnameTxt.Text) ||
+                    string.IsNullOrWhiteSpace(EmailTxt.Text) ||
+                    RoleCmb.SelectedValue == null ||
+                    string.IsNullOrWhiteSpace(UsernameTxt.Text) ||
+                    string.IsNullOrWhiteSpace(PasswordTxt.Password))
+                {
+                    MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
+                // Create new user object
+                User newUser = CreateNewUser();
+
+                // Add user to the database and update DataGrid
+                await _userViewModel.AddUserAsync(newUser);
+
+                // Notify success and close
+                MessageBox.Show("User added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while saving the user: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        //private Subject CreateStudent()
-        //{
-        //    return new Subject
-        //    {
-        //        SubjectId = SubjectIdText.Text.Trim(),
-        //        CourseCode = CourseCodeTxt.Text.Trim(),
-        //        SubjectName = TitleTxt.Text.Trim(),
-        //        Units = int.Parse(UnitTxt.Text.Trim()),
-        //        ProgramId = ProgramCmb.SelectedValue?.ToString(),
-        //        YearLevel = yearCmb.SelectedValue?.ToString(),
-        //        Semester = SemesterCmb.SelectedValue?.ToString(),
-        //        Schedule = ScheduleTxt.Text.Trim(),
-        //        ProfessorName = ProfessorTxt.Text.Trim(),
-        //    };
-        //}
+        private User CreateNewUser()
+        {
+            return new User
+            {
+                UserId = UserIdTxt.Text.Trim(),
+                FirstName = FnameTxt.Text.Trim(),
+                LastName = LnameTxt.Text.Trim(),
+                Email = EmailTxt.Text.Trim(),
+                Username = UsernameTxt.Text.Trim(),
+                Password = PasswordTxt.Password.Trim(),
+                Roles = RoleCmb.SelectedValue?.ToString(),
+            };
+        }
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
     }
 }

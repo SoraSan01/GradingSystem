@@ -25,6 +25,48 @@ namespace GradingSystem.ViewModel
             }
         }
 
+        private string? _program;
+        public string? Program
+        {
+            get => _program;
+            set
+            {
+                if (_program != value)
+                {
+                    _program = value;
+                    OnPropertyChanged(nameof(Program));
+                }
+            }
+        }
+
+        private string? _semester;
+        public string? Semester
+        {
+            get => _semester;
+            set
+            {
+                if (_semester != value)
+                {
+                    _semester = value;
+                    OnPropertyChanged(nameof(Semester));
+                }
+            }
+        }
+
+        private string? _status;
+        public string? Status
+        {
+            get => _status;
+            set
+            {
+                if (_status != value)
+                {
+                    _status = value;
+                    OnPropertyChanged(nameof(Status));
+                }
+            }
+        }
+
         // Constructor with dependency injection for ApplicationDbContext
         public StudentsViewModel(ApplicationDbContext context)
         {
@@ -104,8 +146,19 @@ namespace GradingSystem.ViewModel
             }
 
             SelectedStudent = student;
+
+            // Ensure Program, Semester, and Status are set correctly
+            if (SelectedStudent.Program != null)
+            {
+                Program = SelectedStudent.Program?.ProgramId;
+            }
+
+            Semester = SelectedStudent.Semester; // Assuming you have a property Semester
+            Status = SelectedStudent.Status; // Assuming you have a property Status
+
             await LoadStudentSubjectsAsync(student.StudentId);
         }
+
 
         // Load all students asynchronously and update the UI
         public async Task LoadStudentsAsync()
@@ -113,7 +166,13 @@ namespace GradingSystem.ViewModel
             using var context = new ApplicationDbContext();
             try
             {
-                var studentsList = await context.Students.ToListAsync().ConfigureAwait(false); // Avoid UI thread dependency
+                // Include the Program navigation property
+                var studentsList = await context.Students
+                                 .Include(s => s.Program)
+                                 .ToListAsync();
+
+
+                // Update the UI thread to update the observable collection
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Students.Clear();
@@ -151,7 +210,14 @@ namespace GradingSystem.ViewModel
                 }
 
                 // Add the student
-                _context.Students.Add(newStudent);
+                await Task.Run(() =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Students.Add(newStudent); // Update UI thread
+                    });
+                }).ConfigureAwait(false);
+
                 await _context.SaveChangesAsync();
 
                 // Assign subjects to the student

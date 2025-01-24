@@ -82,7 +82,7 @@
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding StudentId}"/>
                                     <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding StudentName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program.ProgramName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Year" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Semester" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>

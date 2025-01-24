@@ -82,6 +82,7 @@
                                     <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding FullName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Username" CanUserResize="False" Binding="{Binding Username}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Role" CanUserResize="False" Binding="{Binding Roles}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >

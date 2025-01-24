@@ -4,16 +4,10 @@ using GradingSystem.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
@@ -22,17 +16,22 @@ namespace GradingSystem.View.Admin.Dialogs
     /// </summary>
     public partial class AddSubject : Window
     {
-        public SubjectViewModel _subject { get; set; }
+        public SubjectViewModel SubjectViewModel { get; set; }
         public ProgramViewModel Program { get; set; }
 
-        public event Action StudentAdded;
+        // Renamed event for better context
+        public event Action SubjectAdded;
+
         private readonly ApplicationDbContext _context;
-        public AddSubject(ApplicationDbContext context, ProgramViewModel Program)
+
+        public AddSubject(ApplicationDbContext context, ProgramViewModel program)
         {
             InitializeComponent();
             _context = context;
-            ProgramCmb.ItemsSource = Program.Programs;
-            DataContext = _subject;
+            // Initialize SubjectViewModel with an empty Subject instance
+            SubjectViewModel = new SubjectViewModel(context);
+            ProgramCmb.ItemsSource = program.Programs;
+            DataContext = SubjectViewModel;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -62,78 +61,88 @@ namespace GradingSystem.View.Admin.Dialogs
             this.Close();
         }
 
-        private void SaveBtn(object sender, RoutedEventArgs e)
+        // Centralized Validation method
+        private bool ValidateForm()
+        {
+            if (string.IsNullOrWhiteSpace(CourseCodeTxt.Text))
+            {
+                ShowValidationError("Course Code cannot be empty.");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(TitleTxt.Text))
+            {
+                ShowValidationError("Title cannot be empty.");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(UnitTxt.Text) || !int.TryParse(UnitTxt.Text.Trim(), out _))
+            {
+                ShowValidationError("Units must be a valid integer.");
+                return false;
+            }
+            if (ProgramCmb.SelectedValue == null)
+            {
+                ShowValidationError("Please select a Program.");
+                return false;
+            }
+            if (yearCmb.SelectedValue == null)
+            {
+                ShowValidationError("Please select a Year Level.");
+                return false;
+            }
+            if (SemesterCmb.SelectedValue == null)
+            {
+                ShowValidationError("Please select a Semester.");
+                return false;
+            }
+            return true;
+        }
+
+        // Helper method to show validation errors
+        private void ShowValidationError(string message)
+        {
+            MessageBox.Show(message, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private async void SaveBtn(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Validate input
-                if (string.IsNullOrWhiteSpace(SubjectIdText.Text) ||
-                    string.IsNullOrWhiteSpace(CourseCodeTxt.Text) ||
-                    string.IsNullOrWhiteSpace(TitleTxt.Text) ||
-                    string.IsNullOrWhiteSpace(UnitTxt.Text) ||
-                    ProgramCmb.SelectedValue == null ||
-                    yearCmb.SelectedValue == null ||
-                    SemesterCmb.SelectedValue == null ||
-                    string.IsNullOrWhiteSpace(ScheduleTxt.Text) ||
-                    string.IsNullOrWhiteSpace(ProfessorTxt.Text))
+                // Validate form fields
+                if (!ValidateForm()) return;
+
+                var newSubject = new Subject
                 {
-                    MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                    SubjectId = Subject.GenerateSubjectId(CourseCodeTxt.Text.Trim(), new List<string>()),
+                    CourseCode = CourseCodeTxt.Text.Trim(),
+                    SubjectName = TitleTxt.Text.Trim(),
+                    Units = int.Parse(UnitTxt.Text.Trim()),
+                    ProgramId = ProgramCmb.SelectedValue?.ToString(),
+                    YearLevel = yearCmb.SelectedValue?.ToString(),
+                    Semester = SemesterCmb.SelectedValue?.ToString(),
+                    Schedule = ScheduleTxt.Text.Trim(),
+                    ProfessorName = ProfessorTxt.Text.Trim()
+                };
 
-                // Ensure Units is a valid integer
-                if (!int.TryParse(UnitTxt.Text.Trim(), out int units))
-                {
-                    MessageBox.Show("Units must be a valid number.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
+                // Add the new subject
+                await SubjectViewModel.AddSubjectAsync(newSubject);
 
-                // Create new subject
-                Subject newSubject = CreateStudent();
-
-                // Save to database
-                using (var context = new ApplicationDbContext())
-                {
-                    context.Subjects.Add(newSubject);
-                    context.SaveChanges();
-                }
-
-                // Notify user
-                MessageBox.Show("Subject added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Trigger event
-                StudentAdded?.Invoke();
+                // Trigger event to notify that a subject was added
+                SubjectAdded?.Invoke();
 
                 // Close the window
                 this.Close();
             }
             catch (Exception ex)
             {
-                // Handle errors
+                // Improved error message
                 MessageBox.Show($"An error occurred while saving the subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private Subject CreateStudent()
-        {
-            return new Subject
-            {
-                SubjectId = SubjectIdText.Text.Trim(),
-                CourseCode = CourseCodeTxt.Text.Trim(),
-                SubjectName = TitleTxt.Text.Trim(),
-                Units = int.Parse(UnitTxt.Text.Trim()),
-                ProgramId = ProgramCmb.SelectedValue?.ToString(),
-                YearLevel = yearCmb.SelectedValue?.ToString(),
-                Semester = SemesterCmb.SelectedValue?.ToString(),
-                Schedule = ScheduleTxt.Text.Trim(),
-                ProfessorName = ProfessorTxt.Text.Trim(),
-            };
-        }
-
         private void BulkInsertBtn(object sender, RoutedEventArgs e)
         {
-            var BulkInsert = new BulkInsertCourse(_context);
-            BulkInsert.Show();
+            var bulkInsert = new BulkInsertCourse(_context);
+            bulkInsert.Show();
         }
     }
 }

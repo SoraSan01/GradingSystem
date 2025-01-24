@@ -45,15 +45,15 @@ namespace GradingSystem.View.Admin
             }
         }
 
-        private void saveBtn(object sender, RoutedEventArgs e)
+        private async void saveBtn(object sender, RoutedEventArgs e)
         {
             if (SelectedStudent != null)
             {
                 try
                 {
-                    // Call the ViewModel's EditStudent method
+                    // Call the ViewModel's EditStudent method and await its completion
                     var viewModel = (StudentsViewModel)this.DataContext;
-                    _ = viewModel.EditStudentAsync(SelectedStudent); // Update the student in the database
+                    await viewModel.EditStudentAsync(SelectedStudent); // Ensure the update is completed
 
                     // Close the window after editing
                     this.Close();

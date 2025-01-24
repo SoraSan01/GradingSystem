@@ -48,27 +48,27 @@
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Row="1">
-                                            <TextBlock x:Name="studentNameTxt" Text="Jim Ernest Concepcion" Foreground="White" HorizontalAlignment="Center" 
+                                            <TextBlock x:Name="studentNameTxt" Text="Student Name" Foreground="White" HorizontalAlignment="Center" 
                VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
                Style="{StaticResource MaterialDesignBody1TextBlock}"/>
                                         </Grid>
                                         <Grid Grid.Row="2">
-                                            <TextBlock x:Name="courseTxt" Text="Computer Science" Foreground="White" HorizontalAlignment="Center" 
+                                            <TextBlock x:Name="courseTxt" Text="Program" Foreground="White" HorizontalAlignment="Center" 
                VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
                Style="{StaticResource MaterialDesignBody1TextBlock}"/>
                                         </Grid>
                                         <Grid Grid.Row="3">
-                                            <TextBlock x:Name="semesterTxt" Text="First Semester" Foreground="White" HorizontalAlignment="Center" 
+                                            <TextBlock x:Name="semesterTxt" Text="Semester" Foreground="White" HorizontalAlignment="Center" 
                VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
                Style="{StaticResource MaterialDesignBody1TextBlock}"/>
                                         </Grid>
                                         <Grid Grid.Row="4">
-                                            <TextBlock x:Name="yearLevelTxt" Text="First Year" Foreground="White" HorizontalAlignment="Center" 
+                                            <TextBlock x:Name="yearLevelTxt" Text="Year Level" Foreground="White" HorizontalAlignment="Center" 
                VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
                Style="{StaticResource MaterialDesignBody1TextBlock}"/>
                                         </Grid>
                                         <Grid Grid.Row="5">
-                                            <TextBlock x:Name="scholarshipTxt" Text="Scholar" Foreground="White" HorizontalAlignment="Center" 
+                                            <TextBlock x:Name="scholarshipTxt" Text="Status" Foreground="White" HorizontalAlignment="Center" 
                VerticalAlignment="Center" TextWrapping="Wrap" Width="auto"
                Style="{StaticResource MaterialDesignBody1TextBlock}"/>
                                         </Grid>

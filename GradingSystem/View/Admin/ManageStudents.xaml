@@ -79,10 +79,9 @@
                                 <DataGrid.Columns>
 
                                     <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding StudentId}"/>
-                                    <DataGridTextColumn Header="Firstname" CanUserResize="False" Binding="{Binding FirstName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Lastname" CanUserResize="False" Binding="{Binding LastName}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding StudentName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Email" CanUserResize="False" Binding="{Binding Email}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program}" IsReadOnly="True" Width="auto"/>
+                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program.ProgramName}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="Semester" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="auto"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>

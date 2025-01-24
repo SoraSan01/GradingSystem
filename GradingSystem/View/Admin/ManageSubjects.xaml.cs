@@ -10,9 +10,10 @@ namespace GradingSystem.View.Admin
 {
     public partial class ManageSubjects : UserControl
     {
+        private Subject _selectedSubject;  // Declare the selectedSubject here
         private readonly SubjectViewModel _subjectViewModel;
-
         public ApplicationDbContext _context;
+
         public ManageSubjects(ApplicationDbContext context)
         {
             InitializeComponent();
@@ -24,8 +25,8 @@ namespace GradingSystem.View.Admin
         private void AddSubject(object sender, RoutedEventArgs e)
         {
             var programViewModel = new ProgramViewModel();
-            var AddSubject = new AddSubject(_context, programViewModel);
-            AddSubject.Show();
+            var addSubject = new AddSubject(_context, programViewModel);
+            addSubject.Show();
         }
 
         private async void DeleteSubjectBtn(object sender, RoutedEventArgs e)
@@ -35,5 +36,37 @@ namespace GradingSystem.View.Admin
                 await _subjectViewModel.DeleteSubjectAsync(subject);
             }
         }
+
+        private void EditSubjectBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // Get the selected subject
+            var selectedSubject = (Subject)subjectsDataGrid.SelectedItem;
+
+            if (selectedSubject != null)
+            {
+                _selectedSubject = selectedSubject;  // Store the selected subject
+
+                // Create the view model here with the context and selected subject
+                var viewModel = new SubjectViewModel(_context);
+
+                // Initialize the ProgramViewModel
+                var programViewModel = new ProgramViewModel
+                {
+                    SelectedProgram = selectedSubject.Program
+                };
+
+                // Create and show the EditSubject window
+                var editWindow = new EditSubject(selectedSubject, programViewModel)
+                {
+                    DataContext = viewModel  // Bind the data context to the view model
+                };
+                editWindow.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Please select a subject to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
     }
 }

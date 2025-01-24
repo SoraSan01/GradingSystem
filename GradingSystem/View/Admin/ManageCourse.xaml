@@ -17,7 +17,7 @@
 
         <!-- Dashboard Title -->
         <Grid Grid.Row="0" Margin="30 0 0 0">
-            <TextBlock Text="Manage Students" 
+            <TextBlock Text="Manage Programs" 
            FontSize="35"
            Style="{StaticResource MaterialDesignCaptionTextBlock}" 
            VerticalAlignment="Center"/>

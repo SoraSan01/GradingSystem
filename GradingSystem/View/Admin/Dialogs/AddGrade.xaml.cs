@@ -1,9 +1,8 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Runtime.InteropServices.JavaScript;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -20,8 +19,8 @@ namespace GradingSystem.View.Admin.Dialogs
         {
             InitializeComponent();
             _viewModel = new StudentSubjectViewModel(context);
-            _subject = new SubjectViewModel(context);
             _student = new StudentsViewModel(context);
+            _subject = new SubjectViewModel(context);
             DataContext = _viewModel;
             SubjectListDataGrid.DataContext = _subject;
         }
@@ -36,25 +35,28 @@ namespace GradingSystem.View.Admin.Dialogs
         }
 
         // Handle the Enter key event for loading subjects
-        private async void StudentIdTxt_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        private async void StudentIdTxt_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == System.Windows.Input.Key.Enter)
+            if (e.Key == Key.Enter)
             {
-                // Get the entered ID
-                string studentId = idTxt.Text;
+                string studentId = idTxt.Text?.Trim();
+                if (string.IsNullOrEmpty(studentId))
+                {
+                    MessageBox.Show("Please enter a valid Student ID.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-                // Find the student
                 var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
-
                 if (student != null)
                 {
-                    // Update the UI with the student's information
+                    // Update UI with student's details
                     studentNameTxt.Text = student.StudentName;
-                    courseTxt.Text = student.ProgramId;
+                    courseTxt.Text = student.Program?.ProgramName ?? "N/A";
                     semesterTxt.Text = student.Semester;
                     yearLevelTxt.Text = student.YearLevel;
                     scholarshipTxt.Text = student.Status;
 
+                    // Load and display subjects
                     await _viewModel.LoadSubjects(studentId);
                 }
                 else
@@ -68,41 +70,32 @@ namespace GradingSystem.View.Admin.Dialogs
         {
             if (e.Column.Header.ToString() == "Grade")
             {
-                // Get the edited row
                 var studentSubject = e.Row.Item as StudentSubject;
-                if (studentSubject != null)
+                var gradeCell = e.EditingElement as TextBox;
+
+                if (studentSubject != null && gradeCell != null)
                 {
-                    // Get the new grade value
-                    var gradeCell = e.EditingElement as TextBox;
-                    if (gradeCell != null)
+                    string newGrade = gradeCell.Text?.Trim();
+
+                    // Validate grade as a numeric value
+                    if (decimal.TryParse(newGrade, out decimal parsedGrade))
                     {
-                        string newGrade = gradeCell.Text;
-
-                        // Additional validation for numeric grade and handle nullable decimal
-                        decimal? parsedGrade = null;
-                        if (decimal.TryParse(newGrade, out decimal grade))
-                        {
-                            parsedGrade = grade;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Grade must be a valid numeric value.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                            return;
-                        }
-
-                        // Update the grade in the model
                         studentSubject.Grade = parsedGrade;
 
                         try
                         {
-                            // Save changes to the database via ViewModel
+                            // Update grade in database
                             await _viewModel.UpdateGradeAsync(studentSubject);
                             MessageBox.Show("Grade updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"An error occurred while saving the grade: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show($"Error updating grade: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Grade must be a valid numeric value.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -110,17 +103,15 @@ namespace GradingSystem.View.Admin.Dialogs
 
         private async void AddSubjectBtn(object sender, RoutedEventArgs e)
         {
-            // Get the entered student ID
-            string studentId = idTxt.Text;
+            string studentId = idTxt.Text?.Trim();
 
-            // Validate student ID
             if (string.IsNullOrEmpty(studentId))
             {
                 MessageBox.Show("Please enter a valid Student ID.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            // Get the selected subject from the DataGrid
+            // Ensure a subject is selected
             var selectedSubject = SubjectListDataGrid.SelectedItem as Subject;
             if (selectedSubject == null)
             {
@@ -130,7 +121,7 @@ namespace GradingSystem.View.Admin.Dialogs
 
             try
             {
-                // Check if the subject is already assigned to the student
+                // Check if subject is already assigned
                 var existingSubject = _viewModel.StudentSubjects.FirstOrDefault(ss =>
                     ss.StudentId == studentId && ss.SubjectId == selectedSubject.SubjectId);
 
@@ -140,54 +131,51 @@ namespace GradingSystem.View.Admin.Dialogs
                     return;
                 }
 
-                // Create a new StudentSubject instance
                 var newStudentSubject = new StudentSubject
                 {
                     Id = $"{studentId}_{selectedSubject.SubjectId}", // Unique ID combining StudentId and SubjectId
                     StudentId = studentId,
                     SubjectId = selectedSubject.SubjectId,
-                    Grade = null // Grade is initially null
+                    Grade = null // Initially null
                 };
 
-                // Add the subject using the ViewModel
+                // Add subject using ViewModel
                 await _viewModel.AddStudentSubjectAsync(newStudentSubject);
 
-                // Notify the user of success
+                // Notify success and refresh subject list
                 MessageBox.Show("Subject added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // Refresh the subject list for the student
-                await _viewModel.LoadSubjects(studentId);
+                await _viewModel.LoadSubjects(studentId); // Refresh subjects
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while adding the subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Error adding subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async void RemoveSubjectBtn(object sender, RoutedEventArgs e)
         {
-            //var selectedSubject = SubjectListDataGrid.SelectedItem as StudentSubject;
-            //if (selectedSubject != null)
-            //{
-            //    var confirmation = MessageBox.Show("Are you sure you want to remove this subject?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            //    if (confirmation == MessageBoxResult.Yes)
-            //    {
-            //        try
-            //        {
-            //            await _viewModel.RemoveStudentSubjectAsync(selectedSubject);
-            //            MessageBox.Show("Subject removed successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-            //            await _viewModel.LoadSubjects(idTxt.Text); // Refresh subjects
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            MessageBox.Show($"An error occurred while removing the subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Please select a subject to remove.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //}
+            var selectedSubject = SubjectListDataGrid.SelectedItem as StudentSubject;
+            if (selectedSubject != null)
+            {
+                var confirmation = MessageBox.Show("Are you sure you want to remove this subject?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (confirmation == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _viewModel.RemoveStudentSubjectAsync(selectedSubject);
+                        MessageBox.Show("Subject removed successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                        await _viewModel.LoadSubjects(idTxt.Text); // Refresh subjects
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error removing subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a subject to remove.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

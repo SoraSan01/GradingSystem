@@ -71,9 +71,6 @@ namespace GradingSystem.View.Admin
                     return;
                 }
 
-                // Debugging: Check if we reach this point
-                MessageBox.Show("Student selected: " + selectedStudent.FirstName);  // Replace `Name` with the appropriate property
-
                 // Ensure 'students' is properly initialized before using it
                 if (students == null)
                 {

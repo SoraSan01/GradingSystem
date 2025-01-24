@@ -89,6 +89,22 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task RemoveStudentSubjectAsync(StudentSubject studentSubject)
+    {
+        var subjectToRemove = await _context.StudentSubjects
+            .FirstOrDefaultAsync(ss => ss.Id == studentSubject.Id);
+
+        if (subjectToRemove != null)
+        {
+            _context.StudentSubjects.Remove(subjectToRemove);
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            throw new Exception("Subject not found.");
+        }
+    }
+
     // Save grades to the database
     private async Task SaveGrades()
     {

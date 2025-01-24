@@ -22,6 +22,7 @@ namespace GradingSystem.View.Admin
     public partial class EditProgram : Window
     {
         public ProgramViewModel ViewModel { get; set; }
+        public event Action ProgramUpdated;
 
         public EditProgram(Program selectedProgram)
         {
@@ -51,19 +52,22 @@ namespace GradingSystem.View.Admin
             // Validate the input values
             if (string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.ProgramName) ||
                 string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.Description) ||
-                string.IsNullOrEmpty(ViewModel.SelectedProgram.ProgramId)
-                )
+                string.IsNullOrEmpty(ViewModel.SelectedProgram.ProgramId))
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // Call the EditProgram method from the ViewModel to update the program
+            // Save the changes to the program
             ViewModel.EditProgram(ViewModel.SelectedProgram);
 
-            // Close the window after saving the changes
+            // Raise the event to notify that the program has been updated
+            ProgramUpdated?.Invoke();
+
+            // Close the window after saving
             this.Close();
         }
+
 
         private void Minimize(object sender, RoutedEventArgs e)
         {
@@ -76,12 +80,20 @@ namespace GradingSystem.View.Admin
             if (result == MessageBoxResult.Yes)
             {
                 this.Close();
+                ProgramUpdated?.Invoke();
             }
         }
 
         private void CancelBtn(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            // Optionally, ask the user if they want to discard changes before closing the window
+            var result = MessageBox.Show("Are you sure you want to discard your changes?", "Cancel", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                this.Close(); // Simply close the window without saving changes
+                ProgramUpdated?.Invoke();
+            }
         }
+
     }
 }

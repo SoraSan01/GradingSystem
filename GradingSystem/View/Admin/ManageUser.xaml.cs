@@ -1,5 +1,6 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
+using GradingSystem.View.Admin.Dialogs;
 using GradingSystem.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -51,7 +52,8 @@ namespace GradingSystem.View.Admin
 
         private void AddUserBtn(object sender, RoutedEventArgs e)
         {
-
+            var AddUser = new AddUser(User);
+            AddUser.ShowDialog();
         }
     }
 }

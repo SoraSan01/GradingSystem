@@ -79,7 +79,7 @@
                                           ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
                                           CellStyle="{DynamicResource DataGridCellStyle1}" 
                                           HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
-                                          VerticalAlignment="Stretch"
+                                          VerticalAlignment="Stretch" SelectedItem="{Binding SelectedSubject}"
                                           VerticalScrollBarVisibility="Auto" ItemsSource="{Binding FilteredSubjects}" >
 
                                     <DataGrid.Columns>
@@ -94,7 +94,8 @@
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Button Style="{StaticResource gridEditButton}">
+                                                    <Button Style="{StaticResource gridEditButton}" Click="EditSubjectBtn_Click" 
+                                                            >
                                                             <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                         </Button>
                                                         <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteSubjectBtn">

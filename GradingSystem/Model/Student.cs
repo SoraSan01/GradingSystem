@@ -45,7 +45,7 @@ namespace GradingSystem.Model
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public string StudentName => $"{FirstName} {LastName}";
+        public string StudentName => $"{LastName} {FirstName}";
 
         public Student()
         {

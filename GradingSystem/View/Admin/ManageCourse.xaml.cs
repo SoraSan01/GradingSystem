@@ -2,19 +2,8 @@
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin
 {
@@ -27,7 +16,6 @@ namespace GradingSystem.View.Admin
 
         public ProgramViewModel Programs { get; set; }
 
-
         public ManageCourse(ApplicationDbContext context)
         {
             InitializeComponent();
@@ -39,16 +27,19 @@ namespace GradingSystem.View.Admin
 
             // Set the DataContext for binding, if required
             DataContext = Programs;
+
+            // Load initial data
+            _ = Programs.LoadProgramsAsync();
         }
 
         private void AddBtn(object sender, RoutedEventArgs e)
         {
-            // Open the AddStudent window and pass the ViewModel
+            // Open the AddProgram window and pass the ViewModel
             var addCourseWindow = new AddProgram(Programs);
-            addCourseWindow.ProgramAdded += () =>
+            addCourseWindow.ProgramAdded += async () =>
             {
-                // Refresh the list of students when a new student is added
-                _ = Programs.LoadProgramsAsync();
+                // Refresh the list of programs when a new program is added
+                await Programs.LoadProgramsAsync();
             };
             addCourseWindow.ShowDialog();
         }
@@ -65,23 +56,32 @@ namespace GradingSystem.View.Admin
                 if (result == MessageBoxResult.Yes)
                 {
                     Programs.DeleteProgram(ProgramToDelete);
+                    // Refresh the list after deletion
+                    _ = Programs.LoadProgramsAsync();
                 }
             }
         }
 
         private void EditBtn(object sender, RoutedEventArgs e)
         {
-            var SelectedProgram = (Program)programDataGrid.SelectedItem; // Get selected student
+            var SelectedProgram = (Program)programDataGrid.SelectedItem; // Get selected program
 
             if (SelectedProgram != null)
             {
-                // Pass the selected student to the EditStudent window
-                var editWindow = new EditProgram(SelectedProgram); // Pass the selected student to the constructor
+                // Pass the selected program to the EditProgram window
+                var editWindow = new EditProgram(SelectedProgram); // Pass the selected program to the constructor
 
                 // You can also set the DataContext if needed
                 var viewModel = new ProgramViewModel();
                 viewModel.SelectedProgram = SelectedProgram;
                 editWindow.DataContext = viewModel;
+
+                // Subscribe to the event to refresh the list after editing
+                editWindow.ProgramUpdated += async () =>
+                {
+                    // Refresh the list of programs after editing
+                    await Programs.LoadProgramsAsync();
+                };
 
                 // Show the window
                 editWindow.ShowDialog();

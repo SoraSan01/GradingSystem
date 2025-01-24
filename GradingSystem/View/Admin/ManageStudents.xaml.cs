@@ -59,26 +59,39 @@ namespace GradingSystem.View.Admin
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            var programViewModel = new ProgramViewModel(); // Or fetch it from somewhere
-            var selectedStudent = (Student)studentsDataGrid.SelectedItem; // Get selected student
+            // Ensure the selected student is retrieved properly
+            var selectedStudent = (Student)studentsDataGrid.SelectedItem;
 
             if (selectedStudent != null)
             {
-                // Pass the selected student to the EditStudent window
-                var editWindow = new EditStudent(selectedStudent, programViewModel); // Pass the selected student to the constructor
+                // Initialize the ProgramViewModel with the selected student's Program (if available)
+                var programViewModel = new ProgramViewModel
+                {
+                    // Populate with the program associated with the selected student (assuming you have a Program property)
+                    SelectedProgram = selectedStudent.Program
+                };
 
-                // You can also set the DataContext if needed
-                var viewModel = new StudentsViewModel(_context);
-                viewModel.SelectedStudent = selectedStudent;
-                editWindow.DataContext = viewModel;
+                // Initialize the StudentsViewModel and set the SelectedStudent
+                var viewModel = new StudentsViewModel(_context)
+                {
+                    SelectedStudent = selectedStudent
+                };
 
-                // Show the window
+                // Create the EditStudent window, passing the view models as needed
+                var editWindow = new EditStudent(selectedStudent, programViewModel)
+                {
+                    DataContext = viewModel // Bind the DataContext to the StudentsViewModel
+                };
+
+                // Show the dialog
                 editWindow.ShowDialog();
             }
             else
             {
+                // Show a warning if no student is selected
                 MessageBox.Show("Please select a student to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
     }
 }

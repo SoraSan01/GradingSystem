@@ -1,13 +1,10 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -46,15 +43,11 @@ namespace GradingSystem.ViewModel
 
         public ProgramViewModel()
         {
-            // Initialize the ObservableCollection
             Programs = new ObservableCollection<Program>();
-
-            // Load data (this can be from your database or a static list for testing)
-
-
-            _ = LoadProgramsAsync();
+            _ = LoadProgramsAsync(); // Initial load of programs
         }
 
+        // Load programs asynchronously from the database
         public async Task LoadProgramsAsync()
         {
             try
@@ -62,7 +55,6 @@ namespace GradingSystem.ViewModel
                 using (var context = new ApplicationDbContext())
                 {
                     var programList = await Task.Run(() => context.Programs.ToList());
-
                     Programs.Clear();
                     foreach (var program in programList)
                     {
@@ -76,7 +68,7 @@ namespace GradingSystem.ViewModel
             }
         }
 
-
+        // Add a new program
         public void AddProgram(Program newProgram)
         {
             try
@@ -97,6 +89,9 @@ namespace GradingSystem.ViewModel
 
                     Programs.Add(newProgram); // Directly update the ObservableCollection
                     MessageBox.Show("Program added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Refresh the program list after adding
+                    _ = LoadProgramsAsync();
                 }
             }
             catch (Exception ex)
@@ -105,13 +100,13 @@ namespace GradingSystem.ViewModel
             }
         }
 
+        // Edit an existing program
         public void EditProgram(Program program)
         {
             try
             {
                 using (var context = new ApplicationDbContext())
                 {
-                    // Find the existing program by its ID
                     var programToUpdate = context.Programs.Find(program.ProgramId);
 
                     if (programToUpdate == null)
@@ -120,14 +115,11 @@ namespace GradingSystem.ViewModel
                         return;
                     }
 
-                    // Update the properties of the found program
                     programToUpdate.ProgramName = program.ProgramName;
                     programToUpdate.Description = program.Description;
                     programToUpdate.Major = program.Major;
-                    // Save changes to the database
                     context.SaveChanges();
 
-                    // Update the ObservableCollection
                     var index = Programs.IndexOf(SelectedProgram);
                     if (index >= 0)
                     {
@@ -135,6 +127,9 @@ namespace GradingSystem.ViewModel
                     }
 
                     MessageBox.Show("Program updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // Refresh the program list after editing
+                    _ = LoadProgramsAsync();
                 }
             }
             catch (Exception ex)
@@ -143,7 +138,7 @@ namespace GradingSystem.ViewModel
             }
         }
 
-
+        // Delete a program
         public void DeleteProgram(Program program)
         {
             if (MessageBox.Show($"Are you sure you want to delete the program '{program.ProgramName}'?",
@@ -166,8 +161,11 @@ namespace GradingSystem.ViewModel
                         context.Programs.Remove(programToDelete);
                         context.SaveChanges();
 
-                        Programs.Remove(program);
+                        Programs.Remove(program); // Directly update the ObservableCollection
                         MessageBox.Show("Program deleted successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Refresh the program list after deletion
+                        _ = LoadProgramsAsync();
                     }
                 }
                 catch (Exception ex)
@@ -176,7 +174,5 @@ namespace GradingSystem.ViewModel
                 }
             }
         }
-
-
     }
 }

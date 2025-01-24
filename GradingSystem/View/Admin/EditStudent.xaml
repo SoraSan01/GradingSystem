@@ -132,7 +132,7 @@
 
                                         <!-- Program -->
                                         <TextBlock Grid.Row="4" Text="Program" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="programCmb" Text="{Binding SelectedStudent.ProgramName}" Style="{StaticResource MaterialDesignFilledComboBox}" 
+                                        <ComboBox x:Name="programCmb" SelectedValue="{Binding SelectedStudent.ProgramId}" Style="{StaticResource MaterialDesignFilledComboBox}" 
                                            HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" SelectedValuePath="ProgramId"
                                            Grid.Column="1" Grid.Row="4" ItemsSource="{Binding Programs}"
                                            DisplayMemberPath="ProgramName" Padding="10 0 10 0">
@@ -154,8 +154,8 @@
 
                                         <!-- Semester -->
                                         <TextBlock Grid.Row="6" Text="Semester" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="semesterCmb" Text="{Binding SelectedStudent.Status}" Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                           HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="20"
+                                        <ComboBox x:Name="semesterCmb" Text="{Binding SelectedStudent.Semester}" Style="{StaticResource MaterialDesignFilledComboBox}" 
+                                           HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
                                            Grid.Column="1" Grid.Row="6" SelectedValuePath="Content" Padding="10 0 10 0">
                                             <ComboBoxItem>First Semester</ComboBoxItem>
                                             <ComboBoxItem>Second Semester</ComboBoxItem>
@@ -163,8 +163,9 @@
 
                                         <!-- Status -->
                                         <TextBlock Grid.Row="7" Text="Status" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="scholarCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                           HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="20"
+                                        <ComboBox x:Name="scholarCmb" Text="{Binding SelectedStudent.Status}"
+                                                  Style="{StaticResource MaterialDesignFilledComboBox}" 
+                                           HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
                                            Grid.Column="1" Grid.Row="7" SelectedValuePath="Content" Padding="10 0 10 0">
                                             <ComboBoxItem>Non-Scholar</ComboBoxItem>
                                             <ComboBoxItem>Scholar</ComboBoxItem>

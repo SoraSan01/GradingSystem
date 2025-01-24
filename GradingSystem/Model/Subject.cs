@@ -51,21 +51,28 @@ namespace GradingSystem.Model
         {
             if (string.IsNullOrEmpty(subjectName))
             {
-                throw new ArgumentException("Subject name cannot be null or empty");
+                throw new ArgumentException("Subject name cannot be null or empty.");
             }
 
-            // Extract the first three characters of the subject name
-            string prefix = subjectName.Length >= 3 ? subjectName.Substring(0, 3).ToUpper() : subjectName.ToUpper();
+            // Extract prefix from subject name
+            string prefix = subjectName.Length >= 3
+                ? subjectName.Substring(0, 3).ToUpper()
+                : subjectName.ToUpper().PadRight(3, 'X'); // Pad with 'X' if subject name is too short
 
-            // Find the highest existing number for the given prefix
+            if (existingIds == null || !existingIds.Any())
+            {
+                return $"{prefix}-001";
+            }
+
+            // Find the highest numeric suffix for the given prefix
             var matchingIds = existingIds
                 .Where(id => id.StartsWith(prefix + "-"))
-                .Select(id => id.Substring(4)) // Extract numeric part
-                .Select(num => int.TryParse(num, out int n) ? n : 0);
+                .Select(id => id.Substring(prefix.Length + 1)) // Extract numeric part
+                .Where(num => int.TryParse(num, out _)) // Ensure it's a number
+                .Select(int.Parse);
 
             int nextNumber = matchingIds.Any() ? matchingIds.Max() + 1 : 1;
 
-            // Format the ID as "XXX-###"
             return $"{prefix}-{nextNumber:000}";
         }
     }

@@ -31,7 +31,6 @@ namespace GradingSystem.ViewModel
             {
                 var userList = await Task.Run(() => _context.Users.ToList());
 
-                // Clear and add items to minimize UI updates
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Users.Clear();
@@ -62,9 +61,8 @@ namespace GradingSystem.ViewModel
                     _context.SaveChanges();
                 });
 
+                // Add the new user to the ObservableCollection
                 Application.Current.Dispatcher.Invoke(() => Users.Add(newUser));
-
-                await ShowMessageAsync("User added successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -81,11 +79,8 @@ namespace GradingSystem.ViewModel
 
             try
             {
-                var confirmResult = MessageBox.Show(
-                    $"Are you sure you want to delete the user '{userToDelete.FullName}'?",
-                    "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (confirmResult == MessageBoxResult.Yes)
+                if (MessageBox.Show($"Are you sure you want to delete the user '{userToDelete.FullName}'?",
+                                    "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 {
                     await Task.Run(() =>
                     {
@@ -93,9 +88,8 @@ namespace GradingSystem.ViewModel
                         _context.SaveChanges();
                     });
 
+                    // Remove the user from the ObservableCollection
                     Application.Current.Dispatcher.Invoke(() => Users.Remove(userToDelete));
-
-                    await ShowMessageAsync("User deleted successfully.", "Success", MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -105,22 +99,14 @@ namespace GradingSystem.ViewModel
         }
 
         /// <summary>
-        /// Displays a message box asynchronously.
-        /// </summary>
-        private async Task ShowMessageAsync(string message, string caption, MessageBoxImage icon)
-        {
-            await Application.Current.Dispatcher.InvokeAsync(() =>
-            {
-                MessageBox.Show(message, caption, MessageBoxButton.OK, icon);
-            });
-        }
-
-        /// <summary>
         /// Centralized error handling for user-friendly error reporting.
         /// </summary>
         private async Task HandleErrorAsync(string action, Exception ex)
         {
-            await ShowMessageAsync($"An error occurred while {action}: {ex.Message}", "Error", MessageBoxImage.Error);
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                MessageBox.Show($"An error occurred while {action}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            });
         }
     }
 }
