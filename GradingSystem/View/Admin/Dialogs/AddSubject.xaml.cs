@@ -112,7 +112,7 @@ namespace GradingSystem.View.Admin.Dialogs
 
                 var newSubject = new Subject
                 {
-                    SubjectId = Subject.GenerateSubjectId(CourseCodeTxt.Text.Trim(), new List<string>()),
+                    SubjectId = ApplicationDbContext.GenerateSubjectId(CourseCodeTxt.Text.Trim(), new List<string>()),
                     CourseCode = CourseCodeTxt.Text.Trim(),
                     SubjectName = TitleTxt.Text.Trim(),
                     Units = int.Parse(UnitTxt.Text.Trim()),

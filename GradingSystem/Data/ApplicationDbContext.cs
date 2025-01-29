@@ -24,6 +24,35 @@ namespace GradingSystem.Data
 
         public DbSet<StudentSubject> StudentSubjects { get; set; }
 
+        public static string GenerateSubjectId(string subjectName, List<string> existingIds)
+        {
+            if (string.IsNullOrEmpty(subjectName))
+            {
+                throw new ArgumentException("Subject name cannot be null or empty.");
+            }
+
+            // Extract prefix from subject name
+            string prefix = subjectName.Length >= 3
+                ? subjectName.Substring(0, 3).ToUpper()
+                : subjectName.ToUpper().PadRight(3, 'X'); // Pad with 'X' if subject name is too short
+
+            if (existingIds == null || !existingIds.Any())
+            {
+                return $"{prefix}-001";
+            }
+
+            // Find the highest numeric suffix for the given prefix
+            var matchingIds = existingIds
+                .Where(id => id.StartsWith(prefix + "-"))
+                .Select(id => id.Substring(prefix.Length + 1)) // Extract numeric part
+                .Where(num => int.TryParse(num, out _)) // Ensure it's a number
+                .Select(int.Parse);
+
+            int nextNumber = matchingIds.Any() ? matchingIds.Max() + 1 : 1;
+
+            return $"{prefix}-{nextNumber:000}";
+        }
+
         public string GenerateUserId()
         {
             string year = DateTime.Now.Year.ToString();

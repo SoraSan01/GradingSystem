@@ -25,6 +25,17 @@ namespace GradingSystem.ViewModel
             }
         }
 
+        private DateTime _currentDate = DateTime.Now;
+        public DateTime CurrentDate
+        {
+            get { return _currentDate; }
+            set
+            {
+                _currentDate = value;
+                OnPropertyChanged(nameof(CurrentDate)); // Ensure PropertyChanged is triggered
+            }
+        }
+
         private string? _program;
         public string? Program
         {
@@ -195,6 +206,7 @@ namespace GradingSystem.ViewModel
 
             try
             {
+                // Check if student ID already exists
                 if (await IsStudentDuplicateAsync(newStudent.StudentId))
                 {
                     await ShowMessageAsync("A student with this ID already exists.", "Duplicate Entry", MessageBoxImage.Warning);
@@ -209,22 +221,18 @@ namespace GradingSystem.ViewModel
                     return;
                 }
 
-                // Add the student
-                await Task.Run(() =>
-                {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Students.Add(newStudent); // Update UI thread
-                    });
-                }).ConfigureAwait(false);
-
+                // Add the new student to the database
+                _context.Students.Add(newStudent);
                 await _context.SaveChangesAsync();
 
-                // Assign subjects to the student
+                // Now assign subjects to the student
                 await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, programId);
 
-                // Update the ObservableCollection on the UI thread
-                Application.Current.Dispatcher.Invoke(() => Students.Add(newStudent));
+                // Update the UI thread (main thread) with the new student entry
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Students.Add(newStudent); // Add the new student to the ObservableCollection
+                });
 
                 await ShowMessageAsync("Student added and subjects assigned successfully.", "Success", MessageBoxImage.Information);
             }
@@ -251,6 +259,7 @@ namespace GradingSystem.ViewModel
 
             try
             {
+                // Fetch subjects that match the year, semester, and program
                 var subjects = await _context.Subjects
                     .Where(s => s.YearLevel == year && s.Semester == semester && s.ProgramId == programId)
                     .ToListAsync();
@@ -261,13 +270,15 @@ namespace GradingSystem.ViewModel
                     return;
                 }
 
+                // Create a list of StudentSubject entries to assign to the student
                 var studentSubjects = subjects.Select(s => new StudentSubject
                 {
                     StudentId = studentId,
                     SubjectId = s.SubjectId,
-                    Id = $"{studentId}_{s.SubjectId}"
+                    Id = $"{studentId}_{s.SubjectId}" // Ensure unique ID
                 }).ToList();
 
+                // Add new student-subject records to the database
                 _context.StudentSubjects.AddRange(studentSubjects);
                 await _context.SaveChangesAsync();
 
@@ -278,6 +289,7 @@ namespace GradingSystem.ViewModel
                 await HandleErrorAsync("assigning subjects", ex);
             }
         }
+
 
         // Edit an existing student
         public async Task EditStudentAsync(Student updatedStudent)

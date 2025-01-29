@@ -44,19 +44,14 @@ namespace GradingSystem.View.Admin
 
             if (selectedSubject != null)
             {
-                _selectedSubject = selectedSubject;  // Store the selected subject
-
                 // Create the view model here with the context and selected subject
-                var viewModel = new SubjectViewModel(_context);
-
-                // Initialize the ProgramViewModel
-                var programViewModel = new ProgramViewModel
+                var viewModel = new SubjectViewModel(_context)
                 {
-                    SelectedProgram = selectedSubject.Program
+                    SelectedSubject = selectedSubject
                 };
 
                 // Create and show the EditSubject window
-                var editWindow = new EditSubject(selectedSubject, programViewModel)
+                var editWindow = new EditSubject(selectedSubject, new ProgramViewModel())
                 {
                     DataContext = viewModel  // Bind the data context to the view model
                 };
@@ -67,6 +62,5 @@ namespace GradingSystem.View.Admin
                 MessageBox.Show("Please select a subject to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
     }
 }

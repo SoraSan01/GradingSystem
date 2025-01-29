@@ -2,6 +2,7 @@
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -131,20 +132,35 @@ namespace GradingSystem.View.Admin.Dialogs
                     return;
                 }
 
-                var newStudentSubject = new StudentSubject
+                var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
+                if (student == null)
                 {
-                    Id = $"{studentId}_{selectedSubject.SubjectId}", // Unique ID combining StudentId and SubjectId
-                    StudentId = studentId,
-                    SubjectId = selectedSubject.SubjectId,
-                    Grade = null // Initially null
-                };
+                    MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-                // Add subject using ViewModel
-                await _viewModel.AddStudentSubjectAsync(newStudentSubject);
+                // Check if the student is a scholar, 4th year, and 2nd semester
+                if (student.Status == "Scholar" && student.YearLevel == "4th Year" && student.Semester == "2nd Semester")
+                {
+                    var newStudentSubject = new StudentSubject
+                    {
+                        Id = $"{studentId}_{selectedSubject.SubjectId}", // Unique ID combining StudentId and SubjectId
+                        StudentId = studentId,
+                        SubjectId = selectedSubject.SubjectId,
+                        Grade = null // Initially null
+                    };
 
-                // Notify success and refresh subject list
-                MessageBox.Show("Subject added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                await _viewModel.LoadSubjects(studentId); // Refresh subjects
+                    // Add subject using ViewModel
+                    await _viewModel.AddStudentSubjectAsync(newStudentSubject);
+
+                    // Notify success and refresh subject list
+                    MessageBox.Show("Subject added successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await _viewModel.LoadSubjects(studentId); // Refresh subjects
+                }
+                else
+                {
+                    MessageBox.Show("Only scholars in 4th year and 2nd semester can add subjects.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
             catch (Exception ex)
             {
@@ -154,7 +170,7 @@ namespace GradingSystem.View.Admin.Dialogs
 
         private async void RemoveSubjectBtn(object sender, RoutedEventArgs e)
         {
-            var selectedSubject = SubjectListDataGrid.SelectedItem as StudentSubject;
+            var selectedSubject = StudentSubjectDatagrid.SelectedItem as StudentSubject;
             if (selectedSubject != null)
             {
                 var confirmation = MessageBox.Show("Are you sure you want to remove this subject?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -177,5 +193,28 @@ namespace GradingSystem.View.Admin.Dialogs
                 MessageBox.Show("Please select a subject to remove.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string searchText = (sender as TextBox)?.Text?.Trim().ToLower();
+            string studentId = idTxt.Text?.Trim();
+
+            if (string.IsNullOrEmpty(studentId))
+            {
+                MessageBox.Show("Please enter a valid Student ID.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
+            if (student == null)
+            {
+                MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            _subject.SearchText = searchText;
+            _subject.ApplySearch();
+        }
     }
 }
+

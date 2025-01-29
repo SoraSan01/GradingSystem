@@ -16,21 +16,21 @@ namespace GradingSystem.View.Admin.Dialogs
         public string CurrentDate => DateTime.Now.ToString("MM/dd/yyyy hh:mm tt");
 
         private readonly ApplicationDbContext _context;
-        public StudentsViewModel students { get; set; }
+        public StudentsViewModel Students { get; set; }
 
         public ShowGrade(Student student, ApplicationDbContext context)
         {
             InitializeComponent();
-            DateText.DataContext = CurrentDate;
             _context = context;
 
             // Initialize the ViewModel
-            students = new StudentsViewModel(_context);
+            Students = new StudentsViewModel(_context);
+            DataContext = Students;
+            DateText.Text = DateTime.Now.ToString("MMMM dd, yyyy");
 
             // Asynchronously load the student data
             _ = LoadStudentDataAsync(student);
         }
-
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -45,12 +45,12 @@ namespace GradingSystem.View.Admin.Dialogs
             try
             {
                 // Load the student data asynchronously
-                await students.LoadStudentDataAsync(student);
+                await Students.LoadStudentDataAsync(student);
 
                 // Once data is loaded, update the UI on the main thread
                 Dispatcher.Invoke(() =>
                 {
-                    DataContext = students;
+                    DataContext = Students;
                 });
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace GradingSystem.View.Admin.Dialogs
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void PrintButton_Click(object sender, RoutedEventArgs e)
@@ -86,7 +86,7 @@ namespace GradingSystem.View.Admin.Dialogs
             if (printDialog.ShowDialog() == true)
             {
                 // Ensure the window is fully loaded and rendered
-                this.UpdateLayout();
+                UpdateLayout();
 
                 // Hide the scrollbars of the DataGrid temporarily
                 var dataGrid = GradeDataGrid;
@@ -122,8 +122,11 @@ namespace GradingSystem.View.Admin.Dialogs
                     dataGrid.VerticalScrollBarVisibility = verticalScrollbarVisibility;
                 }
             }
-        }
 
+            // Restore the buttons' visibility
+            closeButton.Visibility = Visibility.Visible;
+            printButton.Visibility = Visibility.Visible;
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -132,6 +135,11 @@ namespace GradingSystem.View.Admin.Dialogs
         private void PrintBtn(object sender, RoutedEventArgs e)
         {
             PrintDialog();
+        }
+
+        private void CloseBtn(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

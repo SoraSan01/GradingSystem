@@ -117,7 +117,7 @@
                                                     </Grid>
                                                     <Grid Grid.Row="0" Grid.Column="2" HorizontalAlignment="Left" Margin="54,0,0,30" Grid.RowSpan="2">
                                                         <TextBlock x:Name="DateText" Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}"
-                                                                   Text="{Binding CurrentDate}"/>
+                                                                   Text="{Binding CurrentDate, StringFormat='{}{0:MMMM dd, yyyy}'}"/>
                                                     </Grid>
 
                                                     <!-- Program Caption and Value -->
@@ -215,7 +215,7 @@
 
                         <Grid Grid.Column="1">
                             <Button Margin="5" x:Name="CloseButton"
-            Background="DarkRed" Style="{StaticResource MaterialDesignFlatDarkBgButton}">
+            Background="DarkRed" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Click="CloseBtn">
                                 <TextBlock Text="CLOSE"/>
                             </Button>
                         </Grid>
@@ -233,3 +233,4 @@
 
     </Grid>
 </Window>
+

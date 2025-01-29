@@ -93,6 +93,8 @@ namespace GradingSystem.ViewModel
                 var lowerSearch = SearchText.ToLower();
                 var filtered = _context.Subjects
                     .Where(s => (s.SubjectName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.SubjectId ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.CourseCode ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.ProfessorName ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.Schedule ?? string.Empty).ToLower().Contains(lowerSearch))
                     .ToList();

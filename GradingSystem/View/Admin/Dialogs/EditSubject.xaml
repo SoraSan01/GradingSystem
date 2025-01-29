@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:GradingSystem.View.Admin.Dialogs"
-        mc:Ignorable="d" Title="Show Grade"
+        mc:Ignorable="d" Title="Edit Subject"
         WindowStartupLocation="CenterScreen" Height="500" Width="900"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
     <Grid>
@@ -108,7 +108,7 @@
                                         <TextBox x:Name="SubjectIdText" Text="{Binding SelectedSubject.SubjectId}" 
                                           Style="{StaticResource MaterialDesignFilledTextBox}" 
                                           Height="25" Width="200" FontSize="15" HorizontalAlignment="left" Margin="30 0 0 0"
-                                          Grid.Column="1" Grid.Row="0" Padding="10 0 0 0">
+                                          Grid.Column="1" Grid.Row="0" Padding="10 0 0 0" IsReadOnly="True">
                                         </TextBox>
 
                                         <!-- Course Code -->
@@ -139,9 +139,9 @@
 
                                         <!-- Program -->
                                         <TextBlock Grid.Row="4" Text="Program" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="ProgramCmb" Style="{StaticResource MaterialDesignFilledComboBox}" Text="{Binding Subject.Program}"
+                                        <ComboBox x:Name="ProgramCmb" Style="{StaticResource MaterialDesignFilledComboBox}" SelectedValue="{Binding SelectedSubject.ProgramId}"
                                           HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" 
-                                           FontSize="15" Padding="10 0 10 0" ItemsSource="{Binding SelectedSubject.ProgramId}"
+                                           FontSize="15" Padding="10 0 10 0" ItemsSource="{Binding Programs}"
                                            SelectedValuePath="ProgramId" DisplayMemberPath="ProgramName"
                                           Grid.Column="1" Grid.Row="4">
                                         </ComboBox>
@@ -150,12 +150,12 @@
                                         <TextBlock Grid.Row="5" Text="Year Level" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <ComboBox x:Name="yearCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
                                            HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
-                                           Grid.Column="1" Grid.Row="5" Text="{Binding SelectedSubject.YearLevel}"
+                                           Grid.Column="1" Grid.Row="5" SelectedValue="{Binding SelectedSubject.YearLevel}"
                                            SelectedValuePath="Content" Padding="10 0 10 0">
-                                            <ComboBoxItem>First Year</ComboBoxItem>
-                                            <ComboBoxItem>Second Year</ComboBoxItem>
-                                            <ComboBoxItem>Third Year</ComboBoxItem>
-                                            <ComboBoxItem>Fourth Year</ComboBoxItem>
+                                            <ComboBoxItem Content="First Year"/>
+                                            <ComboBoxItem Content="Second Year"/>
+                                            <ComboBoxItem Content="Third Year"/>
+                                            <ComboBoxItem Content="Fourth Year"/>
                                         </ComboBox>
 
                                         <!-- Semester -->
@@ -163,10 +163,10 @@
 
                                         <ComboBox x:Name="SemesterCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
                                            HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
-                                           Grid.Column="1" Grid.Row="6" Text="{Binding SelectedSubject.Semester}"
+                                           Grid.Column="1" Grid.Row="6" SelectedValue="{Binding SelectedSubject.Semester}"
                                            SelectedValuePath="Content" Padding="10 0 10 0">
-                                            <ComboBoxItem>First Semester</ComboBoxItem>
-                                            <ComboBoxItem>Second Semester</ComboBoxItem>
+                                            <ComboBoxItem Content="First Semester"/>
+                                            <ComboBoxItem Content="Second Semester"/>
                                         </ComboBox>
 
                                         <!-- Schedule -->
