@@ -1,4 +1,5 @@
 ﻿using GradingSystem.Data;
+using GradingSystem.View.Encoder;
 using GradingSystem.ViewModel;
 using System;
 using System.Linq;
@@ -66,12 +67,24 @@ namespace GradingSystem
 
             if (isAuthenticated)
             {
-                var mainWindow = new MainWindow(_context);
-                mainWindow.Show();
+                // Show the main window based on the role
+                if (_viewModel.UserRole == "Admin")
+                {
+                    MainWindow mainWindow = new MainWindow(_context);
+                    mainWindow.Show();
+                }
+                else if (_viewModel.UserRole == "Encoder" || _viewModel.UserRole == "Staff")
+                {
+                    EncoderMainWindow encoderWindow = new EncoderMainWindow(_context);
+                    encoderWindow.Show();
+                }
+
+                // Close the current (login) window
                 this.Close();
             }
             else
             {
+                // Handle invalid credentials
                 MessageBox.Show("Invalid login credentials.", "Authentication Failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 clearFields();
             }

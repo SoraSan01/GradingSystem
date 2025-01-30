@@ -26,8 +26,16 @@ namespace GradingSystem.View.Admin
             Program = programViewModel;
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
-            programCmb.ItemsSource = Program.Programs;
             DataContext = ViewModel;
+
+            // Load programs asynchronously
+            LoadProgramsAsync();
+        }
+
+        private async Task LoadProgramsAsync()
+        {
+            await Program.LoadProgramsAsync();
+            programCmb.ItemsSource = Program.Programs;
         }
 
         private async void AddStudentBtn(object sender, RoutedEventArgs e)
@@ -63,7 +71,6 @@ namespace GradingSystem.View.Admin
                 MessageBox.Show($"An error occurred while adding the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
 
         // Simplified validation method
         private bool ValidateFields()
@@ -126,7 +133,7 @@ namespace GradingSystem.View.Admin
             // Check if text length exceeds the limit or if the character is not a letter
             if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
             {
-                e.Handled = true; // Prevent further input if either condition is met
+                e.Handled = true;
             }
         }
 
@@ -170,10 +177,9 @@ namespace GradingSystem.View.Admin
         {
             TextBox textBox = sender as TextBox;
 
-            // Check if text length exceeds the limit or if the character is not a letter
             if (textBox != null && (textBox.Text.Length >= 50))
             {
-                e.Handled = true; // Prevent further input if either condition is met
+                e.Handled = true;
             }
         }
 

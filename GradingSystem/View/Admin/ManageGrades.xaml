@@ -57,7 +57,7 @@
                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}" 
                                                 Width="200" 
                                                 Height="40" FontSize="15" Padding="10 0 0 0"
-                                                materialDesign:HintAssist.Hint="Search"/>
+                                                materialDesign:HintAssist.Hint="Search" TextChanged="SearchTextBox"/>
                                         </Grid>
                                         <Grid Grid.Column="1">
                                             <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Width="100" Click="AddGradeBtn" >

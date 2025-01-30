@@ -67,7 +67,7 @@ namespace GradingSystem.View.Admin.Dialogs
             }
         }
 
-        private async void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.Column.Header.ToString() == "Grade")
             {
@@ -78,27 +78,46 @@ namespace GradingSystem.View.Admin.Dialogs
                 {
                     string newGrade = gradeCell.Text?.Trim();
 
-                    // Validate grade as a numeric value
-                    if (decimal.TryParse(newGrade, out decimal parsedGrade))
+                    // Validate grade: allow numeric values or "INC" (case insensitive)
+                    if (string.IsNullOrEmpty(newGrade) || decimal.TryParse(newGrade, out _) || newGrade.Equals("INC", StringComparison.OrdinalIgnoreCase))
                     {
-                        studentSubject.Grade = parsedGrade;
+                        // If it's "INC" (in any case), capitalize it
+                        studentSubject.Grade = newGrade.Equals("INC", StringComparison.OrdinalIgnoreCase) ? "INC" : newGrade;
 
-                        try
+                        // Delay execution to avoid interfering with UI updates
+                        Application.Current.Dispatcher.InvokeAsync(async () =>
                         {
-                            // Update grade in database
-                            await _viewModel.UpdateGradeAsync(studentSubject);
-                            MessageBox.Show("Grade updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Error updating grade: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        }
+                            try
+                            {
+                                await _viewModel.UpdateGradeAsync(studentSubject);
+                                MessageBox.Show("Grade updated successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"Error updating grade: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                            }
+                        });
                     }
                     else
                     {
-                        MessageBox.Show("Grade must be a valid numeric value.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("Grade must be a valid numeric value or 'INC'.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                        // Revert changes by resetting the cell value
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            gradeCell.Text = studentSubject.Grade ?? "INC"; // Restore previous value
+                        });
                     }
                 }
+            }
+        }
+
+        private void GradePreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            // Allow only numeric input or the letters "I", "N", "C", and handle "INC" as a whole.
+            if (!char.IsDigit(e.Text, 0) && e.Text.ToUpper() != "I" && e.Text.ToUpper() != "N" && e.Text.ToUpper() != "C")
+            {
+                e.Handled = true; // Prevent non-numeric and non-"INC" characters
             }
         }
 
@@ -214,6 +233,24 @@ namespace GradingSystem.View.Admin.Dialogs
 
             _subject.SearchText = searchText;
             _subject.ApplySearch();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.WindowState == WindowState.Normal)
+                this.WindowState = WindowState.Maximized;
+            else
+                this.WindowState = WindowState.Normal;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 }

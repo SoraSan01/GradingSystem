@@ -1,35 +1,47 @@
-﻿using GradingSystem.Data;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Controls;
+using GradingSystem.Data;
 using GradingSystem.Model;
 using GradingSystem.View.Admin.Dialogs;
 using GradingSystem.ViewModel;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents.Serialization;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Xps.Packaging;
-using System.Windows.Xps;
-using System.Collections.ObjectModel;
 
-namespace GradingSystem.View.Admin
+namespace GradingSystem.View.Encoder
 {
-    public partial class ManageGrades : UserControl
+    public partial class Grades : UserControl
     {
         private readonly ApplicationDbContext _context;
         public StudentsViewModel students { get; set; }
-
-        public ManageGrades(ApplicationDbContext context)
+        public Grades(ApplicationDbContext context)
         {
             InitializeComponent();
-
             _context = context;
             students = new StudentsViewModel(_context);
             DataContext = students;
+        }
+
+        private void SearchTextBox(object sender, TextChangedEventArgs e)
+        {
+            if (students == null || students.Students == null) return;
+
+            var searchText = (sender as TextBox)?.Text?.ToLower();
+
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                students.FilteredStudents = new ObservableCollection<Student>(students.Students);
+            }
+            else
+            {
+                students.FilteredStudents = new ObservableCollection<Student>(
+                    students.Students.Where(s => s.StudentName.ToLower().Contains(searchText) ||
+                                                 s.StudentId.ToString().Contains(searchText) ||
+                                                 s.Program.ProgramName.ToLower().Contains(searchText) ||
+                                                 s.YearLevel.ToString().Contains(searchText) ||
+                                                 s.Semester.ToString().Contains(searchText))
+                );
+            }
+
+            studentsDataGrid.ItemsSource = students.FilteredStudents;
         }
 
         private void AddGradeBtn(object sender, RoutedEventArgs e)
@@ -87,30 +99,6 @@ namespace GradingSystem.View.Admin
             {
                 MessageBox.Show($"An error occurred: {ex.Message}\n{ex.StackTrace}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void SearchTextBox(object sender, TextChangedEventArgs e)
-        {
-            if (students == null || students.Students == null) return;
-
-            var searchText = (sender as TextBox)?.Text?.ToLower();
-
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                students.FilteredStudents = new ObservableCollection<Student>(students.Students);
-            }
-            else
-            {
-                students.FilteredStudents = new ObservableCollection<Student>(
-                    students.Students.Where(s => s.StudentName.ToLower().Contains(searchText) ||
-                                                 s.StudentId.ToString().Contains(searchText) ||
-                                                 s.Program.ProgramName.ToLower().Contains(searchText) ||
-                                                 s.YearLevel.ToString().Contains(searchText) ||
-                                                 s.Semester.ToString().Contains(searchText))
-                );
-            }
-
-            studentsDataGrid.ItemsSource = students.FilteredStudents;
         }
     }
 }

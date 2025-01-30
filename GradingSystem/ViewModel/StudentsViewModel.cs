@@ -13,6 +13,7 @@ namespace GradingSystem.ViewModel
     {
         private readonly ApplicationDbContext _context;
         public ObservableCollection<Student> Students { get; set; }
+        private ObservableCollection<Student> _filteredStudents;
 
         private ObservableCollection<StudentSubject> _studentSubjects = new ObservableCollection<StudentSubject>();
         public ObservableCollection<StudentSubject> StudentSubjects
@@ -33,6 +34,16 @@ namespace GradingSystem.ViewModel
             {
                 _currentDate = value;
                 OnPropertyChanged(nameof(CurrentDate)); // Ensure PropertyChanged is triggered
+            }
+        }
+
+        public ObservableCollection<Student> FilteredStudents
+        {
+            get => _filteredStudents;
+            set
+            {
+                _filteredStudents = value;
+                OnPropertyChanged(nameof(FilteredStudents));
             }
         }
 
@@ -251,45 +262,39 @@ namespace GradingSystem.ViewModel
         // Assign subjects to a student after adding them
         private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string programId)
         {
-            if (string.IsNullOrWhiteSpace(studentId) || string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(semester) || string.IsNullOrWhiteSpace(programId))
-            {
-                await ShowMessageAsync("Invalid input for assigning subjects.", "Error", MessageBoxImage.Error);
-                return;
-            }
-
             try
             {
-                // Fetch subjects that match the year, semester, and program
                 var subjects = await _context.Subjects
-                    .Where(s => s.YearLevel == year && s.Semester == semester && s.ProgramId == programId)
+                    .Where(s => s.ProgramId == programId && s.YearLevel == year && s.Semester == semester)
                     .ToListAsync();
 
-                if (!subjects.Any())
+                foreach (var subject in subjects)
                 {
-                    await ShowMessageAsync("No matching subjects found for the selected year, semester, and program.", "Warning", MessageBoxImage.Warning);
-                    return;
+                    var studentSubject = new StudentSubject
+                    {
+                        Id = await _context.GenerateUniqueStudentSubjectId(_context, studentId, subject.SubjectId),
+                        StudentId = studentId,
+                        SubjectId = subject.SubjectId,
+                        CreatedAt = DateTime.Now
+                    };
+
+                    _context.StudentSubjects.Add(studentSubject);
                 }
 
-                // Create a list of StudentSubject entries to assign to the student
-                var studentSubjects = subjects.Select(s => new StudentSubject
-                {
-                    StudentId = studentId,
-                    SubjectId = s.SubjectId,
-                    Id = $"{studentId}_{s.SubjectId}" // Ensure unique ID
-                }).ToList();
-
-                // Add new student-subject records to the database
-                _context.StudentSubjects.AddRange(studentSubjects);
                 await _context.SaveChangesAsync();
-
-                await ShowMessageAsync($"Successfully assigned {subjects.Count} subjects to the student.", "Success", MessageBoxImage.Information);
+            }
+            catch (DbUpdateException ex)
+            {
+                string errorMessage = ex.InnerException?.Message ?? ex.Message;
+                MessageBox.Show($"An error occurred while assigning subjects: {errorMessage}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine(ex.StackTrace);
             }
             catch (Exception ex)
             {
-                await HandleErrorAsync("assigning subjects", ex);
+                MessageBox.Show($"An unexpected error occurred while assigning subjects: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Console.WriteLine(ex.StackTrace);
             }
         }
-
 
         // Edit an existing student
         public async Task EditStudentAsync(Student updatedStudent)

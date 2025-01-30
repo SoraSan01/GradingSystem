@@ -48,6 +48,8 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="View\Encoder\Dialogs\" />
+    <Folder Include="View\Staff\Dialogs\" />
   </ItemGroup>
 
 </Project>

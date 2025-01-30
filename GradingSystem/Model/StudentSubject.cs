@@ -24,8 +24,8 @@ namespace GradingSystem.Model
         [ForeignKey(nameof(SubjectId))]
         public Subject Subject { get; set; }
 
-        // Changed grades to decimal (optional based on requirements)
-        public decimal? Grade { get; set; }  // Nullable if grades can be empty
+        // Grade as a string to support "INC" or numeric values
+        public string? Grade { get; set; } // Allow null values
 
         public DateTime CreatedAt { get; set; }
 
@@ -33,15 +33,29 @@ namespace GradingSystem.Model
         [NotMapped]
         public string CourseCode => Subject?.CourseCode;
 
-        // These are the additional properties you need
+        // Additional properties
         [NotMapped]
         public string Professor => Subject?.ProfessorName;
 
         [NotMapped]
         public string Schedule => Subject?.Schedule;
 
+
+        // Convert Grade to a nullable decimal for calculations (returns null if it's "INC")
         [NotMapped]
-        public bool IsGradeLow => Grade < 75;
+        public decimal? GradeAsNumber
+        {
+            get
+            {
+                if (decimal.TryParse(Grade, out decimal numericGrade))
+                    return numericGrade;
+                return null; // Return null for non-numeric values like "INC"
+            }
+        }
+
+        // Determine if the grade is below passing
+        [NotMapped]
+        public bool IsGradeLow => GradeAsNumber.HasValue && GradeAsNumber < 75;
 
         // Constructor to set CreatedAt
         public StudentSubject()

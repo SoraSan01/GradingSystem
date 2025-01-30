@@ -106,5 +106,55 @@ namespace GradingSystem.View.Admin
         {
             this.Close();
         }
+
+        private void ProgramIdTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            if (textBox != null)
+            {
+                // Ensure the length does not exceed the max limit (20 characters in this case)
+                if (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0))
+                {
+                    e.Handled = true; // Disallow the input
+                }
+            }
+        }
+
+        private void ProgramNameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            if (textBox != null)
+            {
+                // Ensure the length does not exceed the max limit (20 characters in this case)
+                if (textBox.Text.Length >= 20 ||
+                    (!char.IsLetter(e.Text, 0) && !char.IsWhiteSpace(e.Text, 0))) // Allow spaces for Program Name
+                {
+                    e.Handled = true; // Disallow the input
+                }
+            }
+        }
+
+        private void MajorTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+
+            if (textBox != null)
+            {
+                // Ensure the length does not exceed the max limit (20 characters in this case)
+                if (textBox.Text.Length >= 20 ||
+                    (!char.IsLetter(e.Text, 0) && e.Text != "-")) // Allow hyphen for Major (e.g., Computer-Science)
+                {
+                    e.Handled = true; // Disallow the input
+                }
+            }
+        }
+
+
+        private void DescriptionTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+
+        }
     }
 }

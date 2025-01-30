@@ -106,28 +106,28 @@
                                         <TextBlock Text="Program ID" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <TextBox x:Name="ProgramIdTxt" Style="{StaticResource MaterialDesignFilledTextBox}" 
                                                  Height="25" Width="200" FontSize="15" HorizontalAlignment="left" Margin="30 0 0 0"
-                                                 Grid.Column="1" Grid.Row="2" Padding="10 0 0 0">
+                                                 Grid.Column="1" Grid.Row="2" Padding="10 0 0 0" PreviewTextInput="ProgramIdTxt_PreviewTextInput"
+                                                 >
                                         </TextBox>
                                         
-                                        <!-- Program Name -->
                                         <TextBlock Grid.Row="3" Text="Program Name" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <TextBox x:Name="ProgramNameTxt"  Style="{StaticResource MaterialDesignFilledTextBox}" 
                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                                 Grid.Column="1" Grid.Row="3">
+                                                 Grid.Column="1" Grid.Row="3" PreviewTextInput="ProgramNameTxt_PreviewTextInput"
+                                                 >
                                         </TextBox>
 
-                                        <!-- Last Name -->
                                         <TextBlock Grid.Row="4" Text="Program Major" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <TextBox x:Name="MajorTxt"  Style="{StaticResource MaterialDesignFilledTextBox}" 
-                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                                 Grid.Column="1" Grid.Row="4">
+                                                 HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" 
+                                                 FontSize="15" Padding="10 0 0 0"
+                                                 Grid.Column="1" Grid.Row="4" PreviewTextInput="MajorTxt_PreviewTextInput">
                                         </TextBox>
 
-                                        <!-- Email Address -->
                                         <TextBlock Grid.Row="5" Text="Description" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <TextBox x:Name="DescriptionTxt" Style="{StaticResource MaterialDesignFilledTextBox}" 
                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" Padding="10 0 0 0"
-                                                 Grid.Column="1" Grid.Row="5">
+                                                 Grid.Column="1" Grid.Row="5" PreviewTextInput="DescriptionTxt_PreviewTextInput">
                                         </TextBox>
                                     </Grid>
                                     <Grid Grid.Row="1">
