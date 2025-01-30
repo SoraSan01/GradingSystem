@@ -1,5 +1,7 @@
-﻿using GradingSystem.Model;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
 using GradingSystem.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,11 +25,14 @@ namespace GradingSystem.View.Admin
     {
         public ProgramViewModel ViewModel { get; set; }
         public event Action ProgramUpdated;
+        private readonly ApplicationDbContext _context;
+
 
         public EditProgram(Program selectedProgram)
         {
             InitializeComponent();
-            ViewModel = new ProgramViewModel();
+            _context = new ApplicationDbContext();
+            ViewModel = new ProgramViewModel(_context);
             ViewModel.SelectedProgram = selectedProgram;
             DataContext = ViewModel;
 
@@ -59,7 +64,7 @@ namespace GradingSystem.View.Admin
             }
 
             // Save the changes to the program
-            ViewModel.EditProgram(ViewModel.SelectedProgram);
+            ViewModel.EditProgramAsync(ViewModel.SelectedProgram);
 
             // Raise the event to notify that the program has been updated
             ProgramUpdated?.Invoke();

@@ -2,15 +2,17 @@
 using GradingSystem.Model;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace GradingSystem.ViewModel
 {
-    public class UserViewModel
+    public class UserViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<User> Users { get; private set; }
+        private User _selectedUser;
+        private ObservableCollection<User> _users;
         private readonly ApplicationDbContext _context;
 
         public UserViewModel(ApplicationDbContext context)
@@ -20,6 +22,26 @@ namespace GradingSystem.ViewModel
 
             // Load users asynchronously during initialization
             _ = LoadUsersAsync();
+        }
+
+        public ObservableCollection<User> Users
+        {
+            get => _users;
+            set
+            {
+                _users = value;
+                OnPropertyChanged(nameof(Users));
+            }
+        }
+
+        public User SelectedUser
+        {
+            get => _selectedUser;
+            set
+            {
+                _selectedUser = value;
+                OnPropertyChanged(nameof(SelectedUser));
+            }
         }
 
         /// <summary>
@@ -70,6 +92,22 @@ namespace GradingSystem.ViewModel
             }
         }
 
+        public async Task EditUserAsync(User user)
+        {
+            var existingUser = await _context.Users.FindAsync(user.UserId);
+            if (existingUser != null)
+            {
+                existingUser.FirstName = user.FirstName;
+                existingUser.LastName = user.LastName;
+                existingUser.Email = user.Email;
+                existingUser.Username = user.Username;
+                existingUser.Password = user.Password;
+                existingUser.Roles = user.Roles;
+
+                await _context.SaveChangesAsync();
+            }
+        }
+
         /// <summary>
         /// Deletes a user from the database and updates the ObservableCollection.
         /// </summary>
@@ -98,6 +136,13 @@ namespace GradingSystem.ViewModel
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         /// <summary>
         /// Centralized error handling for user-friendly error reporting.
         /// </summary>
@@ -110,3 +155,5 @@ namespace GradingSystem.ViewModel
         }
     }
 }
+
+

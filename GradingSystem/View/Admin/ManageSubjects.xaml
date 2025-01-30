@@ -53,9 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" 
+                                            <TextBox x:Name="SearchTextBox" Style="{StaticResource MaterialDesignOutlinedTextBox}" 
                                                      Width="200" Height="30" materialDesign:HintAssist.Hint="Search" MaxLength="10"
-                                                     Padding="10 0 0 0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                                                     Padding="10 0 0 0" TextChanged="SearchTextBox_TextChanged">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">

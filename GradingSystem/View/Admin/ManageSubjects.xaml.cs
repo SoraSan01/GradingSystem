@@ -24,7 +24,7 @@ namespace GradingSystem.View.Admin
 
         private void AddSubject(object sender, RoutedEventArgs e)
         {
-            var programViewModel = new ProgramViewModel();
+            var programViewModel = new ProgramViewModel(_context);
             var addSubject = new AddSubject(_context, programViewModel);
             addSubject.Show();
         }
@@ -51,7 +51,7 @@ namespace GradingSystem.View.Admin
                 };
 
                 // Create and show the EditSubject window
-                var editWindow = new EditSubject(selectedSubject, new ProgramViewModel())
+                var editWindow = new EditSubject(selectedSubject, new ProgramViewModel(_context))
                 {
                     DataContext = viewModel  // Bind the data context to the view model
                 };
@@ -62,5 +62,16 @@ namespace GradingSystem.View.Admin
                 MessageBox.Show("Please select a subject to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var textBox = sender as TextBox;
+            if (textBox != null)
+            {
+                _subjectViewModel.SearchText = textBox.Text;
+                _subjectViewModel.ApplySearch();
+            }
+        }
     }
 }
+

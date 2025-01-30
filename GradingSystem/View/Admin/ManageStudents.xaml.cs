@@ -25,7 +25,7 @@ namespace GradingSystem.View.Admin
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            var programViewModel = new ProgramViewModel(); // Or fetch it from somewhere
+            var programViewModel = new ProgramViewModel(_context); // Or fetch it from somewhere
 
             // Pass the context when creating the AddStudent window
             var addStudentWindow = new AddStudent(students, programViewModel, _context);
@@ -65,7 +65,7 @@ namespace GradingSystem.View.Admin
             if (selectedStudent != null)
             {
                 // Initialize the ProgramViewModel with the selected student's Program (if available)
-                var programViewModel = new ProgramViewModel
+                var programViewModel = new ProgramViewModel(_context)
                 {
                     // Populate with the program associated with the selected student (assuming you have a Program property)
                     SelectedProgram = selectedStudent.Program

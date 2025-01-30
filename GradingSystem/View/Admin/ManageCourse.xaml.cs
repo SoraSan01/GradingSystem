@@ -23,7 +23,7 @@ namespace GradingSystem.View.Admin
             _context = context;
 
             // Initialize the ViewModel
-            Programs = new ProgramViewModel();
+            Programs = new ProgramViewModel(_context);
 
             // Set the DataContext for binding, if required
             DataContext = Programs;
@@ -55,7 +55,7 @@ namespace GradingSystem.View.Admin
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    Programs.DeleteProgram(ProgramToDelete);
+                    _ = Programs.DeleteProgramAsync(ProgramToDelete);
                     // Refresh the list after deletion
                     _ = Programs.LoadProgramsAsync();
                 }
@@ -72,7 +72,7 @@ namespace GradingSystem.View.Admin
                 var editWindow = new EditProgram(SelectedProgram); // Pass the selected program to the constructor
 
                 // You can also set the DataContext if needed
-                var viewModel = new ProgramViewModel();
+                var viewModel = new ProgramViewModel(_context);
                 viewModel.SelectedProgram = SelectedProgram;
                 editWindow.DataContext = viewModel;
 
@@ -89,6 +89,22 @@ namespace GradingSystem.View.Admin
             else
             {
                 MessageBox.Show("Please select a Program to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void SearchTextBox(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox searchBox)
+            {
+                string filter = searchBox.Text.ToLower();
+
+                // Apply filter to the list
+                programDataGrid.ItemsSource = string.IsNullOrWhiteSpace(filter)
+                    ? Programs.Programs // Reset to full list when search is empty
+                    : Programs.Programs.Where(p =>
+                        p.ProgramName.ToLower().Contains(filter) ||
+                        p.Description.ToLower().Contains(filter) ||
+                        p.Major.ToLower().Contains(filter)).ToList();
             }
         }
     }

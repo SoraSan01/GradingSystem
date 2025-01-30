@@ -63,7 +63,7 @@ namespace GradingSystem.View.Admin
                         Major = MajorTxt.Text.Trim(),
                     };
 
-                    ViewModel.AddProgram(newProgram);
+                    ViewModel.AddProgramAsync(newProgram);
 
                     ProgramAdded?.Invoke();
                     clear();

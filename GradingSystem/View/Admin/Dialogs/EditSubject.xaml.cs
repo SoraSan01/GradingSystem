@@ -1,5 +1,7 @@
-﻿using GradingSystem.Model;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
 using GradingSystem.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,14 +25,17 @@ namespace GradingSystem.View.Admin.Dialogs
     {
         public Subject SelectedSubject { get; set; }
         public ProgramViewModel ProgramViewModel { get; set; }
+        private readonly ApplicationDbContext _context;
+
         public EditSubject(Subject subject, ProgramViewModel programViewModel)
         {
             InitializeComponent();
+            _context = new ApplicationDbContext();
             SelectedSubject = subject;
             this.DataContext = SelectedSubject; // Binding to Subject
 
             // Initialize ProgramViewModel if not passed in the constructor
-            ProgramViewModel = programViewModel ?? new ProgramViewModel();
+            ProgramViewModel = programViewModel ?? new ProgramViewModel(_context);
 
             // Bind Programs to the ComboBox
             ProgramCmb.ItemsSource = ProgramViewModel.Programs;

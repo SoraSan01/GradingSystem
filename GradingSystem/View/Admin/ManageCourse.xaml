@@ -55,7 +55,7 @@
                                         <Grid Grid.Column="0">
                                             <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                                      materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" Width="200"
-                                                     Height="30">
+                                                     Height="30" TextChanged="SearchTextBox">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">

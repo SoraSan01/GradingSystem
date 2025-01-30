@@ -53,9 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" Width="200"
+                                            <TextBox x:Name="SearchTextBox" Style="{StaticResource MaterialDesignOutlinedTextBox}" Width="200"
                                                      materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0"
-                                                     Height="30">
+                                                     Height="30" TextChanged="TextBox_TextChanged">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">
@@ -89,7 +89,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Style="{StaticResource gridEditButton}">
+                                                    <Button Style="{StaticResource gridEditButton}" Click="EditButton">
                                                         <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                     <Button Margin="5 0 0 0" Style="{StaticResource gridRemoveButton}" Click="DeleteUserBtn">
