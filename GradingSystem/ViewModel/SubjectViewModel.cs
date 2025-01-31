@@ -23,7 +23,7 @@ namespace GradingSystem.ViewModel
         {
             _context = context;
             // Load subjects asynchronously when the ViewModel is initialized
-            LoadSubjectsAsync();
+            _ = LoadSubjectsAsync();
         }
 
         public ObservableCollection<Subject> Subjects
@@ -73,8 +73,11 @@ namespace GradingSystem.ViewModel
             try
             {
                 // Fetch subjects from the database asynchronously
-                var subjects = await _context.Subjects.ToListAsync();
-                Subjects = new ObservableCollection<Subject>(subjects);
+                var subjects = await _context.Subjects.AsNoTracking().ToListAsync();
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Subjects = new ObservableCollection<Subject>(subjects);
+                });
             }
             catch (Exception ex)
             {
@@ -91,7 +94,7 @@ namespace GradingSystem.ViewModel
             else
             {
                 var lowerSearch = SearchText.ToLower();
-                var filtered = _context.Subjects
+                var filtered = Subjects
                     .Where(s => (s.SubjectName ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.SubjectId ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.CourseCode ?? string.Empty).ToLower().Contains(lowerSearch) ||
@@ -106,13 +109,33 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                _context.Subjects.Add(newSubject);
-                await _context.SaveChangesAsync();
+                using (var context = new ApplicationDbContext())
+                {
+                    // Generate a unique SubjectId
+                    var existingIds = await context.Subjects.Select(s => s.SubjectId).ToListAsync();
+                    newSubject.SubjectId = ApplicationDbContext.GenerateSubjectId(newSubject.SubjectName, existingIds);
 
-                Subjects.Add(newSubject);
-                ApplySearch();
+                    var existingSubject = await context.Subjects.FindAsync(newSubject.SubjectId);
+                    if (existingSubject != null)
+                    {
+                        context.Entry(existingSubject).State = EntityState.Detached;
+                    }
+
+                    context.Subjects.Add(newSubject);
+                    await context.SaveChangesAsync();
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Subjects.Add(newSubject);
+                    ApplySearch();
+                });
 
                 ShowMessage("Subject added successfully.", "Success", MessageBoxImage.Information);
+            }
+            catch (DbUpdateException ex)
+            {
+                ShowMessage($"Error adding subject: {ex.InnerException?.Message ?? ex.Message}", "Error", MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
@@ -138,16 +161,19 @@ namespace GradingSystem.ViewModel
 
                 if (confirmResult == MessageBoxResult.Yes)
                 {
-                    var subjectToDelete = await _context.Subjects.FindAsync(subject.SubjectId);
-
-                    if (subjectToDelete == null)
+                    using (var context = new ApplicationDbContext())
                     {
-                        ShowMessage("The subject no longer exists in the database.", "Error", MessageBoxImage.Warning);
-                        return;
-                    }
+                        var subjectToDelete = await context.Subjects.FindAsync(subject.SubjectId);
 
-                    _context.Subjects.Remove(subjectToDelete);
-                    await _context.SaveChangesAsync();
+                        if (subjectToDelete == null)
+                        {
+                            ShowMessage("The subject no longer exists in the database.", "Error", MessageBoxImage.Warning);
+                            return;
+                        }
+
+                        context.Subjects.Remove(subjectToDelete);
+                        await context.SaveChangesAsync();
+                    }
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -161,6 +187,51 @@ namespace GradingSystem.ViewModel
             catch (Exception ex)
             {
                 ShowMessage($"Error deleting subject: {ex.Message}", "Error", MessageBoxImage.Error);
+            }
+        }
+
+        public async Task EditSubjectAsync(Subject updatedSubject)
+        {
+            try
+            {
+                using (var context = new ApplicationDbContext())
+                {
+                    var subjectToEdit = await context.Subjects.FindAsync(updatedSubject.SubjectId);
+
+                    if (subjectToEdit == null)
+                    {
+                        ShowMessage("The subject no longer exists in the database.", "Error", MessageBoxImage.Warning);
+                        return;
+                    }
+
+                    subjectToEdit.CourseCode = updatedSubject.CourseCode;
+                    subjectToEdit.SubjectName = updatedSubject.SubjectName;
+                    subjectToEdit.Units = updatedSubject.Units;
+                    subjectToEdit.ProgramId = updatedSubject.ProgramId;
+                    subjectToEdit.YearLevel = updatedSubject.YearLevel;
+                    subjectToEdit.Semester = updatedSubject.Semester;
+                    subjectToEdit.Schedule = updatedSubject.Schedule;
+                    subjectToEdit.ProfessorName = updatedSubject.ProfessorName;
+
+                    await context.SaveChangesAsync();
+                }
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var index = Subjects.IndexOf(updatedSubject);
+                    if (index >= 0)
+                    {
+                        Subjects[index] = updatedSubject;
+                    }
+
+                    ApplySearch();
+                });
+
+                ShowMessage("Subject edited successfully.", "Success", MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowMessage($"Error editing subject: {ex.Message}", "Error", MessageBoxImage.Error);
             }
         }
 

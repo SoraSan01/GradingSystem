@@ -37,7 +37,12 @@ namespace GradingSystem.View.Admin.Dialogs
             // Initialize ProgramViewModel if not passed in the constructor
             ProgramViewModel = programViewModel ?? new ProgramViewModel(_context);
 
-            // Bind Programs to the ComboBox
+            LoadProgramsAsync();
+        }
+
+        private async Task LoadProgramsAsync()
+        {
+            await ProgramViewModel.LoadProgramsAsync();
             ProgramCmb.ItemsSource = ProgramViewModel.Programs;
         }
 

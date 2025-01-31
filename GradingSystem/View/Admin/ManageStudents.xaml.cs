@@ -5,19 +5,23 @@ using GradingSystem.View;
 using GradingSystem.Data;
 using System.Windows;
 using GradingSystem.ViewModel;
+using Notifications.Wpf;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using GradingSystem.View.Admin.Dialogs;
 
 namespace GradingSystem.View.Admin
 {
     public partial class ManageStudents : UserControl
     {
+        private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly ApplicationDbContext _context;
-
         public StudentsViewModel students { get; set; }
 
         public ManageStudents(ApplicationDbContext context)
         {
             InitializeComponent();
-
             _context = context;
             students = new StudentsViewModel(context);
             DataContext = students;
@@ -25,70 +29,75 @@ namespace GradingSystem.View.Admin
 
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
-            var programViewModel = new ProgramViewModel(_context); // Or fetch it from somewhere
-
-            // Pass the context when creating the AddStudent window
+            var programViewModel = new ProgramViewModel(_context);
             var addStudentWindow = new AddStudent(students, programViewModel, _context);
 
-            // Handle the event when a new student is added
-            addStudentWindow.StudentAdded += () =>
+            addStudentWindow.StudentAdded += async () =>
             {
-                // Refresh the list of students when a new student is added
-                students.LoadStudentsAsync();
+                await ReloadStudentsAsync();
+                ShowNotification("Success", "Student added successfully!", NotificationType.Success);
             };
 
-            // Show the dialog
             addStudentWindow.Show();
         }
 
-        private void deleteStudentBtn(object sender, RoutedEventArgs e)
+        private async void deleteStudentBtn(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             var studentToDelete = button?.DataContext as Student;
 
             if (studentToDelete != null)
             {
-                var result = MessageBox.Show($"Are you sure you want to delete {studentToDelete.FirstName} {studentToDelete.LastName}?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                var result = MessageBox.Show($"Are you sure you want to delete {studentToDelete.FirstName} {studentToDelete.LastName}?",
+                    "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    students.DeleteStudentAsync(studentToDelete);
+                    try
+                    {
+                        await students.DeleteStudentAsync(studentToDelete);
+                        await ReloadStudentsAsync();
+                        ShowNotification("Success", "Student deleted successfully!", NotificationType.Success);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowNotification("Error", $"Failed to delete student: {ex.Message}", NotificationType.Error);
+                    }
                 }
             }
         }
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            // Ensure the selected student is retrieved properly
             var selectedStudent = (Student)studentsDataGrid.SelectedItem;
 
             if (selectedStudent != null)
             {
-                // Initialize the ProgramViewModel with the selected student's Program (if available)
                 var programViewModel = new ProgramViewModel(_context)
                 {
-                    // Populate with the program associated with the selected student (assuming you have a Program property)
                     SelectedProgram = selectedStudent.Program
                 };
 
-                // Initialize the StudentsViewModel and set the SelectedStudent
                 var viewModel = new StudentsViewModel(_context)
                 {
                     SelectedStudent = selectedStudent
                 };
 
-                // Create the EditStudent window, passing the view models as needed
                 var editWindow = new EditStudent(selectedStudent, programViewModel)
                 {
-                    DataContext = viewModel // Bind the DataContext to the StudentsViewModel
+                    DataContext = viewModel
                 };
 
-                // Show the dialog
+                editWindow.StudentEdited += async () =>
+                {
+                    await ReloadStudentsAsync();
+                    ShowNotification("Success", "Student details updated!", NotificationType.Information);
+                };
+
                 editWindow.ShowDialog();
             }
             else
             {
-                // Show a warning if no student is selected
                 MessageBox.Show("Please select a student to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
@@ -116,5 +125,58 @@ namespace GradingSystem.View.Admin
 
             studentsDataGrid.ItemsSource = students.FilteredStudents;
         }
+
+        private void ShowNotification(string title, string message, NotificationType type)
+        {
+            _notificationManager.Show(new NotificationContent
+            {
+                Title = title,
+                Message = message,
+                Type = type
+            });
+        }
+
+        private async Task ReloadStudentsAsync()
+        {
+            try
+            {
+                await students.LoadStudentsAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowNotification("Error", $"Failed to load students: {ex.Message}", NotificationType.Error);
+            }
+        }
+
+        private void ShowGradeBtn(object sender, RoutedEventArgs e)
+        {
+            if (studentsDataGrid.SelectedItem is not Student selectedStudent)
+            {
+                ShowNotification("Warning", "Please select a student.", NotificationType.Warning);
+                return;
+            }
+
+            try
+            {
+                var showGradeWindow = new ShowGrade(selectedStudent, _context)
+                {
+                    DataContext = students
+                };
+                showGradeWindow.Show();
+            }
+            catch (Exception ex)
+            {
+                HandleError("An error occurred", ex);
+            }
+        }
+
+        private void HandleError(string action, Exception ex)
+        {
+            // Log the error (consider using a logging framework)
+            Console.Error.WriteLine($"{action}: {ex}");
+
+            ShowNotification("Error", $"{action}: {ex.Message}", NotificationType.Error);
+        }
+
     }
 }

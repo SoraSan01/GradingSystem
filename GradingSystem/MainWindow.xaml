@@ -22,12 +22,12 @@
         <materialDesign:Card Margin="10" UniformCornerRadius="15">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0" Background="DarkGreen">
-                    <ListView Margin="0 15">
+                    <ListView Margin="0 15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                         <!-- dashboard -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0">
@@ -46,6 +46,16 @@
             HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="ManageStudentsBtn">
                                 <StackPanel Margin="-5">
                                     <materialDesign:PackIcon Kind="AccountStudentOutline" Foreground="White"/>
+                                </StackPanel>
+                            </Button>
+                        </ListViewItem>
+
+                        <!-- Enrollment -->
+                        <ListViewItem HorizontalAlignment="Center" Margin="0 0">
+                            <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
+HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black" Click="EnrollmentBtn">
+                                <StackPanel Margin="-5">
+                                    <materialDesign:PackIcon Kind="SchoolOutline" Foreground="White"/>
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
@@ -90,17 +100,6 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                             </Button>
                         </ListViewItem>
 
-                        <!-- Grade Request -->
-                        <ListViewItem HorizontalAlignment="Center" Margin="0 0">
-                            <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
-HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="black">
-                                <StackPanel Margin="-5">
-                                    <materialDesign:PackIcon Kind="InboxesOutline" Foreground="White"/>
-                                </StackPanel>
-                            </Button>
-                        </ListViewItem>
-                        
-
                         <!-- Logout -->
                         <ListViewItem HorizontalAlignment="Center" Margin="0 0 0 0">
                             <Button Style="{StaticResource MaterialDesignFloatingActionButton}"
@@ -110,7 +109,7 @@ HorizontalAlignment="Left" BorderBrush="{x:Null}" Background="{x:Null}" Foregrou
                                 </StackPanel>
                             </Button>
                         </ListViewItem>
-                        
+
                     </ListView>
                 </Grid>
 

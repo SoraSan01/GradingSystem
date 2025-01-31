@@ -127,7 +127,7 @@
                                                         </TextBlock>
                                                     </Grid>
                                                     <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
-                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Program}" FontSize="15"
+                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Program.ProgramName}" FontSize="15"
                                                    Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
                                                     </Grid>
 
@@ -176,7 +176,6 @@
               VerticalScrollBarVisibility="Auto"
               ItemsSource="{Binding StudentSubjects}" AutoGenerateColumns="False" Padding="0" Background="White">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" FontSize="15" Width="*"/>
                                                 <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" FontSize="15" Width="*"/>
                                                 <DataGridTextColumn Header="Professor" Binding="{Binding Professor}" FontSize="15" Width="*"/>
                                                 <DataGridTextColumn Header="Schedule" Binding="{Binding Schedule}" FontSize="15" Width="*"/>
@@ -233,4 +232,3 @@
 
     </Grid>
 </Window>
-

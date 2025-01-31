@@ -24,7 +24,7 @@ namespace GradingSystem
             InitializeComponent();
             _context = context;
 
-            _dashboard = new Dashboard();
+            _dashboard = new Dashboard(context);
             MainContent.Content = _dashboard;
         }
 
@@ -87,5 +87,10 @@ namespace GradingSystem
         private void ManageCourseBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageCourse);
 
         private void ManageSubjectsBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageSubjects);
+
+        private void EnrollmentBtn(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

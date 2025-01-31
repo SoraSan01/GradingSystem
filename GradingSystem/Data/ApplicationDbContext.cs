@@ -14,14 +14,12 @@ namespace GradingSystem.Data
     public class ApplicationDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Program> Programs { get; set; }
-
         public DbSet<Grade> Grades { get; set; }
-
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<GradeRequest> GradeRequests { get; set; }
-
         public DbSet<StudentSubject> StudentSubjects { get; set; }
 
         public static string GenerateSubjectId(string subjectName, List<string> existingIds)
@@ -82,13 +80,12 @@ namespace GradingSystem.Data
             string uniqueId;
             do
             {
-                uniqueId = $"{studentId}-{subjectId}-{DateTime.Now:yyyyMMddHHmmssfff}";
+                uniqueId = $"{studentId}-{subjectId}";
             }
             while (await context.StudentSubjects.AnyAsync(ss => ss.Id == uniqueId));
 
             return uniqueId;
         }
-
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -96,6 +93,7 @@ namespace GradingSystem.Data
             {
                 string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
                 optionsBuilder.UseSqlServer(connectionString);
+                optionsBuilder.EnableSensitiveDataLogging(); // Enable detailed error logging
             }
 
             base.OnConfiguring(optionsBuilder);
@@ -109,6 +107,12 @@ namespace GradingSystem.Data
             modelBuilder.Entity<Program>()
                 .Property(p => p.ProgramId)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Enrollment>()
+                .HasOne(e => e.Student)
+                .WithMany()
+                .HasForeignKey(e => e.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

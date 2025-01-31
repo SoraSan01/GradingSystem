@@ -46,15 +46,7 @@ namespace GradingSystem.View.Encoder
 
         private void AddGradeBtn(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var addGradeDialog = new AddGrade(_context);
-                addGradeDialog.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while opening the Add Grade dialog: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+
         }
 
         private void ShowGradeBtn(object sender, RoutedEventArgs e)

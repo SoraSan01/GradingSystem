@@ -3,16 +3,18 @@ using GradingSystem.Model;
 using GradingSystem.View.Admin.Dialogs;
 using GradingSystem.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using Notifications.Wpf;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks;
 
 namespace GradingSystem.View.Admin
 {
     public partial class ManageSubjects : UserControl
     {
-        private Subject _selectedSubject;  // Declare the selectedSubject here
+        private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly SubjectViewModel _subjectViewModel;
-        public ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         public ManageSubjects(ApplicationDbContext context)
         {
@@ -22,40 +24,89 @@ namespace GradingSystem.View.Admin
             DataContext = _subjectViewModel;
         }
 
-        private void AddSubject(object sender, RoutedEventArgs e)
+        private async void AddSubject(object sender, RoutedEventArgs e)
         {
             var programViewModel = new ProgramViewModel(_context);
-            var addSubject = new AddSubject(_context, programViewModel);
-            addSubject.Show();
+            var addSubjectWindow = new AddSubject(_context, programViewModel);
+            addSubjectWindow.SubjectAdded += async () => await _subjectViewModel.LoadSubjectsAsync();
+            bool? result = addSubjectWindow.ShowDialog();
+
+            if (result == true)
+            {
+                await _subjectViewModel.LoadSubjectsAsync();
+
+                // Show success notification
+                _notificationManager.Show(new NotificationContent
+                {
+                    Title = "Success",
+                    Message = "Subject added successfully.",
+                    Type = NotificationType.Success
+                });
+            }
         }
 
+        // Delete subject with confirmation dialog
         private async void DeleteSubjectBtn(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.DataContext is Subject subject)
             {
-                await _subjectViewModel.DeleteSubjectAsync(subject);
+                var result = MessageBox.Show("Are you sure you want to delete this subject?", "Confirm Deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _subjectViewModel.DeleteSubjectAsync(subject);
+                        _notificationManager.Show(new NotificationContent
+                        {
+                            Title = "Deleted",
+                            Message = "Subject deleted successfully.",
+                            Type = NotificationType.Warning
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _notificationManager.Show(new NotificationContent
+                        {
+                            Title = "Error",
+                            Message = $"Failed to delete subject: {ex.Message}",
+                            Type = NotificationType.Error
+                        });
+                    }
+                }
             }
         }
 
-        private void EditSubjectBtn_Click(object sender, RoutedEventArgs e)
+        // Edit subject logic and show notification after edit
+        private async void EditSubjectBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Get the selected subject
             var selectedSubject = (Subject)subjectsDataGrid.SelectedItem;
 
             if (selectedSubject != null)
             {
-                // Create the view model here with the context and selected subject
                 var viewModel = new SubjectViewModel(_context)
                 {
                     SelectedSubject = selectedSubject
                 };
 
-                // Create and show the EditSubject window
                 var editWindow = new EditSubject(selectedSubject, new ProgramViewModel(_context))
                 {
-                    DataContext = viewModel  // Bind the data context to the view model
+                    DataContext = viewModel
                 };
-                editWindow.ShowDialog();
+
+                bool? result = editWindow.ShowDialog();
+
+                if (result == true)
+                {
+                    await _subjectViewModel.LoadSubjectsAsync();
+
+                    // Show notification after editing
+                    _notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Updated",
+                        Message = "Subject updated successfully.",
+                        Type = NotificationType.Information
+                    });
+                }
             }
             else
             {
@@ -63,10 +114,10 @@ namespace GradingSystem.View.Admin
             }
         }
 
+        // Search logic for subject search box
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var textBox = sender as TextBox;
-            if (textBox != null)
+            if (sender is TextBox textBox)
             {
                 _subjectViewModel.SearchText = textBox.Text;
                 _subjectViewModel.ApplySearch();
@@ -74,4 +125,3 @@ namespace GradingSystem.View.Admin
         }
     }
 }
-

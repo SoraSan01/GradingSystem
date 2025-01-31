@@ -1,6 +1,7 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
+using Notifications.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +12,13 @@ using System.Windows.Input;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
-    /// <summary>
-    /// Interaction logic for AddSubject.xaml
-    /// </summary>
     public partial class AddSubject : Window
     {
+        private readonly NotificationManager _notificationManager = new NotificationManager();
         public SubjectViewModel SubjectViewModel { get; set; }
         public ProgramViewModel Program { get; set; }
 
-        // Renamed event for better context
-        public event Action SubjectAdded;
+        public event Action SubjectAdded = delegate { };
 
         private readonly ApplicationDbContext _context;
 
@@ -28,10 +26,16 @@ namespace GradingSystem.View.Admin.Dialogs
         {
             InitializeComponent();
             _context = context;
-            // Initialize SubjectViewModel with an empty Subject instance
             SubjectViewModel = new SubjectViewModel(context);
-            ProgramCmb.ItemsSource = program.Programs;
+            Program = program;
             DataContext = SubjectViewModel;
+            _ = LoadProgramsAsync(); // Await the method call
+        }
+
+        private async Task LoadProgramsAsync()
+        {
+            await Program.LoadProgramsAsync();
+            ProgramCmb.ItemsSource = Program.Programs;
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -52,7 +56,7 @@ namespace GradingSystem.View.Admin.Dialogs
             var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                this.Close();
+                this.Close();  // Simply close the window without triggering other actions
             }
         }
 
@@ -61,7 +65,6 @@ namespace GradingSystem.View.Admin.Dialogs
             this.Close();
         }
 
-        // Centralized Validation method
         private bool ValidateForm()
         {
             if (string.IsNullOrWhiteSpace(CourseCodeTxt.Text))
@@ -97,7 +100,6 @@ namespace GradingSystem.View.Admin.Dialogs
             return true;
         }
 
-        // Helper method to show validation errors
         private void ShowValidationError(string message)
         {
             MessageBox.Show(message, "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -107,7 +109,6 @@ namespace GradingSystem.View.Admin.Dialogs
         {
             try
             {
-                // Validate form fields
                 if (!ValidateForm()) return;
 
                 var newSubject = new Subject
@@ -116,26 +117,37 @@ namespace GradingSystem.View.Admin.Dialogs
                     CourseCode = CourseCodeTxt.Text.Trim(),
                     SubjectName = TitleTxt.Text.Trim(),
                     Units = int.Parse(UnitTxt.Text.Trim()),
-                    ProgramId = ProgramCmb.SelectedValue?.ToString(),
-                    YearLevel = yearCmb.SelectedValue?.ToString(),
-                    Semester = SemesterCmb.SelectedValue?.ToString(),
+                    ProgramId = ProgramCmb.SelectedValue?.ToString() ?? string.Empty,
+                    YearLevel = yearCmb.SelectedValue?.ToString() ?? string.Empty,
+                    Semester = SemesterCmb.SelectedValue?.ToString() ?? string.Empty,
                     Schedule = ScheduleTxt.Text.Trim(),
                     ProfessorName = ProfessorTxt.Text.Trim()
                 };
 
-                // Add the new subject
-                await SubjectViewModel.AddSubjectAsync(newSubject);
+                await SubjectViewModel.AddSubjectAsync(newSubject).ConfigureAwait(false);
 
-                // Trigger event to notify that a subject was added
-                SubjectAdded?.Invoke();
+                _notificationManager.Show(new NotificationContent
+                {
+                    Title = "Success",
+                    Message = "Subject added successfully!",
+                    Type = NotificationType.Success
+                });
 
-                // Close the window
-                this.Close();
+                // Only close the window after showing the success notification.
+                this.Dispatcher.Invoke(() =>
+                {
+                    SubjectAdded?.Invoke();
+                    this.Close();
+                });
             }
             catch (Exception ex)
             {
-                // Improved error message
-                MessageBox.Show($"An error occurred while saving the subject: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _notificationManager.Show(new NotificationContent
+                {
+                    Title = "Error",
+                    Message = $"An error occurred: {ex.Message}",
+                    Type = NotificationType.Error
+                });
             }
         }
 

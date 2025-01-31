@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GradingSystem.View.Admin.Dialogs"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" 
+        xmlns:local1="clr-namespace:GradingSystem.ViewModel"
         mc:Ignorable="d" Title="Add Course"
         WindowStartupLocation="CenterScreen" Width="800" Height="500"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
@@ -147,7 +148,7 @@
                                         <TextBlock Grid.Row="4" Text="Program" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <ComboBox x:Name="ProgramCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" 
-                                                  FontSize="15" Padding="10 0 10 0" ItemsSource="{Binding Program}"
+                                                  FontSize="15" Padding="10 0 10 0" ItemsSource="{Binding Programs}"
                                                   SelectedValuePath="ProgramId" DisplayMemberPath="ProgramName"
                                                  Grid.Column="1" Grid.Row="4">
                                         </ComboBox>

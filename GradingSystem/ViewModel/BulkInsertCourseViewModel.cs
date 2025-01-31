@@ -19,13 +19,13 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
     public ICommand SaveCommand { get; set; }
     private readonly ApplicationDbContext _context;
     private readonly StudentSubjectViewModel _studentSubjectViewModel;
-    public ObservableCollection<Subject> Subject { get; set; }
+    public ObservableCollection<Subject> Subjects { get; set; }
 
     public BulkInsertCourseViewModel(ApplicationDbContext context)
     {
         _context = context;
         _studentSubjectViewModel = new StudentSubjectViewModel(context);
-        Subject = new ObservableCollection<Subject>();
+        Subjects = new ObservableCollection<Subject>();
         SaveCommand = new RelayCommand(SaveData);
     }
 
@@ -47,7 +47,7 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
             {
                 using (var package = new ExcelPackage(new FileInfo(filepath)))
                 {
-                    Subject.Clear();
+                    Subjects.Clear();
 
                     // Load programs from the database and create a dictionary to map program names to program IDs
                     var programs = await _context.Programs.ToListAsync();
@@ -66,9 +66,9 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                             var cellValue = worksheet.Cells[row, 1].Text?.Trim();
 
                             // Check for program name
-                            if (cellValue?.Contains("BACHELOR OF SCIENCE IN", StringComparison.OrdinalIgnoreCase) == true)
+                            if (programDictionary.Keys.Any(p => cellValue?.Contains(p, StringComparison.OrdinalIgnoreCase) == true))
                             {
-                                programName = cellValue;
+                                programName = programDictionary.FirstOrDefault(p => cellValue.Contains(p.Key, StringComparison.OrdinalIgnoreCase)).Key;
                                 continue;
                             }
 
@@ -109,7 +109,7 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                                 int.TryParse(unitsText, out int units);
 
                                 // Generate a unique subject ID
-                                var existingIds = Subject.Select(s => s.SubjectId).ToList();
+                                var existingIds = Subjects.Select(s => s.SubjectId).ToList();
                                 var subjectId = GenerateSubjectId(courseCode, existingIds);
 
                                 // Map program name to program ID
@@ -120,7 +120,7 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                                 }
 
                                 // Add the subject to the list
-                                Subject.Add(new Subject
+                                Subjects.Add(new Subject
                                 {
                                     SubjectId = subjectId,
                                     CourseCode = courseCode,
@@ -134,20 +134,19 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
                         }
                     }
                 }
-
-                MessageBox.Show("Data extraction completed successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while processing the file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"An error occurred while processing the Excel file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
+
     private async void SaveCoursesToDatabase()
     {
         try
         {
-            foreach (var course in Subject)
+            foreach (var course in Subjects)
             {
                 var existingCourse = await _context.Subjects
                     .AsNoTracking()
@@ -203,4 +202,3 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
         return $"{prefix}-{nextNumber:000}";
     }
 }
-

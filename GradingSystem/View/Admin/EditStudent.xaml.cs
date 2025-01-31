@@ -1,26 +1,17 @@
 ﻿using GradingSystem.Model;
 using GradingSystem.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace GradingSystem.View.Admin
 {
-    /// <summary>
-    /// Interaction logic for EditStudent.xaml
-    /// </summary>
     public partial class EditStudent : Window
     {
+        public event Action? StudentEdited; // Declare the event as nullable
         public Student SelectedStudent { get; set; }
         public ProgramViewModel ProgramViewModel { get; set; }
 
@@ -32,8 +23,13 @@ namespace GradingSystem.View.Admin
             this.SelectedStudent = student;
             this.DataContext = this;
 
-            programCmb.ItemsSource = ProgramViewModel.Programs;
+            _ = LoadProgramsAsync();
+        }
 
+        private async Task LoadProgramsAsync()
+        {
+            await ProgramViewModel.LoadProgramsAsync();
+            programCmb.ItemsSource = ProgramViewModel.Programs;
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -51,11 +47,38 @@ namespace GradingSystem.View.Admin
             {
                 try
                 {
-                    // Call the ViewModel's EditStudent method and await its completion
                     var viewModel = (StudentsViewModel)this.DataContext;
-                    await viewModel.EditStudentAsync(SelectedStudent); // Ensure the update is completed
+
+                    // Detach the existing tracked entity
+                    var existingEntity = viewModel.Context.ChangeTracker.Entries<Student>()
+                        .FirstOrDefault(e => e.Entity.StudentId == SelectedStudent.StudentId);
+                    if (existingEntity != null)
+                    {
+                        viewModel.Context.Entry(existingEntity.Entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                    }
+
+                    // Detach the existing tracked Program entity
+                    var existingProgramEntity = viewModel.Context.ChangeTracker.Entries<Program>()
+                        .FirstOrDefault(e => e.Entity.ProgramId == SelectedStudent.ProgramId);
+                    if (existingProgramEntity != null)
+                    {
+                        viewModel.Context.Entry(existingProgramEntity.Entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                    }
+
+                    // Update the student details
+                    SelectedStudent.FirstName = FnameTxt.Text.Trim();
+                    SelectedStudent.LastName = LnameTxt.Text.Trim();
+                    SelectedStudent.Email = emailTxt.Text.Trim();
+                    SelectedStudent.ProgramId = ((Program)programCmb.SelectedItem).ProgramId;
+                    SelectedStudent.YearLevel = yearCmb.SelectedValue?.ToString() ?? string.Empty;
+                    SelectedStudent.Semester = semesterCmb.SelectedValue?.ToString() ?? string.Empty;
+                    SelectedStudent.Status = scholarCmb.SelectedValue?.ToString() ?? string.Empty;
+
+                    viewModel.Context.Students.Update(SelectedStudent);
+                    await viewModel.Context.SaveChangesAsync(); // Ensure the update is completed
 
                     // Close the window after editing
+                    StudentEdited?.Invoke();
                     this.Close();
                 }
                 catch (Exception ex)
@@ -79,10 +102,7 @@ namespace GradingSystem.View.Admin
 
         private void IdTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-
-            // Check if text length exceeds the limit or if the character is not a letter
-            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsDigit(e.Text, 0)))
+            if (sender is TextBox textBox && (textBox.Text.Length >= 20 || !char.IsDigit(e.Text, 0)))
             {
                 e.Handled = true; // Prevent further input if either condition is met
             }
@@ -90,10 +110,7 @@ namespace GradingSystem.View.Admin
 
         private void FnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-
-            // Check if text length exceeds the limit or if the character is not a letter
-            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            if (sender is TextBox textBox && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
             {
                 e.Handled = true; // Prevent further input if either condition is met
             }
@@ -101,10 +118,7 @@ namespace GradingSystem.View.Admin
 
         private void LnameTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-
-            // Check if text length exceeds the limit or if the character is not a letter
-            if (textBox != null && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
+            if (sender is TextBox textBox && (textBox.Text.Length >= 20 || !char.IsLetter(e.Text, 0)))
             {
                 e.Handled = true; // Prevent further input if either condition is met
             }
@@ -112,10 +126,7 @@ namespace GradingSystem.View.Admin
 
         private void emailTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-
-            // Check if text length exceeds the limit or if the character is not a letter
-            if (textBox != null && (textBox.Text.Length >= 50))
+            if (sender is TextBox textBox && textBox.Text.Length >= 50)
             {
                 e.Handled = true; // Prevent further input if either condition is met
             }
@@ -137,3 +148,4 @@ namespace GradingSystem.View.Admin
         }
     }
 }
+
