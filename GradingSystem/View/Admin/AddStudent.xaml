@@ -134,45 +134,6 @@
                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
                                                  Grid.Column="1" Grid.Row="3" Padding="10 0 0 0" PreviewTextInput="emailTxt_PreviewTextInput"/>
 
-                                        <!-- Program -->
-                                        <TextBlock Grid.Row="4" Text="Program" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="programCmb"  Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15" SelectedValuePath="ProgramId"
-                                                  Grid.Column="1" Grid.Row="4" ItemsSource="{Binding Programs}"
-                                                  DisplayMemberPath="ProgramName" Padding="10 0 10 0">
-                                        </ComboBox>
-
-                                        <!-- Year -->
-                                        <TextBlock Grid.Row="5" Text="Year" VerticalAlignment="Center" 
-                                                   HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="yearCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
-                                                  Grid.Column="1" Grid.Row="5" 
-                                                  SelectedValuePath="Content" Padding="10 0 10 0">
-
-                                            <ComboBoxItem>First Year</ComboBoxItem>
-                                            <ComboBoxItem>Second Year</ComboBoxItem>
-                                            <ComboBoxItem>Third Year</ComboBoxItem>
-                                            <ComboBoxItem>Fourth Year</ComboBoxItem>
-                                        </ComboBox>
-
-                                        <!-- Semester -->
-                                        <TextBlock Grid.Row="6" Text="Semester" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="semesterCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="15"
-                                                  Grid.Column="1" Grid.Row="6" SelectedValuePath="Content" Padding="10 0 10 0">
-                                            <ComboBoxItem>First Semester</ComboBoxItem>
-                                            <ComboBoxItem>Second Semester</ComboBoxItem>
-                                        </ComboBox>
-
-                                        <!-- Status -->
-                                        <TextBlock Grid.Row="7" Text="Status" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
-                                        <ComboBox x:Name="scholarCmb" Style="{StaticResource MaterialDesignFilledComboBox}" 
-                                                  HorizontalAlignment="left" Margin="30 0 0 0" Height="25" Width="200" FontSize="20"
-                                                  Grid.Column="1" Grid.Row="7" SelectedValuePath="Content" Padding="10 0 10 0">
-                                            <ComboBoxItem>Non-Scholar</ComboBoxItem>
-                                            <ComboBoxItem>Scholar</ComboBoxItem>
-                                        </ComboBox>
                                     </Grid>
                                     <Grid Grid.Row="1">
                                         <Grid>

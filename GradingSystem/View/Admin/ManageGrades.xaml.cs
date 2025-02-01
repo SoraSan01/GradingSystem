@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Collections.ObjectModel;
 using Notifications.Wpf;
 using System.Windows.Input;
+using Microsoft.Extensions.Logging;
 
 namespace GradingSystem.View.Admin
 {
@@ -19,16 +20,19 @@ namespace GradingSystem.View.Admin
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly StudentSubjectViewModel _viewModel;
         private readonly SubjectViewModel _subject;
-        private readonly StudentsViewModel _student;
+        private readonly EnrollmentViewModel _enrollment;
+        private readonly ILogger<ManageGrades> _logger;
+        private readonly ApplicationDbContext _context;
 
         public ManageGrades(ApplicationDbContext context)
         {
             InitializeComponent();
-            _viewModel = new StudentSubjectViewModel(context);
-            _student = new StudentsViewModel(context);
-            _subject = new SubjectViewModel(context);
-            DataContext = _viewModel;
-            SubjectListDataGrid.DataContext = _subject;
+                _viewModel = new StudentSubjectViewModel(context);
+                _subject = new SubjectViewModel(context);
+                _enrollment = new EnrollmentViewModel(context);
+                _context = context;
+                DataContext = _viewModel;
+                SubjectListDataGrid.DataContext = _subject;
         }
 
         private void ShowNotification(string title, string message, NotificationType type)
@@ -43,9 +47,7 @@ namespace GradingSystem.View.Admin
 
         private void HandleError(string action, Exception ex)
         {
-            // Log the error (consider using a logging framework)
-            Console.Error.WriteLine($"{action}: {ex}");
-
+            _logger.LogError(ex, $"{action} failed");
             ShowNotification("Error", $"{action}: {ex.Message}", NotificationType.Error);
         }
 
@@ -66,20 +68,40 @@ namespace GradingSystem.View.Admin
                 return;
             }
 
-            var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
-            if (student != null)
+            try
             {
-                studentNameTxt.Text = student.StudentName;
-                courseTxt.Text = student.Program?.ProgramName ?? "N/A";
-                semesterTxt.Text = student.Semester;
-                yearLevelTxt.Text = student.YearLevel;
-                scholarshipTxt.Text = student.Status;
-                await _viewModel.LoadSubjects(studentId);
+                var student = await _enrollment.GetStudentByIdAsync(studentId);
+                if (student != null)
+                {
+                    var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId);
+                    if (enrollment != null)
+                    {
+                        PopulateStudentDetails(student, enrollment);
+                        await _viewModel.LoadSubjects(studentId);
+                    }
+                    else
+                    {
+                        ShowNotification("Error", "Enrollment not found.", NotificationType.Error);
+                    }
+                }
+                else
+                {
+                    ShowNotification("Error", "Student not found.", NotificationType.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ShowNotification("Error", "Student not found.", NotificationType.Error);
+                HandleError("Loading student data", ex);
             }
+        }
+
+        private void PopulateStudentDetails(Student student, Enrollment enrollment)
+        {
+            studentNameTxt.Text = student.StudentName;
+            courseTxt.Text = enrollment.Program?.ProgramName ?? "N/A";
+            semesterTxt.Text = enrollment.Semester;
+            yearLevelTxt.Text = enrollment.YearLevel;
+            scholarshipTxt.Text = enrollment.Status;
         }
 
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
@@ -106,7 +128,7 @@ namespace GradingSystem.View.Admin
                             }
                             catch (Exception ex)
                             {
-                                HandleError("Error updating grade", ex);
+                                HandleError("Updating grade", ex);
                             }
                         });
                     }
@@ -146,15 +168,22 @@ namespace GradingSystem.View.Admin
                 return;
             }
 
-            var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
-            if (student == null)
+            try
             {
-                ShowNotification("Error", "Student not found.", NotificationType.Error);
-                return;
-            }
+                var student = await _enrollment.GetStudentByIdAsync(studentId);
+                if (student == null)
+                {
+                    ShowNotification("Error", "Student not found.", NotificationType.Error);
+                    return;
+                }
 
-            _subject.SearchText = searchText;
-            _subject.ApplySearch();
+                _subject.SearchText = searchText;
+                _subject.ApplySearch();
+            }
+            catch (Exception ex)
+            {
+                HandleError("Searching subjects", ex);
+            }
         }
 
         private async Task AddSubBtnAsync(object sender, RoutedEventArgs e)
@@ -185,14 +214,21 @@ namespace GradingSystem.View.Admin
                     return;
                 }
 
-                var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
+                var student = await _enrollment.GetStudentByIdAsync(studentId);
                 if (student == null)
                 {
                     ShowNotification("Error", "Student not found.", NotificationType.Error);
                     return;
                 }
 
-                if (student.Status == "Scholar" && student.YearLevel == "4th Year" && student.Semester == "2nd Semester")
+                var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId);
+                if (enrollment == null)
+                {
+                    ShowNotification("Error", "Enrollment not found.", NotificationType.Error);
+                    return;
+                }
+
+                if (enrollment.Status == "Scholar" && enrollment.YearLevel == "4th Year" && enrollment.Semester == "2nd Semester")
                 {
                     var newStudentSubject = new StudentSubject
                     {
@@ -214,7 +250,7 @@ namespace GradingSystem.View.Admin
             }
             catch (Exception ex)
             {
-                HandleError("Error adding subject", ex);
+                HandleError("Adding subject", ex);
             }
         }
 
@@ -234,7 +270,7 @@ namespace GradingSystem.View.Admin
                     }
                     catch (Exception ex)
                     {
-                        HandleError("Error removing subject", ex);
+                        HandleError("Removing subject", ex);
                     }
                 }
             }
@@ -256,8 +292,7 @@ namespace GradingSystem.View.Admin
 
         private void SearchTextBox(object sender, TextChangedEventArgs e)
         {
-            // Implement the search functionality here
+            // This method seems to be unused, consider removing it if not needed.
         }
-
     }
 }

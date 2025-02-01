@@ -15,6 +15,9 @@ namespace GradingSystem.Model
         public string StudentId { get; set; }
 
         [Required]
+        public string FullName { get; set; }
+
+        [Required]
         public string YearLevel { get; set; }
 
         [Required]

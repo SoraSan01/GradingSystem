@@ -16,20 +16,21 @@ namespace GradingSystem.View.Admin.Dialogs
         public string CurrentDate => DateTime.Now.ToString("MM/dd/yyyy hh:mm tt");
 
         private readonly ApplicationDbContext _context;
-        public StudentsViewModel Students { get; set; }
+        public EnrollmentViewModel Students { get; set; }
 
-        public ShowGrade(Student student, ApplicationDbContext context)
+        public ShowGrade(Enrollment enrollment, ApplicationDbContext context)
         {
             InitializeComponent();
             _context = context;
 
             // Initialize the ViewModel
-            Students = new StudentsViewModel(_context);
-            DataContext = Students;
+            Students = new EnrollmentViewModel(_context);
+            DataContext = Students; // Setting DataContext to the ViewModel
+
             DateText.Text = DateTime.Now.ToString("MMMM dd, yyyy");
 
-            // Asynchronously load the student data
-            _ = LoadStudentDataAsync(student);
+            // Load student data based on the enrollment info
+            _ = LoadStudentDataAsync(enrollment.StudentId, enrollment.YearLevel, enrollment.Semester);
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -40,17 +41,18 @@ namespace GradingSystem.View.Admin.Dialogs
             }
         }
 
-        private async Task LoadStudentDataAsync(Student student)
+        // Modified LoadStudentDataAsync method that loads based on studentId, year, and semester
+        private async Task LoadStudentDataAsync(string studentId, string yearLevel, string semester)
         {
             try
             {
-                // Load the student data asynchronously
-                await Students.LoadStudentDataAsync(student);
+                // Load the student data asynchronously from the ViewModel
+                await Students.LoadStudentDataAsync(studentId, yearLevel, semester);
 
                 // Once data is loaded, update the UI on the main thread
                 Dispatcher.Invoke(() =>
                 {
-                    DataContext = Students;
+                    DataContext = Students; // Ensure the DataContext is correctly set
                 });
             }
             catch (Exception ex)

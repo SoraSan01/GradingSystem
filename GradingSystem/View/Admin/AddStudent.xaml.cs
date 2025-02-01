@@ -15,111 +15,53 @@ namespace GradingSystem.View.Admin
         private readonly NotificationManager _notificationManager = new NotificationManager();
 
         public StudentsViewModel ViewModel { get; set; }
-        public ProgramViewModel Program { get; set; }
 
         public event Action StudentAdded;
 
         private readonly ApplicationDbContext _context;
 
-        public AddStudent(StudentsViewModel viewModel, ProgramViewModel programViewModel, ApplicationDbContext context)
+        public AddStudent(StudentsViewModel viewModel, ApplicationDbContext context)
         {
             InitializeComponent();
             ViewModel = viewModel;
-            Program = programViewModel;
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
             DataContext = ViewModel;
-
-            _ = LoadProgramsAsync();
-        }
-
-        private async Task LoadProgramsAsync()
-        {
-            try
-            {
-                await Program.LoadProgramsAsync();
-                programCmb.ItemsSource = Program.Programs;
-            }
-            catch (Exception ex)
-            {
-                ShowErrorNotification("Error loading programs", ex.Message);
-            }
         }
 
         private async void AddStudentBtn(object sender, RoutedEventArgs e)
         {
-            if (!ValidateFields())
+            string studentId = idTxt.Text.Trim();
+            string firstName = FnameTxt.Text.Trim();
+            string lastName = LnameTxt.Text.Trim();
+            string email = emailTxt.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(studentId) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(email))
             {
+                ShowErrorNotification("Validation Error", "All fields are required.");
                 return;
             }
 
             try
             {
-                var newStudent = CreateStudent();
-                string year = yearCmb.SelectedValue?.ToString();
-                string semester = semesterCmb.SelectedValue?.ToString();
-                string programId = programCmb.SelectedValue?.ToString();
-                string status = scholarCmb.SelectedValue?.ToString();
-
-                if (string.IsNullOrWhiteSpace(programId))
+                var student = new Student
                 {
-                    ShowErrorNotification("Validation Error", "Please select a valid program.");
-                    return;
-                }
+                    StudentId = studentId,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email
+                };
 
-                await ViewModel.AddStudentAsync(newStudent, year, semester, programId, status);
+                await ViewModel.AddStudentAsync(student);
 
+                ShowSuccessNotification("Success", "Student added successfully.");
                 StudentAdded?.Invoke();
-                ClearForm();
-
-                ShowSuccessNotification("Success", "Student added successfully!");
+                Close();
             }
             catch (Exception ex)
             {
                 ShowErrorNotification("Error", $"An error occurred while adding the student: {ex.Message}");
             }
-        }
-
-        private bool ValidateFields()
-        {
-            if (string.IsNullOrWhiteSpace(FnameTxt.Text?.Trim()) ||
-                string.IsNullOrWhiteSpace(LnameTxt.Text?.Trim()) ||
-                string.IsNullOrWhiteSpace(idTxt.Text?.Trim()) ||
-                string.IsNullOrWhiteSpace(emailTxt.Text?.Trim()) ||
-                programCmb.SelectedItem == null || semesterCmb.SelectedItem == null ||
-                yearCmb.SelectedItem == null)
-            {
-                MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
-            return true;
-        }
-
-        private Student CreateStudent()
-        {
-            return new Student
-            {
-                StudentId = idTxt.Text.Trim(),
-                Email = emailTxt.Text.Trim(),
-                FirstName = FnameTxt.Text.Trim(),
-                LastName = LnameTxt.Text.Trim(),
-                ProgramId = programCmb.SelectedValue?.ToString(),
-                YearLevel = yearCmb.SelectedValue?.ToString(),
-                Semester = semesterCmb.SelectedValue?.ToString(),
-                Status = scholarCmb.SelectedValue?.ToString()
-            };
-        }
-
-        private void ClearForm()
-        {
-            FnameTxt.Clear();
-            LnameTxt.Clear();
-            idTxt.Clear();
-            emailTxt.Clear();
-            programCmb.SelectedIndex = -1;
-            yearCmb.SelectedIndex = -1;
-            semesterCmb.SelectedIndex = -1;
-            FnameTxt.Focus();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
