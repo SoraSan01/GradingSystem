@@ -1,5 +1,7 @@
-﻿using GradingSystem.Model;
+﻿using GradingSystem.Data;
+using GradingSystem.Model;
 using GradingSystem.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,11 +24,15 @@ namespace GradingSystem.View.Admin
     public partial class EditProgram : Window
     {
         public ProgramViewModel ViewModel { get; set; }
+        public event Action ProgramUpdated;
+        private readonly ApplicationDbContext _context;
+
 
         public EditProgram(Program selectedProgram)
         {
             InitializeComponent();
-            ViewModel = new ProgramViewModel();
+            _context = new ApplicationDbContext();
+            ViewModel = new ProgramViewModel(_context);
             ViewModel.SelectedProgram = selectedProgram;
             DataContext = ViewModel;
 
@@ -49,26 +55,50 @@ namespace GradingSystem.View.Admin
         private void SaveBtn(object sender, RoutedEventArgs e)
         {
             // Validate the input values
-            if (string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.ProgramName) || string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.Description))
+            if (string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.ProgramName) ||
+                string.IsNullOrWhiteSpace(ViewModel.SelectedProgram.Description) ||
+                string.IsNullOrEmpty(ViewModel.SelectedProgram.ProgramId))
             {
                 MessageBox.Show("Please fill in all fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            // Call the EditProgram method from the ViewModel to update the program
-            ViewModel.EditProgram(ViewModel.SelectedProgram);
+            // Save the changes to the program
+            ViewModel.EditProgramAsync(ViewModel.SelectedProgram);
 
-            // Close the window after saving the changes
+            // Raise the event to notify that the program has been updated
+            ProgramUpdated?.Invoke();
+
+            // Close the window after saving
             this.Close();
         }
 
-        private void Close(object sender, RoutedEventArgs e)
+
+        private void Minimize(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseWindow(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
                 this.Close();
+                ProgramUpdated?.Invoke();
             }
         }
+
+        private void CancelBtn(object sender, RoutedEventArgs e)
+        {
+            // Optionally, ask the user if they want to discard changes before closing the window
+            var result = MessageBox.Show("Are you sure you want to discard your changes?", "Cancel", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                this.Close(); // Simply close the window without saving changes
+                ProgramUpdated?.Invoke();
+            }
+        }
+
     }
 }

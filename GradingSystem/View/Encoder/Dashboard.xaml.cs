@@ -10,33 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace GradingSystem.View.Admin
+namespace GradingSystem.View.Encoder
 {
     /// <summary>
-    /// Interaction logic for AddSubject.xaml
+    /// Interaction logic for Dashboard.xaml
     /// </summary>
-    public partial class AddSubject : Window
+    public partial class Dashboard : UserControl
     {
-        public AddSubject()
+        public Dashboard()
         {
             InitializeComponent();
-        }
-
-        private void Close(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
-
-        private void BulkInsertBtn(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }

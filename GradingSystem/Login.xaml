@@ -71,7 +71,7 @@
 
                                 <PasswordBox x:Name="passwordTxt" MaxLength="20" Style="{StaticResource MaterialDesignFloatingHintRevealPasswordBox}" 
              Margin="0 20" Height="50" Width="300" FontSize="20" 
-             Grid.Column="0" PasswordChanged="PasswordBox_PasswordChanged" KeyDown="TextBox_KeyDown">
+             Grid.Column="0" KeyDown="TextBox_KeyDown">
                                     <!-- HintAssist for watermark functionality -->
                                     <materialDesign:HintAssist.Hint>
                                         <StackPanel Orientation="Horizontal">

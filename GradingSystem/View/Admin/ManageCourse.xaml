@@ -12,24 +12,24 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Dashboard Title -->
         <Grid Grid.Row="0" Margin="30 0 0 0">
-            <TextBlock Text="Manage Students" 
+            <TextBlock Text="Manage Programs" 
            FontSize="35"
            Style="{StaticResource MaterialDesignCaptionTextBlock}" 
            VerticalAlignment="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">
-            <Border Background="Black" Margin="10 10 10 10" CornerRadius="4">
-                <materialDesign:Card Background="White" Height="500">
+            <Border Background="Black" VerticalAlignment="Stretch" Margin="10 10 10 10" CornerRadius="4">
+                <materialDesign:Card Background="White" VerticalAlignment="Stretch">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="50"/>
-                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0" Effect="{StaticResource MaterialDesignElevationShadow1}">
@@ -53,8 +53,9 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0">
-                                            <TextBox Style="{StaticResource searchBoxes}" Width="200"
-                                 Height="30">
+                                            <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                     materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" Width="200"
+                                                     Height="30" TextChanged="SearchTextBox">
                                             </TextBox>
                                         </Grid>
                                         <Grid Grid.Column="1">
@@ -69,14 +70,29 @@
                             </materialDesign:Card>
                         </Grid>
 
-                        <Grid Grid.Row="1" Height="auto">
-                            <DataGrid x:Name="programDataGrid" ItemsSource="{Binding Programs}" AutoGenerateColumns="False">
+                        <Grid Grid.Row="1" VerticalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DataGrid Grid.Row="0" x:Name="programDataGrid" ItemsSource="{Binding Programs}" Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}" 
+                                      HorizontalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" 
+                                      VerticalAlignment="Stretch"
+                                      VerticalScrollBarVisibility="Auto">
 
                                 <DataGrid.Columns>
 
                                     <DataGridTextColumn Header="ProgramID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding ProgramId}"/>
                                     <DataGridTextColumn Header="ProgramName" CanUserResize="False" Binding="{Binding ProgramName}" IsReadOnly="True" Width="*"/>
-                                    <DataGridTextColumn Header="Description" CanUserResize="False" Binding="{Binding Description}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTemplateColumn Header="Description" CanUserResize="False" IsReadOnly="True" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
 
                                     <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >

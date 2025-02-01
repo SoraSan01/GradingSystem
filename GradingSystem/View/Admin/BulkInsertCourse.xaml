@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:GradingSystem.View.Admin"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        WindowStartupLocation="CenterScreen" Height="400" Width="1000"
+        WindowStartupLocation="CenterScreen" Height="720" Width="1200"
         WindowStyle="None" Background="{x:Null}" AllowsTransparency="True" MouseDown="Window_MouseDown">
     <Grid>
-        <materialDesign:Card Padding="5 5 5 5" Background="Gray">
+        <materialDesign:Card Padding="5" Background="Gray">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
@@ -17,12 +17,23 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <Border Background="Black" Margin="05 05 05 05" CornerRadius="5" Width="800" HorizontalAlignment="Left">
-                        <materialDesign:Card Effect="{StaticResource MaterialDesignElevationShadow1}" Width="auto">
-
-                            <DataGrid ItemsSource="{Binding Courses}" AutoGenerateColumns="True">
+                    <Border Background="Black" Margin="5" CornerRadius="5" Width="1000" HorizontalAlignment="Left">
+                        <materialDesign:Card Effect="{StaticResource MaterialDesignElevationShadow1}">
+                            <DataGrid x:Name="SubjectDataGrid" ItemsSource="{Binding Subject}" AutoGenerateColumns="False" 
+                                      Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Id" Binding="{Binding SubjectId}"/>
+                                    <DataGridTextColumn Header="Name" Binding="{Binding SubjectName}"/>
+                                    <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}"/>
+                                    <DataGridTextColumn Header="Units" Binding="{Binding Units}"/>
+                                    <DataGridTextColumn Header="Semester" Binding="{Binding Semester}"/>
+                                    <DataGridTextColumn Header="Year" Binding="{Binding YearLevel}"/>
+                                    <DataGridTextColumn Header="Program" Binding="{Binding ProgramId}"/>
+                                </DataGrid.Columns>
                             </DataGrid>
-
                         </materialDesign:Card>
                     </Border>
                 </Grid>
@@ -30,33 +41,28 @@
                     <materialDesign:Card Background="Green" Width="180">
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <Grid Grid.Row="0">
-                                <StackPanel Margin="0 0 0 0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                <StackPanel Margin="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                                     <Button Style="{StaticResource MaterialDesignIconButton}" x:Name="CloseButton" Content="{materialDesign:PackIcon Kind=WindowClose}" Width="30" Height="30" Margin="5" VerticalAlignment="Top" Click="Close"/>
                                 </StackPanel>
                             </Grid>
-                            
+
                             <Grid Grid.Row="1">
                             </Grid>
-                            
+
                             <Grid Grid.Row="2" VerticalAlignment="Bottom">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
-                                        <!-- First row -->
                                         <RowDefinition Height="Auto" />
-                                        <!-- Second row -->
                                     </Grid.RowDefinitions>
 
-                                    <!-- Button in the first row -->
                                     <Button Grid.Row="0" Content="Browse" Margin="5" Width="auto" Click="BrowseBtn"  />
-
-                                    <!-- Button in the second row -->
                                     <Button Grid.Row="1" Content="Save" Margin="5" Width="auto" Command="{Binding SaveCommand}"/>
                                 </Grid>
                             </Grid>

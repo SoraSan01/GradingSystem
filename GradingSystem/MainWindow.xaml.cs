@@ -2,48 +2,54 @@
 using GradingSystem.Model;
 using GradingSystem.View;
 using GradingSystem.View.Admin;
-using System.Text;
+using GradingSystem.View.Admin.Dialogs;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GradingSystem
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
+
+        private Dashboard _dashboard;
+        private ManageStudents? _manageStudents;
+        private ManageGrades? _manageGrades;
+        private ManageUser? _manageUser;
+        private ManageCourse? _manageCourse;
+        private ManageSubjects? _manageSubjects;
 
         public MainWindow(ApplicationDbContext context)
         {
             InitializeComponent();
-            MainContent.Content = new Dashboard();
             _context = context;
+
+            _dashboard = new Dashboard(context);
+            MainContent.Content = _dashboard;
         }
 
-        private void dashboardBtn(object sender, RoutedEventArgs e)
+        public void SwitchContent<T>(ref T contentPage) where T : class
         {
-            if (MainContent.Content is not Dashboard) {
-                MainContent.Content = new Dashboard();
+            if (contentPage == null)
+            {
+                contentPage = Activator.CreateInstance(typeof(T), _context) as T;
+            }
+
+            if (contentPage != null && MainContent.Content != contentPage)
+            {
+                MainContent.Content = contentPage;
             }
         }
 
-        private void logoutBtn(object sender, RoutedEventArgs e)
+        private void DashboardBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _dashboard);
+
+        private void LogoutBtn(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure you want to Log out?", "Close", MessageBoxButton.YesNo);
+            var result = MessageBox.Show("Are you sure you want to log out?", "Logout", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                Login login = new Login(_context);
+                var login = new Login(_context);
                 login.Show();
-
                 this.Close();
             }
         }
@@ -52,74 +58,39 @@ namespace GradingSystem
         {
             if (e.ButtonState == MouseButtonState.Pressed)
             {
-                // Call DragMove to allow the window to be dragged
                 this.DragMove();
             }
         }
 
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-            var window = Window.GetWindow(this);
-            window.WindowState = WindowState.Minimized; // Minimize the window
-        }
+        private void Minimize(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
         private void Maximize(object sender, RoutedEventArgs e)
         {
-            var window = Window.GetWindow(this);
-            if (window.WindowState == WindowState.Maximized)
-                window.WindowState = WindowState.Normal; // Restore window to normal
-            else
-                window.WindowState = WindowState.Maximized; // Maximize the window
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
-        private void Close(object sender, RoutedEventArgs e)
+        private void CloseWindow(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Are you sure you want to exit?", "Close", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                Application.Current.Shutdown();  // Close the application
+                Application.Current.Shutdown();
             }
         }
 
-        private void managestudentBtn(object sender, RoutedEventArgs e)
-        {
-            if (MainContent.Content is not ManageStudents)
-            {
-                MainContent.Content = new ManageStudents(_context);
-            }
-        }
+        private void ManageStudentsBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageStudents);
 
-        private void gradeBtn(object sender, RoutedEventArgs e)
-        {
-            
-            if (MainContent.Content is not ManageGrades)
-            {
-                MainContent.Content = new ManageGrades();
-            }
-        }
+        private void ManageGradesBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageGrades);
 
-        private void usersBtn(object sender, RoutedEventArgs e)
-        {
-            if (MainContent.Content is not ManageUser)
-            {
-                MainContent.Content = new ManageUser(_context);
-            }
-        }
+        private void ManageUserBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageUser);
 
-        private void courstBtn(object sender, RoutedEventArgs e)
-        {
-            if (MainContent.Content is not ManageCourse)
-            {
-                MainContent.Content = new ManageCourse(_context);
-            }
-        }
+        private void ManageCourseBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageCourse);
 
-        private void subjectBtn(object sender, RoutedEventArgs e)
+        private void ManageSubjectsBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _manageSubjects);
+
+        private void EnrollmentBtn(object sender, RoutedEventArgs e)
         {
-            if (MainContent.Content is not ManageSubjects)
-            {
-                MainContent.Content = new ManageSubjects(_context);
-            }
+
         }
     }
 }

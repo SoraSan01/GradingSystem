@@ -1,20 +1,11 @@
 ﻿using GradingSystem.Data;
+using GradingSystem.View.Encoder;
 using GradingSystem.ViewModel;
 using System;
-using GradingSystem;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static MaterialDesignThemes.Wpf.Theme;
 
 namespace GradingSystem
 {
@@ -26,12 +17,11 @@ namespace GradingSystem
         private readonly LoginViewModel _viewModel;  // Declare _viewModel as a private field
         private ApplicationDbContext _context;
 
-        public Login(): this(new ApplicationDbContext()) { }
+        public Login() : this(new ApplicationDbContext()) { }
 
         public Login(ApplicationDbContext context)
         {
             InitializeComponent();
-
             _context = context;
 
             // Initialize _viewModel with the ApplicationDbContext
@@ -54,8 +44,7 @@ namespace GradingSystem
         {
             if (e.ButtonState == MouseButtonState.Pressed)
             {
-                // Call DragMove to allow the window to be dragged
-                this.DragMove();
+                this.DragMove(); // Enable window dragging
             }
         }
 
@@ -64,36 +53,64 @@ namespace GradingSystem
             loginFunc();
         }
 
-        private void loginFunc()
+        private async void loginFunc()
         {
-            // Retrieve user input
             _viewModel.Email = emailTxt.Text;
             _viewModel.Password = passwordTxt.Password;
 
-            // Validate username or email
-            if (string.IsNullOrWhiteSpace(_viewModel.Email))
-            {
-                MessageBox.Show("Please enter your email or username.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                clear();
+            // Validate input fields
+            if (!ValidateInputs())
                 return;
-            }
 
-            // Check if input is an email format
-            var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            bool isEmail = System.Text.RegularExpressions.Regex.IsMatch(_viewModel.Email, emailPattern);
+            // Authenticate the user
+            bool isAuthenticated = await _viewModel.AuthenticateUser(_context);  // Await the asynchronous method
 
-            if (isEmail)
+            if (isAuthenticated)
             {
-                // Additional email-specific validation (if needed)
+                // Show the main window based on the role
+                if (_viewModel.UserRole == "Admin")
+                {
+                    MainWindow mainWindow = new MainWindow(_context);
+                    mainWindow.Show();
+                }
+                else if (_viewModel.UserRole == "Encoder" || _viewModel.UserRole == "Staff")
+                {
+                    EncoderMainWindow encoderWindow = new EncoderMainWindow(_context);
+                    encoderWindow.Show();
+                }
+
+                // Close the current (login) window
+                this.Close();
             }
             else
             {
-                // Validate username format (optional)
-                if (_viewModel.Email.Contains(" ")) // Example: no spaces allowed in username
+                // Handle invalid credentials
+                MessageBox.Show("Invalid login credentials.", "Authentication Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                clearFields();
+            }
+        }
+
+        private bool ValidateInputs()
+        {
+            // Validate email/username format
+            if (string.IsNullOrWhiteSpace(_viewModel.Email))
+            {
+                MessageBox.Show("Please enter your email or username.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            // Validate email format
+            if (IsValidEmail(_viewModel.Email))
+            {
+                // Additional validation logic for email (if required)
+            }
+            else
+            {
+                // Validate username (no spaces allowed)
+                if (_viewModel.Email.Contains(" "))
                 {
                     MessageBox.Show("Username cannot contain spaces.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    clear();
-                    return;
+                    return false;
                 }
             }
 
@@ -101,35 +118,23 @@ namespace GradingSystem
             if (string.IsNullOrWhiteSpace(_viewModel.Password))
             {
                 MessageBox.Show("Please enter your password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                clear();
-                return;
+                return false;
             }
 
-            // If validation passes, attempt authentication
-            if (_viewModel.AuthenticateUser())
-            {
-                // Open MainWindow upon successful login
-                var mainWindow = new MainWindow(_context);
-                mainWindow.Show();
-
-                // Close the login window
-                this.Close();
-            }
-            else
-            {
-                clear();
-            }
+            return true;
         }
 
-        private void clear()
+        private bool IsValidEmail(string email)
+        {
+            // Regex to validate email format
+            var emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, emailPattern);
+        }
+
+        private void clearFields()
         {
             emailTxt.Text = "";
             passwordTxt.Password = "";
-        }
-
-
-        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
         }
 
         private void forgotBtn(object sender, RoutedEventArgs e)
@@ -141,9 +146,18 @@ namespace GradingSystem
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) { 
+            if (e.Key == Key.Enter)
+            {
                 loginFunc();
             }
+        }
+
+        // Optional: Toggle password visibility
+        private void TogglePasswordVisibility(object sender, RoutedEventArgs e)
+        {
+            passwordTxt.Visibility = passwordTxt.Visibility == System.Windows.Visibility.Visible
+                ? System.Windows.Visibility.Hidden
+                : System.Windows.Visibility.Visible;
         }
     }
 }

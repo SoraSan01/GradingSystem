@@ -10,21 +10,23 @@ using System.Windows;
 using GradingSystem.Command;
 using GradingSystem.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 
 public class BulkInsertCourseViewModel : INotifyPropertyChanged
 {
     public ICommand SaveCommand { get; set; }
-
-    public ObservableCollection<Subject> Courses { get; set; }
-
     private readonly ApplicationDbContext _context;
+    private readonly StudentSubjectViewModel _studentSubjectViewModel;
+    public ObservableCollection<Subject> Subjects { get; set; }
 
     public BulkInsertCourseViewModel(ApplicationDbContext context)
     {
         _context = context;
-        Courses = new ObservableCollection<Subject>();
+        _studentSubjectViewModel = new StudentSubjectViewModel(context);
+        Subjects = new ObservableCollection<Subject>();
         SaveCommand = new RelayCommand(SaveData);
-
     }
 
     public async Task ChooseFileAsync()
@@ -33,8 +35,8 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
 
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
-            Title = "Select an Excel File.",
-            Filter = "Excel Files (*.xlsx; *.xls)|*.xlsx;*.xls"
+            Title = "Select an Excel file.",
+            Filter = "Excel Files (.xlsx;.xls)|*.xlsx;*.xls"
         };
 
         if (openFileDialog.ShowDialog() == true)
@@ -45,108 +47,89 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
             {
                 using (var package = new ExcelPackage(new FileInfo(filepath)))
                 {
-                    Courses.Clear();
+                    Subjects.Clear();
+
+                    // Load programs from the database and create a dictionary to map program names to program IDs
+                    var programs = await _context.Programs.ToListAsync();
+                    var programDictionary = programs.ToDictionary(p => p.ProgramName, p => p.ProgramId);
 
                     foreach (var worksheet in package.Workbook.Worksheets)
                     {
-                        if (worksheet.Dimension == null) continue;
-
                         int rowCount = worksheet.Dimension.Rows;
-                        int colCount = worksheet.Dimension.Columns;
 
-                        string program = "";
                         string currentYear = "";
                         string currentSemester = "";
+                        string programName = "";
 
                         for (int row = 1; row <= rowCount; row++)
                         {
-                            string cellValue = worksheet.Cells[row, 1].Text?.Trim();
+                            var cellValue = worksheet.Cells[row, 1].Text?.Trim();
 
-                            // Extract Program Name
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("BACHELOR OF SCIENCE", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("BACHELOR OF SECONDARY EDUCATION", StringComparison.OrdinalIgnoreCase)))
+                            // Check for program name
+                            if (programDictionary.Keys.Any(p => cellValue?.Contains(p, StringComparison.OrdinalIgnoreCase) == true))
                             {
-                                program = cellValue;
+                                programName = programDictionary.FirstOrDefault(p => cellValue.Contains(p.Key, StringComparison.OrdinalIgnoreCase)).Key;
                                 continue;
                             }
 
-                            // Extract Year Level
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("First Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Second Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Third Year", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Fourth Year", StringComparison.OrdinalIgnoreCase)))
+                            // Check for year level
+                            if (cellValue?.ToLowerInvariant().Contains("first year") == true ||
+                                cellValue?.ToLowerInvariant().Contains("second year") == true ||
+                                cellValue?.ToLowerInvariant().Contains("third year") == true ||
+                                cellValue?.ToLowerInvariant().Contains("fourth year") == true)
                             {
                                 currentYear = cellValue;
                                 continue;
                             }
 
-                            // Extract Semester
-                            if (!string.IsNullOrEmpty(cellValue) &&
-                                (cellValue.Contains("First Semester", StringComparison.OrdinalIgnoreCase) ||
-                                 cellValue.Contains("Second Semester", StringComparison.OrdinalIgnoreCase)))
+                            // Check for semester
+                            if (cellValue?.Contains("First Semester", StringComparison.OrdinalIgnoreCase) == true ||
+                                cellValue?.Contains("Second Semester", StringComparison.OrdinalIgnoreCase) == true)
                             {
                                 currentSemester = cellValue;
                                 continue;
                             }
 
-                            // Parse Course Data
-                            if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester))
+                            // Extract course details
+                            if (!string.IsNullOrWhiteSpace(currentYear) && !string.IsNullOrWhiteSpace(currentSemester) && !string.IsNullOrWhiteSpace(programName))
                             {
-                                string courseCode1 = worksheet.Cells[row, 1].Text?.Trim();
-                                string descriptiveTitle1 = worksheet.Cells[row, 2].Text?.Trim();
-                                string unitsText1 = worksheet.Cells[row, 4].Text?.Trim();
+                                var courseCode = worksheet.Cells[row, 1].Text?.Trim();
+                                var descriptiveTitle = worksheet.Cells[row, 2].Text?.Trim();
+                                var unitsText = worksheet.Cells[row, 4].Text?.Trim();
 
-                                string courseCode2 = worksheet.Cells[row, 5].Text?.Trim();
-                                string descriptiveTitle2 = worksheet.Cells[row, 6].Text?.Trim();
-                                string unitsText2 = worksheet.Cells[row, 7].Text?.Trim();
+                                // Validate course code and descriptive title
+                                if (string.IsNullOrWhiteSpace(courseCode) || string.IsNullOrWhiteSpace(descriptiveTitle))
+                                    continue;
 
-                                // First Semester Data
-                                if (!string.IsNullOrWhiteSpace(courseCode1) && !string.IsNullOrWhiteSpace(descriptiveTitle1))
+                                // Skip header rows
+                                if (courseCode.Contains("Course Code") || descriptiveTitle.Contains("Descriptive Title") || descriptiveTitle.Contains("UNITS"))
+                                    continue;
+
+                                // Parse units
+                                int.TryParse(unitsText, out int units);
+
+                                // Generate a unique subject ID
+                                var existingIds = Subjects.Select(s => s.SubjectId).ToList();
+                                var subjectId = GenerateSubjectId(courseCode, existingIds);
+
+                                // Map program name to program ID
+                                if (!programDictionary.TryGetValue(programName, out var programId))
                                 {
-                                    if (!courseCode1.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        int.TryParse(unitsText1?.Replace("(", "").Replace(")", ""), out int units1);
-
-                                        if (!Courses.Any(c => c.CourseCode == courseCode1 && c.YearLevel == currentYear && c.Semester == "First Semester"))
-                                        {
-                                            Courses.Add(new Subject
-                                            {
-                                                SubjectId = Subject.GenerateSubjectId(descriptiveTitle1, Courses.Select(c => c.SubjectId).ToList()),
-                                                CourseCode = courseCode1,
-                                                SubjectName = descriptiveTitle1,
-                                                Units = units1,
-                                                Program = program,
-                                                YearLevel = currentYear,
-                                                Semester = "First Semester"
-                                            });
-                                        }
-                                    }
+                                    MessageBox.Show($"Program name '{programName}' does not exist in the database. Please ensure all program names are valid.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    return;
                                 }
 
-                                // Second Semester Data
-                                if (!string.IsNullOrWhiteSpace(courseCode2) && !string.IsNullOrWhiteSpace(descriptiveTitle2))
+                                // Add the subject to the list
+                                Subjects.Add(new Subject
                                 {
-                                    if (!courseCode2.Contains("Course Code", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        int.TryParse(unitsText2?.Replace("(", "").Replace(")", ""), out int units2);
-
-                                        if (!Courses.Any(c => c.CourseCode == courseCode2 && c.YearLevel == currentYear && c.Semester == "Second Semester"))
-                                        {
-                                            Courses.Add(new Subject
-                                            {
-                                                SubjectId = Subject.GenerateSubjectId(descriptiveTitle2, Courses.Select(c => c.SubjectId).ToList()),
-                                                CourseCode = courseCode2,
-                                                SubjectName = descriptiveTitle2,
-                                                Units = units2,
-                                                Program = program,
-                                                YearLevel = currentYear,
-                                                Semester = "Second Semester"
-                                            });
-                                        }
-                                    }
-                                }
+                                    SubjectId = subjectId,
+                                    CourseCode = courseCode,
+                                    SubjectName = descriptiveTitle,
+                                    Units = units,
+                                    ProgramId = programId,
+                                    YearLevel = currentYear,
+                                    Semester = currentSemester
+                                });
                             }
                         }
                     }
@@ -154,47 +137,39 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while processing the file: {ex.Message}");
+                MessageBox.Show($"An error occurred while processing the Excel file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
 
-    private void SaveData(object parameter)
-    {
-        // Call a method to save data to your database
-        SaveCoursesToDatabase();
-    }
     private async void SaveCoursesToDatabase()
     {
         try
         {
-            foreach (var course in Courses)
+            foreach (var course in Subjects)
             {
-                // Check if the subject already exists in the database (optional)
                 var existingCourse = await _context.Subjects
+                    .AsNoTracking()
                     .FirstOrDefaultAsync(s => s.SubjectId == course.SubjectId);
 
                 if (existingCourse != null)
                 {
-                    continue; // Skip if the course already exists
+                    _context.Entry(existingCourse).State = EntityState.Detached;
+                    _context.Entry(course).State = EntityState.Modified;
                 }
-
-                // Add the new course to the DbSet
-                _context.Subjects.Add(course);
+                else
+                {
+                    _context.Subjects.Add(course);
+                }
             }
 
-            // Save changes to the database
             await _context.SaveChangesAsync();
-
-            // Optionally, update the UI or show a message after saving
             MessageBox.Show("Courses saved successfully!");
         }
         catch (DbUpdateException ex)
         {
-            // Log the full exception details
             string errorMessage = ex.InnerException?.Message ?? ex.Message;
             MessageBox.Show($"An error occurred while saving the courses: {errorMessage}");
-            // Optionally log the stack trace or log the error to a file for better debugging
             Console.WriteLine(ex.StackTrace);
         }
         catch (Exception ex)
@@ -203,9 +178,27 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
         }
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    private void SaveData(object parameter)
+    {
+        SaveCoursesToDatabase();
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged(string propertyName)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private string GenerateSubjectId(string courseCode, List<string> existingIds)
+    {
+        string prefix = courseCode.Length >= 3 ? courseCode.Substring(0, 3).ToUpper() : courseCode.ToUpper().PadRight(3, 'X');
+        var matchingIds = existingIds
+            .Where(id => id.StartsWith(prefix + "-"))
+            .Select(id => id.Substring(prefix.Length + 1))
+            .Where(num => int.TryParse(num, out _))
+            .Select(int.Parse);
+
+        int nextNumber = matchingIds.Any() ? matchingIds.Max() + 1 : 1;
+        return $"{prefix}-{nextNumber:000}";
     }
 }
