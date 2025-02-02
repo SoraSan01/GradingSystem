@@ -27,10 +27,10 @@ namespace GradingSystem.View.Admin.Dialogs
         public ProgramViewModel ProgramViewModel { get; set; }
         private readonly ApplicationDbContext _context;
 
-        public EditSubject(Subject subject, ProgramViewModel programViewModel)
+        public EditSubject(ApplicationDbContext context, Subject subject, ProgramViewModel programViewModel)
         {
             InitializeComponent();
-            _context = new ApplicationDbContext();
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             SelectedSubject = subject;
             this.DataContext = SelectedSubject; // Binding to Subject
 

@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using GradingSystem.Data;
 using GradingSystem.View.Encoder;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GradingSystem.View.Encoder
 {
@@ -61,7 +62,7 @@ namespace GradingSystem.View.Encoder
             var result = MessageBox.Show("Are you sure you want to log out?", "Logout", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
-                var login = new Login(_context);
+                var login = App.ServiceProvider.GetRequiredService<Login>(); // Resolves Login via DI
                 login.Show();
                 this.Close();
             }

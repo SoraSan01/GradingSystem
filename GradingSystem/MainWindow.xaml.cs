@@ -3,6 +3,7 @@ using GradingSystem.Model;
 using GradingSystem.View;
 using GradingSystem.View.Admin;
 using GradingSystem.View.Admin.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -21,14 +22,15 @@ namespace GradingSystem
         private ManageCourse? _manageCourse;
         private ManageSubjects? _manageSubjects;
         private ManageEnrollment? _manageEnrollment;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MainWindow(ApplicationDbContext context)
+        public MainWindow(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _context = context;
+            _serviceProvider = serviceProvider;
 
             // Initialize Dashboard on startup
-            _dashboard = new Dashboard(context);
+            _dashboard = _serviceProvider.GetRequiredService<Dashboard>();
             MainContent.Content = _dashboard;
         }
 
@@ -36,7 +38,12 @@ namespace GradingSystem
         {
             try
             {
-                contentPage ??= Activator.CreateInstance(typeof(T), _context) as T;
+                // Lazy loading for views that require dependencies
+                if (contentPage == null)
+                {
+                    // Resolve views from DI container instead of creating them manually
+                    contentPage = (T)(_serviceProvider.GetRequiredService(typeof(T)));
+                }
 
                 if (contentPage != null && MainContent.Content != contentPage)
                 {
@@ -48,6 +55,7 @@ namespace GradingSystem
                 MessageBox.Show($"An error occurred while switching to {nameof(T)}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         // Event Handlers for Button Clicks
         private void DashboardBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _dashboard);
@@ -62,7 +70,7 @@ namespace GradingSystem
         {
             if (MessageBox.Show("Are you sure you want to log out?", "Logout", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                var login = new Login(_context);
+                var login = _serviceProvider.GetRequiredService<Login>();
                 login.Show();
                 Close();
             }

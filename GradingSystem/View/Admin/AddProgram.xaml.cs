@@ -1,6 +1,7 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.Model;
 using GradingSystem.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace GradingSystem.View.Admin
 
             try
             {
-                using (var context = new ApplicationDbContext())
+                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                 {
                     var newProgram = new Program
                     {

@@ -1,4 +1,5 @@
 ﻿using GradingSystem.Data;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,12 +23,14 @@ namespace GradingSystem
     {
         private readonly ApplicationDbContext _context;
         private string _email;
+        private readonly IServiceProvider _serviceProvider;  // Add IServiceProvider
 
-        public ChangePassword(string email)
+        public ChangePassword(ApplicationDbContext context, string email, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _context = new ApplicationDbContext();
-            _email = email; // Store the email passed from ForgotPasswordViewModel
+            _context = context;
+            _email = email;  // Store the email passed from ForgotPasswordViewModel
+            _serviceProvider = serviceProvider;  // Store the service provider
         }
 
         private void submitBtn(object sender, RoutedEventArgs e)
@@ -84,10 +87,10 @@ namespace GradingSystem
 
                 MessageBox.Show("Password successfully updated.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Redirect to the login screen after successful password update
-                Login login = new Login(_context);
-                login.Show();
-                this.Close(); // Close the ChangePassword window
+                // Use the service provider to resolve the Login window
+                var loginWindow = _serviceProvider.GetRequiredService<Login>();
+                loginWindow.Show();  // Show the Login window
+                this.Close();  // Close the ChangePassword window
             }
             catch (Exception ex)
             {

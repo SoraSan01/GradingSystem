@@ -43,6 +43,7 @@ namespace GradingSystem.ViewModel
         }
 
         public ApplicationDbContext Context => _context;
+        public event Action<Student> StudentDeleted;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -169,23 +170,42 @@ namespace GradingSystem.ViewModel
                         _context.Entry(existingEntity.Entity).State = EntityState.Detached;
                     }
 
+                    // Remove the student from the database
                     _context.Students.Remove(student);
                     await _context.SaveChangesAsync();
 
+                    // Also, remove the student's enrollments (if necessary)
+                    var enrollmentsToRemove = _context.Enrollments
+                        .Where(e => e.StudentId == student.StudentId)
+                        .ToList();
+
+                    foreach (var enrollment in enrollmentsToRemove)
+                    {
+                        _context.Enrollments.Remove(enrollment);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    // Remove the student from the ObservableCollection
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Students.Remove(student);
+                        Students.Remove(student);  // This will automatically update the DataGrid
+                        FilteredStudents.Remove(student);  // Update filtered students if necessary
                     });
 
-                    await ShowMessageAsync("Student deleted successfully.", "Success", MessageBoxImage.Information);
+                    // Notify other ViewModel about the deletion
+                    StudentDeleted?.Invoke(student);  // Raise the event here
+
+                    // Show success message
+                    await ShowMessageAsync("Student and associated enrollments deleted successfully.", "Success", MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                await HandleErrorAsync("deleting student", ex);
+                // Handle errors gracefully
+                await HandleErrorAsync("deleting student and enrollments", ex);
             }
         }
-
         private async Task ShowMessageAsync(string message, string caption, MessageBoxImage icon)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>

@@ -39,8 +39,7 @@
                         </Grid.RowDefinitions>
 
                         <Grid Grid.Row="0" Margin="10">
-                            <materialDesign:Card Padding="5" 
-                     materialDesign:ElevationAssist.Elevation="Dp2">
+                            <materialDesign:Card Padding="5" materialDesign:ElevationAssist.Elevation="Dp2">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -48,17 +47,44 @@
                                         <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBox Grid.Column="1"
+                                    <!-- Student ID Input -->
+                                    <TextBox x:Name="idTxt"  
                  Style="{StaticResource MaterialDesignOutlinedTextBox}" 
                  Width="200" 
-                 Height="40" 
-                 FontSize="15" 
-                 Padding="10 0 0 0"
-                 materialDesign:HintAssist.Hint="Search" 
-                 TextChanged="SearchTextBox"/>
+                 FontSize="15"
+                 Padding="10 0 0 0" 
+                 Background="White" 
+                 materialDesign:HintAssist.Hint="Student ID"
+                 Grid.Row="0" 
+                 Height="40"
+                 MaxLength="15" 
+                 KeyDown="StudentIdTxt_KeyDown" Margin="10,0,0,0"/>
+
+                                    <!-- Year Filter ComboBox -->
+                                    <ComboBox x:Name="YearComboBox" 
+                  Grid.Column="1" 
+                  Width="150" 
+                  Margin="10,0,10,0" 
+                  SelectionChanged="YearComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="First Year"/>
+                                        <ComboBoxItem Content="Second Year"/>
+                                        <ComboBoxItem Content="Third Year"/>
+                                        <ComboBoxItem Content="Fourth Year"/>
+                                        <!-- Add other years as needed -->
+                                    </ComboBox>
+
+                                    <!-- Semester Filter ComboBox -->
+                                    <ComboBox x:Name="SemesterComboBox" 
+                  Grid.Column="2" 
+                  Width="150" 
+                  Margin="10,0,10,0" 
+                  SelectionChanged="SemesterComboBox_SelectionChanged">
+                                        <ComboBoxItem Content="First Semester"/>
+                                        <ComboBoxItem Content="Second Semester"/>
+                                        <!-- Add other semesters as needed -->
+                                    </ComboBox>
                                 </Grid>
                             </materialDesign:Card>
-
                         </Grid>
 
                         <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -87,24 +113,9 @@
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
 
-                                                <!-- Student ID Input -->
-                                                <TextBox x:Name="idTxt"  
-                                                         Style="{StaticResource MaterialDesignOutlinedTextBox}" 
-                                                         Height="40" 
-                                                         Width="200" 
-                                                         FontSize="15"
-                                                         Padding="10 0 0 0" 
-                                                         Background="White" 
-                                                         materialDesign:HintAssist.Hint="Student ID"
-                                                         Grid.Row="0" 
-                                                         MaxLength="15" 
-                                                         KeyDown="StudentIdTxt_KeyDown"/>
-
                                                 <!-- Student Information Labels -->
                                                 <TextBlock x:Name="studentNameTxt" Text="Student Name" Grid.Row="1" Style="{StaticResource TextBlockStyle}"/>
                                                 <TextBlock x:Name="courseTxt" Text="Program" Grid.Row="2" Style="{StaticResource TextBlockStyle}"/>
-                                                <TextBlock x:Name="semesterTxt" Text="Semester" Grid.Row="3" Style="{StaticResource TextBlockStyle}"/>
-                                                <TextBlock x:Name="yearLevelTxt" Text="Year Level" Grid.Row="4" Style="{StaticResource TextBlockStyle}"/>
                                                 <TextBlock x:Name="scholarshipTxt" Text="Status" Grid.Row="5" Style="{StaticResource TextBlockStyle}"/>
                                             </Grid>
                                         </materialDesign:Card>
@@ -135,7 +146,7 @@
                                                     <DataGridTemplateColumn Header="Descriptive Title" CanUserResize="False" IsReadOnly="True" Width="*">
                                                         <DataGridTemplateColumn.CellTemplate>
                                                             <DataTemplate>
-                                                                <TextBlock Text="{Binding Subject.SubjectName}" TextWrapping="Wrap" />
+                                                                <TextBlock Text="{Binding SubjectName}" TextWrapping="Wrap" />
                                                             </DataTemplate>
                                                         </DataGridTemplateColumn.CellTemplate>
                                                     </DataGridTemplateColumn>
@@ -176,10 +187,6 @@
                                                             <ColumnDefinition Width="170"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBox Grid.Column="0" Background="White" Margin="10" Width="200" HorizontalAlignment="Left"
-                                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                                                 materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" TextChanged="SearchTextBox_TextChanged"/>
 
                                                         <Button Grid.Column="1" Style="{StaticResource MaterialDesignFlatDarkBgButton}" Background="Green"
                                                                 Width="150" HorizontalAlignment="Left" Click="AddSubBtn">

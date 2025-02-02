@@ -1,6 +1,7 @@
 ﻿using GradingSystem.Data;
 using GradingSystem.View.Encoder;
 using GradingSystem.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -16,20 +17,21 @@ namespace GradingSystem
     {
         private readonly LoginViewModel _viewModel;  // Declare _viewModel as a private field
         private ApplicationDbContext _context;
+        private readonly IServiceProvider _serviceProvider;
 
-        public Login() : this(new ApplicationDbContext()) { }
-
-        public Login(ApplicationDbContext context)
+        public Login(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _context = context;
+            _serviceProvider = serviceProvider;
 
-            // Initialize _viewModel with the ApplicationDbContext
+            // Resolve ApplicationDbContext from the service provider
+            _context = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // Initialize ViewModel
             _viewModel = new LoginViewModel();
-
-            // Set the DataContext for data binding
             DataContext = _viewModel;
         }
+
 
         private void closeBtn(object sender, RoutedEventArgs e)
         {
@@ -70,7 +72,7 @@ namespace GradingSystem
                 // Show the main window based on the role
                 if (_viewModel.UserRole == "Admin")
                 {
-                    MainWindow mainWindow = new MainWindow(_context);
+                    MainWindow mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
                     mainWindow.Show();
                 }
                 else if (_viewModel.UserRole == "Encoder" || _viewModel.UserRole == "Staff")
@@ -139,7 +141,7 @@ namespace GradingSystem
 
         private void forgotBtn(object sender, RoutedEventArgs e)
         {
-            ForgotPassword forgotPass = new ForgotPassword();
+            ForgotPassword forgotPass = new ForgotPassword(_context);
             forgotPass.Show();
             this.Close();
         }

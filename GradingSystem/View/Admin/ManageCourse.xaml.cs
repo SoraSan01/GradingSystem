@@ -69,7 +69,7 @@ namespace GradingSystem.View.Admin
             if (SelectedProgram != null)
             {
                 // Pass the selected program to the EditProgram window
-                var editWindow = new EditProgram(SelectedProgram); // Pass the selected program to the constructor
+                var editWindow = new EditProgram(_context,SelectedProgram); // Pass the selected program to the constructor
 
                 // You can also set the DataContext if needed
                 var viewModel = new ProgramViewModel(_context);

@@ -3,6 +3,7 @@ using GradingSystem.Model;
 using GradingSystem.View.Admin.Dialogs;
 using GradingSystem.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Notifications.Wpf;
 using System;
 using System.Collections.Generic;
@@ -28,44 +29,51 @@ namespace GradingSystem.View.Admin
     public partial class ManageEnrollment : UserControl
     {
         private readonly NotificationManager _notificationManager = new NotificationManager();
-        private readonly ApplicationDbContext _context;
-        private readonly EnrollmentViewModel _enrollment;
         private readonly ProgramViewModel _program;
+        private readonly EnrollmentViewModel _enrollmentViewModel;
 
         public ObservableCollection<Enrollment> Enrollments { get; set; }
 
         public ManageEnrollment(ApplicationDbContext context)
         {
             InitializeComponent();
-            _context = context ?? throw new ArgumentNullException(nameof(context));
-            Enrollments = new ObservableCollection<Enrollment>();
-            _program = new ProgramViewModel(_context);
-            LoadEnrollments();
-            EnrollmentDataGrid.ItemsSource = Enrollments;
-        }
 
-        private async void LoadEnrollments()
+            Enrollments = new ObservableCollection<Enrollment>();
+            _program = new ProgramViewModel(context);
+            _enrollmentViewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+            DataContext = _enrollmentViewModel;
+            EnrollmentDataGrid.DataContext = _enrollmentViewModel;
+
+            InitializeAsync();
+        }
+        private async Task InitializeAsync()
         {
-            var enrollments = await _context.Enrollments
-                                            .Include(e => e.Program) // Eagerly load the Program entity
-                                            .ToListAsync();
-            foreach (var enrollment in enrollments)
+            try
             {
-                Enrollments.Add(enrollment);
+                await _enrollmentViewModel.LoadEnrollmentsAsync(); // Assuming this loads the data asynchronously
+                EnrollmentDataGrid.ItemsSource = _enrollmentViewModel.Enrollments; // Set the data source
+            }
+            catch (Exception ex)
+            {
+                HandleError("Failed to load enrollments", ex);
             }
         }
 
+
         private void EnrollStudentBtn(object sender, RoutedEventArgs e)
         {
-            var viewModel = new EnrollmentViewModel(_context);
-            var programViewModel = new ProgramViewModel(_context);
-            var enrollStudentWindow = new EnrollStudent(viewModel, programViewModel);
-            enrollStudentWindow.Show();
+            using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
+            {
+                var viewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+                var programViewModel = new ProgramViewModel(context);
+                var enrollStudentWindow = new EnrollStudent(context ,viewModel, programViewModel);
+                enrollStudentWindow.Show();
+            }
         }
 
         private void ShowButton_Click(object sender, RoutedEventArgs e)
         {
-            if (EnrollmentDataGrid.SelectedItem is not Enrollment selectedEnrollment || selectedEnrollment.Student == null)
+            if (EnrollmentDataGrid.SelectedItem is not Enrollment selectedEnrollment)
             {
                 ShowNotification("Warning", "Please select a valid enrollment.", NotificationType.Warning);
                 return;
@@ -73,18 +81,36 @@ namespace GradingSystem.View.Admin
 
             try
             {
-                var showGradeWindow = new ShowGrade(selectedEnrollment, _context);
-                showGradeWindow.Show();
+                // Load Student data separately
+                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
+                {
+                    // Modify the query to ensure it checks both StudentId, YearLevel, and Semester
+                    var enrollment = context.Enrollments
+                                              .Include(e => e.Student) // Load Student data
+                                              .Include(e => e.Program)
+                                              .FirstOrDefault(e => e.StudentId == selectedEnrollment.StudentId &&
+                                                                   e.YearLevel == selectedEnrollment.YearLevel &&
+                                                                   e.Semester == selectedEnrollment.Semester);
+
+                    if (enrollment?.Student == null)
+                    {
+                        ShowNotification("Warning", "The selected enrollment has no associated student.", NotificationType.Warning);
+                        return;
+                    }
+
+                    // Show the grade window with the correct enrollment information
+                    var showGradeWindow = new ShowGrade(enrollment);
+                    showGradeWindow.Show();
+                }
             }
             catch (Exception ex)
             {
                 HandleError("An error occurred", ex);
             }
         }
-
         private void SearchTextBox(object sender, TextChangedEventArgs e)
         {
-
+            // Implement search functionality here
         }
 
         private void HandleError(string action, Exception ex)
@@ -104,5 +130,20 @@ namespace GradingSystem.View.Admin
                 Type = type
             });
         }
+
+        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var viewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+                await viewModel.LoadEnrollmentsAsync();
+                EnrollmentDataGrid.Items.Refresh();
+            }
+            catch (Exception ex)
+            {
+                HandleError("Failed to refresh enrollments", ex);
+            }
+        }
+
     }
 }

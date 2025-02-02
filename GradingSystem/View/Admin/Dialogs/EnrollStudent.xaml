@@ -109,8 +109,7 @@
                                         <TextBlock Text="Student ID" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>
                                         <TextBox x:Name="idTxt" Style="{StaticResource MaterialDesignFilledTextBox}" 
                                              Margin="30 0 0 0" Height="25" Width="200" FontSize="15" HorizontalAlignment="left"
-                                             Grid.Column="1" Grid.Row="0" Padding="10 0 0 0"
-                                             PreviewTextInput="IdTxt_PreviewTextInput" TextChanged="idTxt_TextChanged" />
+                                             Grid.Column="1" Grid.Row="0" Padding="10 0 0 0" KeyDown="IdTxt_KeyDown" />
                                         
                                         <!-- Name -->
                                         <TextBlock Grid.Row="1" Text="First Name" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="15"/>

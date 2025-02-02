@@ -6,124 +6,174 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using System.Windows;
-using Microsoft.EntityFrameworkCore; // Add this line
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 public class StudentSubjectViewModel : INotifyPropertyChanged
 {
-    private readonly ApplicationDbContext _context;
-    public ObservableCollection<StudentSubject> StudentSubjects { get; set; }
-    public string StudentId { get; set; }
+    private readonly IServiceProvider _serviceProvider;
+    public ObservableCollection<StudentSubject> StudentSubjects { get; private set; }
+    public string StudentId { get; private set; }
 
     public ICommand SaveCommand { get; }
     private bool _isSaving;
 
-    public StudentSubjectViewModel(ApplicationDbContext context)
+    public StudentSubjectViewModel(IServiceProvider serviceProvider)
     {
-        _context = context;
+        _serviceProvider = serviceProvider;
         StudentSubjects = new ObservableCollection<StudentSubject>();
         SaveCommand = new RelayCommand(async () => await SaveGrades(), CanSaveGrades);
     }
 
     public async Task AddStudentSubjectAsync(StudentSubject studentSubject)
     {
-        _context.StudentSubjects.Add(studentSubject);
-        await _context.SaveChangesAsync();
-    }
-
-    private string _grade;
-    public string Grade
-    {
-        get { return _grade; }
-        set
-        {
-            if (_grade != value)
-            {
-                _grade = value;
-                OnPropertyChanged(nameof(Grade));
-            }
-        }
-    }
-
-    // Method to load subjects asynchronously
-    public async Task LoadSubjects(string studentId)
-    {
-        if (string.IsNullOrEmpty(studentId))
-            throw new ArgumentException("Student ID cannot be null or empty.");
-
-        if (_context == null)
-            throw new InvalidOperationException("Database context is not initialized.");
-
         try
         {
-            // Show loading indicator
-            IsLoading = true;
-
-            // Fetch subjects and associated grades from the database
-            var subjects = await _context.Set<StudentSubject>()
-                .Include(ss => ss.Subject)  // This is where the 'Include' method is used
-                .Where(ss => ss.StudentId == studentId)
-                .ToListAsync();
-
-            // Clear existing subjects
-            StudentSubjects.Clear();
-
-            // Populate the collection with new data
-            foreach (var subject in subjects)
+            using (var context = _serviceProvider.GetRequiredService<ApplicationDbContext>())
             {
-                if (subject.Subject != null)
-                {
-                    StudentSubjects.Add(subject);
-                }
+                context.StudentSubjects.Add(studentSubject);
+                await context.SaveChangesAsync();
+                StudentSubjects.Add(studentSubject); // Directly add to the collection
             }
         }
         catch (Exception ex)
         {
-            // Handle error while loading subjects
-            MessageBox.Show($"An error occurred while loading subjects: {ex.Message}",
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            HandleError($"Error adding student subject: {ex.Message}");
+        }
+    }
+
+    public async Task LoadSubjects(string studentId)
+    {
+        try
+        {
+            IsLoading = true;
+            StudentId = studentId;
+
+            var subjects = await _serviceProvider.GetRequiredService<ApplicationDbContext>()
+                .StudentSubjects
+                .Where(ss => ss.StudentId == studentId)
+                .ToListAsync();
+
+            StudentSubjects.Clear(); // Clear existing items to prevent duplication
+            foreach (var subject in subjects)
+            {
+                StudentSubjects.Add(subject);
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleError($"Error loading subjects: {ex.Message}");
         }
         finally
         {
-            // Hide loading indicator
+            IsLoading = false;
+        }
+    }
+
+    public async Task LoadSubjectsBasedOnStudentId(string studentId)
+    {
+        try
+        {
+            IsLoading = true;
+
+            var context = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+            var studentSubjects = await context.StudentSubjects
+                .Where(ss => ss.StudentId == studentId)
+                .ToListAsync();
+
+            // Update ObservableCollection on UI thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                StudentSubjects.Clear();
+                foreach (var subject in studentSubjects)
+                {
+                    StudentSubjects.Add(subject);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            HandleError($"Error loading subjects based on student ID: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+
+    public async Task LoadSubjectsBasedOnYearAndSemester(string studentId, string yearLevel, string semester)
+    {
+        try
+        {
+            IsLoading = true;
+
+            var subjects = await _serviceProvider.GetRequiredService<ApplicationDbContext>()
+                .StudentSubjects
+                .Where(s => s.StudentId == studentId && s.YearLevel == yearLevel && s.Semester == semester)
+                .Include(s => s.Subject)
+                .ToListAsync();
+
+            if (!subjects.Any())
+            {
+                MessageBox.Show("No subjects found for the given year and semester.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            StudentSubjects.Clear();
+            foreach (var subject in subjects)
+            {
+                StudentSubjects.Add(subject);
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleError($"Error loading subjects: {ex.Message}");
+        }
+        finally
+        {
             IsLoading = false;
         }
     }
 
     public async Task RemoveStudentSubjectAsync(StudentSubject studentSubject)
     {
-        var subjectToRemove = await _context.StudentSubjects
-            .FirstOrDefaultAsync(ss => ss.Id == studentSubject.Id);
-
-        if (subjectToRemove != null)
+        try
         {
-            _context.StudentSubjects.Remove(subjectToRemove);
-            await _context.SaveChangesAsync();
+            using (var context = _serviceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                context.StudentSubjects.Remove(studentSubject);
+                await context.SaveChangesAsync();
+                StudentSubjects.Remove(studentSubject);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            throw new Exception("Subject not found.");
+            HandleError($"Error removing student subject: {ex.Message}");
         }
     }
 
-    // Save grades to the database
     private async Task SaveGrades()
     {
-        if (_isSaving)
-            return;
+        if (_isSaving) return;
 
         try
         {
             _isSaving = true;
 
-            // Save changes made to the subjects and grades
-            await _context.SaveChangesAsync();
-            MessageBox.Show("Grades saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            using (var context = _serviceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                if (context.ChangeTracker.HasChanges())
+                {
+                    await context.SaveChangesAsync();
+                    MessageBox.Show("Grades saved successfully.", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
         }
         catch (Exception ex)
         {
-            // Handle error while saving grades
-            MessageBox.Show($"An error occurred while saving grades: {ex.Message}",
-                            "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            HandleError($"Error saving grades: {ex.Message}");
         }
         finally
         {
@@ -131,13 +181,12 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
         }
     }
 
-    // Check if grades can be saved
+
     private bool CanSaveGrades()
     {
-        return !IsLoading && StudentSubjects.Any(); // Only enable if subjects are loaded
+        return !IsLoading && StudentSubjects.Any();
     }
 
-    // Loading status for UI
     private bool _isLoading;
     public bool IsLoading
     {
@@ -154,17 +203,33 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
 
     public async Task UpdateGradeAsync(StudentSubject studentSubject)
     {
-        // Example async method for database updates
-        var existingSubject = await _context.StudentSubjects
-                                             .FirstOrDefaultAsync(ss => ss.Id == studentSubject.Id);
-        if (existingSubject != null)
+        try
         {
-            existingSubject.Grade = studentSubject.Grade;
-            await _context.SaveChangesAsync();
+            using (var context = _serviceProvider.GetRequiredService<ApplicationDbContext>())
+            {
+                var existingSubject = await context.StudentSubjects
+                    .FirstOrDefaultAsync(ss => ss.Id == studentSubject.Id);
+
+                if (existingSubject != null)
+                {
+                    existingSubject.Grade = studentSubject.Grade;
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            HandleError($"Error updating grade: {ex.Message}");
         }
     }
 
-    // Property changed event for data binding
+    private void HandleError(string message)
+    {
+        // Here you can log the error to a file or show it in the UI
+        Console.Error.WriteLine(message);
+        MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+    }
+
     public event PropertyChangedEventHandler PropertyChanged;
     protected virtual void OnPropertyChanged(string propertyName) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

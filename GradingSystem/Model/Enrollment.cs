@@ -30,6 +30,9 @@ namespace GradingSystem.Model
         [ForeignKey("Program")]
         public string ProgramId { get; set; }
 
+        [NotMapped]
+        public string ProgramName => Program?.ProgramName;
+
         // Navigation properties
         public virtual Student Student { get; set; }
         public virtual Program Program { get; set; }

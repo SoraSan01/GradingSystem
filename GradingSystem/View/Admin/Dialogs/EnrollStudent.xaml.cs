@@ -1,9 +1,11 @@
 ﻿using GradingSystem.ViewModel;
 using System.Windows;
 using System.Windows.Input;
-using System.Threading.Tasks;
 using GradingSystem.Model;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using GradingSystem.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
@@ -11,13 +13,16 @@ namespace GradingSystem.View.Admin.Dialogs
     {
         private readonly EnrollmentViewModel _viewModel;
         private readonly ProgramViewModel _programs;
+        private readonly ApplicationDbContext _context;
 
-        public EnrollStudent(EnrollmentViewModel viewModel, ProgramViewModel programs)
+        public EnrollStudent(ApplicationDbContext context, EnrollmentViewModel viewModel, ProgramViewModel programs)
         {
             InitializeComponent();
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
             _programs = programs ?? throw new ArgumentNullException(nameof(programs));
             DataContext = _viewModel;
+
             LoadPrograms();
         }
 
@@ -27,20 +32,11 @@ namespace GradingSystem.View.Admin.Dialogs
                 this.DragMove();
         }
 
-        private void Minimize(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
+        private void Minimize(object sender, RoutedEventArgs e) => this.WindowState = WindowState.Minimized;
 
-        private void CloseWindow(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+        private void CloseWindow(object sender, RoutedEventArgs e) => this.Close();
 
-        private void CancelBtn(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
+        private void CancelBtn(object sender, RoutedEventArgs e) => this.Close();
 
         private async void LoadPrograms()
         {
@@ -53,68 +49,131 @@ namespace GradingSystem.View.Admin.Dialogs
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load programs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowError("Failed to load programs", ex);
             }
         }
 
         private async void EnrollStudentBtn(object sender, RoutedEventArgs e)
         {
-            string studentId = idTxt.Text;
-            string studentName = NameTxt.Text;
-            string year = yearCmb.SelectedValue as string;
-            string semester = semesterCmb.SelectedValue as string;
-            string programId = programCmb.SelectedValue as string;
-            string status = scholarCmb.SelectedValue as string;
-
-            if (string.IsNullOrWhiteSpace(studentId) || string.IsNullOrWhiteSpace(studentName) || string.IsNullOrWhiteSpace(year) || string.IsNullOrWhiteSpace(semester) || string.IsNullOrWhiteSpace(programId) || string.IsNullOrWhiteSpace(status))
+            if (!ValidateInput())
             {
-                MessageBox.Show("All fields are required.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Please fill in all required fields.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string studentId = idTxt.Text.Trim();
+            string studentName = NameTxt.Text.Trim();
+            string year = yearCmb.SelectedValue?.ToString();
+            string semester = semesterCmb.SelectedValue?.ToString();
+            string programId = programCmb.SelectedValue?.ToString();
+            string status = scholarCmb.SelectedValue?.ToString();
+
+            if (string.IsNullOrEmpty(year) || string.IsNullOrEmpty(semester) || string.IsNullOrEmpty(programId) || string.IsNullOrEmpty(status))
+            {
+                MessageBox.Show("Please select all required dropdown options.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             try
             {
-                await _viewModel.AddEnrollmentAsync(studentId, studentName, studentName, year, semester, programId, status);
-                MessageBox.Show("Student enrolled successfully!");
-                this.Close();
+                await _viewModel.AddEnrollmentAsync(studentId, studentName, year, semester, programId, status);
+
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show("Student enrolled successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    this.Close();
+                });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"An error occurred while enrolling the student.\n\nDetails: {ex.Message}",
+                        "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
+        }
+
+        public async Task<string> GetStudentFullNameByIdAsync(string studentId)
+        {
+            try
+            {
+                using var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
+                {
+                    var student = await context.Students
+                        .Where(s => s.StudentId == studentId)
+                        .FirstOrDefaultAsync();
+                    return student?.StudentName ?? string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while fetching the student: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return string.Empty;
+            }
+        }
+
+        private bool ValidateInput()
+        {
+            if (string.IsNullOrWhiteSpace(idTxt.Text) ||
+                string.IsNullOrWhiteSpace(NameTxt.Text) ||
+                string.IsNullOrWhiteSpace(yearCmb.SelectedValue as string) ||
+                string.IsNullOrWhiteSpace(semesterCmb.SelectedValue as string) ||
+                string.IsNullOrWhiteSpace(programCmb.SelectedValue as string) ||
+                string.IsNullOrWhiteSpace(scholarCmb.SelectedValue as string))
+            {
+                MessageBox.Show("All fields are required.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+            return true;
+        }
+
+        private static void ShowError(string message, Exception ex)
+        {
+            MessageBox.Show($"{message}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void IdTxt_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            // Ensure that only numeric input is allowed for the Student ID field
+            // Allow only numeric input for the Student ID
             e.Handled = !IsTextNumeric(e.Text);
         }
 
         private static bool IsTextNumeric(string text)
         {
-            foreach (char c in text)
-            {
-                if (!char.IsDigit(c))
-                    return false;
-            }
-            return true;
+            return text.All(char.IsDigit);
         }
 
-        private async void idTxt_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        private async void IdTxt_KeyDown(object sender, KeyEventArgs e)
         {
-            string studentId = idTxt.Text;
-
-            if (!string.IsNullOrWhiteSpace(studentId))
+            if (e.Key == Key.Enter)
             {
-                var student = await _viewModel.GetStudentByIdAsync(studentId);
-                if (student != null)
+                string studentId = idTxt.Text.Trim();
+                if (!string.IsNullOrWhiteSpace(studentId))
                 {
-                    NameTxt.Text = student.StudentName;  // Set the student name in the text box
+                    await LoadStudentNameAsync(studentId);
+                }
+            }
+        }
+
+        private async Task LoadStudentNameAsync(string studentId)
+        {
+            try
+            {
+                string fullName = await GetStudentFullNameByIdAsync(studentId);
+                if (string.IsNullOrEmpty(fullName))
+                {
+                    MessageBox.Show("Student not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    NameTxt.Clear();
                 }
                 else
                 {
-                    NameTxt.Clear();  // Clear the name if student not found
+                    NameTxt.Text = fullName;
                 }
+            }
+            catch (Exception ex)
+            {
+                ShowError("Failed to load student details", ex);
             }
         }
     }

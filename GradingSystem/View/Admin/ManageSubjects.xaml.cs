@@ -88,7 +88,7 @@ namespace GradingSystem.View.Admin
                     SelectedSubject = selectedSubject
                 };
 
-                var editWindow = new EditSubject(selectedSubject, new ProgramViewModel(_context))
+                var editWindow = new EditSubject(_context,selectedSubject, new ProgramViewModel(_context))
                 {
                     DataContext = viewModel
                 };
