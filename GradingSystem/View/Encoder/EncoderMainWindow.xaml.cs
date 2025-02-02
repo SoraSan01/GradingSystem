@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using GradingSystem.Data;
+using GradingSystem.View.Admin;
 using GradingSystem.View.Encoder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,25 +22,48 @@ namespace GradingSystem.View.Encoder
     {
         private readonly ApplicationDbContext _context;
         private Dashboard _dashboard;
+        private Grades _grades;
+        private EnrollmentDashboard _enrollmentDashboard;
+        private readonly IServiceProvider _serviceProvider;
 
-        public EncoderMainWindow(ApplicationDbContext context)
+
+        public EncoderMainWindow(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _context = context;
+            _serviceProvider = serviceProvider;
 
-            _dashboard = new Dashboard();
+            // Initialize Dashboard on startup
+            _dashboard = _serviceProvider.GetRequiredService<Dashboard>();
             MainContent.Content = _dashboard;
         }
 
-        private void ManageGradesBtn(object sender, RoutedEventArgs e)
+        private void SwitchContent<T>(ref T? contentPage) where T : class
         {
-            MainContent.Content = new Grades(_context);
+            try
+            {
+                // Lazy loading for views that require dependencies
+                if (contentPage == null)
+                {
+                    // Resolve views from DI container instead of creating them manually
+                    contentPage = (T)(_serviceProvider.GetRequiredService(typeof(T)));
+                }
+
+                if (contentPage != null && MainContent.Content != contentPage)
+                {
+                    MainContent.Content = contentPage;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while switching to {nameof(T)}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void DashboardBtn(object sender, RoutedEventArgs e)
-        {
-            MainContent.Content = new Dashboard();
-        }
+        private void ManageGradesBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _grades);
+        private void DashboardBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _dashboard);
+        private void EnrollmentBtn(object sender, RoutedEventArgs e) => SwitchContent(ref _enrollmentDashboard);
+
+
 
         private void CloseWindow(object sender, RoutedEventArgs e)
         {
@@ -75,6 +99,5 @@ namespace GradingSystem.View.Encoder
                 this.DragMove();
             }
         }
-
     }
 }

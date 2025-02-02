@@ -28,7 +28,7 @@ namespace GradingSystem.Model
         [ForeignKey("Program")]
         public string ProgramId { get; set; }  // The ProgramId links to the Program
 
-        public Program Program { get; set; }
+        public virtual Program Program { get; set; }
 
         public string YearLevel { get; set; }
 
@@ -41,6 +41,9 @@ namespace GradingSystem.Model
         public string? ProfessorName { get; set; }
 
         public DateTime CreatedAt { get; set; }
+
+        [NotMapped]
+        public string ProgramName => Program?.ProgramName;
 
         public Subject()
         {

@@ -145,8 +145,6 @@ public class EnrollmentViewModel : INotifyPropertyChanged
                     Id = await _context.GenerateUniqueStudentSubjectId(_context, studentId, subject.SubjectId),
                     StudentId = studentId,
                     SubjectId = subject.SubjectId,
-                    YearLevel = year,
-                    Semester = semester
                 };
 
                 // Ensure that the generated ID is unique and the student-subject pairing is valid

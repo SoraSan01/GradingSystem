@@ -10,6 +10,7 @@ using System.Windows.Media;
 using static MaterialDesignThemes.Wpf.Theme;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
@@ -44,9 +45,7 @@ namespace GradingSystem.View.Admin.Dialogs
             try
             {
                 // Use a separate instance of ApplicationDbContext
-                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
-                {
-                    var viewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+                var viewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
                     await viewModel.LoadStudentDataAsync(studentId, yearLevel, semester);
 
                     // Ensure UI updates happen on the main thread
@@ -54,7 +53,6 @@ namespace GradingSystem.View.Admin.Dialogs
                     {
                         DataContext = viewModel;
                     });
-                }
             }
             catch (Exception ex)
             {

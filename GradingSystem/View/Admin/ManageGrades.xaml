@@ -146,12 +146,12 @@
                                                     <DataGridTemplateColumn Header="Descriptive Title" CanUserResize="False" IsReadOnly="True" Width="*">
                                                         <DataGridTemplateColumn.CellTemplate>
                                                             <DataTemplate>
-                                                                <TextBlock Text="{Binding SubjectName}" TextWrapping="Wrap" />
+                                                                <TextBlock Text="{Binding Subject.SubjectName}" TextWrapping="Wrap" />
                                                             </DataTemplate>
                                                         </DataGridTemplateColumn.CellTemplate>
                                                     </DataGridTemplateColumn>
-                                                    <DataGridTextColumn Header="Course Code" Binding="{Binding CourseCode}" IsReadOnly="True"/>
-                                                    <DataGridTextColumn Header="Professor" Binding="{Binding ProfessorName}" IsReadOnly="True"/>
+                                                    <DataGridTextColumn Header="Course Code" Binding="{Binding Subject.CourseCode}" IsReadOnly="True"/>
+                                                    <DataGridTextColumn Header="Professor" Binding="{Binding Subject.ProfessorName}" IsReadOnly="True"/>
                                                     <DataGridTextColumn Header="Grade" Binding="{Binding Grade}" IsReadOnly="False">
                                                         <DataGridTextColumn.CellStyle>
                                                             <Style TargetType="DataGridCell">

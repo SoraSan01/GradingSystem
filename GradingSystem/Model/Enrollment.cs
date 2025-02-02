@@ -26,6 +26,8 @@ namespace GradingSystem.Model
         [Required]
         public string Status { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         [Required]
         [ForeignKey("Program")]
         public string ProgramId { get; set; }
@@ -36,5 +38,10 @@ namespace GradingSystem.Model
         // Navigation properties
         public virtual Student Student { get; set; }
         public virtual Program Program { get; set; }
+
+        public Enrollment()
+        {
+            CreatedAt = DateTime.Now;
+        }
     }
 }

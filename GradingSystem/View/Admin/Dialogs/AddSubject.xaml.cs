@@ -124,21 +124,33 @@ namespace GradingSystem.View.Admin.Dialogs
                     ProfessorName = ProfessorTxt.Text.Trim()
                 };
 
-                await SubjectViewModel.AddSubjectAsync(newSubject).ConfigureAwait(false);
+                bool isAdded = await SubjectViewModel.AddSubjectAsync(newSubject).ConfigureAwait(false);
 
-                _notificationManager.Show(new NotificationContent
+                if (isAdded)
                 {
-                    Title = "Success",
-                    Message = "Subject added successfully!",
-                    Type = NotificationType.Success
-                });
+                    _notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Success",
+                        Message = "Subject added successfully!",
+                        Type = NotificationType.Success
+                    });
 
-                // Only close the window after showing the success notification.
-                this.Dispatcher.Invoke(() =>
+                    // Only close the window after showing the success notification.
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        SubjectAdded?.Invoke();
+                    });
+                }
+                else
                 {
-                    SubjectAdded?.Invoke();
-                    this.Close();
-                });
+                    // Show failure notification if the subject wasn't added
+                    _notificationManager.Show(new NotificationContent
+                    {
+                        Title = "Error",
+                        Message = "Failed to add subject. Please try again.",
+                        Type = NotificationType.Error
+                    });
+                }
             }
             catch (Exception ex)
             {

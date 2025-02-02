@@ -2,11 +2,13 @@
 using GradingSystem.View.Encoder;
 using GradingSystem.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
+using Notifications.Wpf;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using Notifications.Wpf;
 
 namespace GradingSystem
 {
@@ -18,6 +20,7 @@ namespace GradingSystem
         private readonly LoginViewModel _viewModel;  // Declare _viewModel as a private field
         private ApplicationDbContext _context;
         private readonly IServiceProvider _serviceProvider;
+        private readonly NotificationManager _notificationManager = new NotificationManager();
 
         public Login(IServiceProvider serviceProvider)
         {
@@ -64,12 +67,12 @@ namespace GradingSystem
             if (!ValidateInputs())
                 return;
 
-            // Authenticate the user
-            bool isAuthenticated = await _viewModel.AuthenticateUser(_context);  // Await the asynchronous method
+            bool isAuthenticated = await _viewModel.AuthenticateUser(_context);
 
             if (isAuthenticated)
             {
-                // Show the main window based on the role
+                ShowNotification("Login Successful", "Welcome back!", NotificationType.Success);
+
                 if (_viewModel.UserRole == "Admin")
                 {
                     MainWindow mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
@@ -77,49 +80,40 @@ namespace GradingSystem
                 }
                 else if (_viewModel.UserRole == "Encoder" || _viewModel.UserRole == "Staff")
                 {
-                    EncoderMainWindow encoderWindow = new EncoderMainWindow(_context);
+                    EncoderMainWindow encoderWindow = _serviceProvider.GetRequiredService<EncoderMainWindow>();
                     encoderWindow.Show();
                 }
 
-                // Close the current (login) window
                 this.Close();
             }
             else
             {
-                // Handle invalid credentials
-                MessageBox.Show("Invalid login credentials.", "Authentication Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowNotification("Authentication Failed", "Invalid login credentials.", NotificationType.Error);
                 clearFields();
             }
         }
 
         private bool ValidateInputs()
         {
-            // Validate email/username format
             if (string.IsNullOrWhiteSpace(_viewModel.Email))
             {
-                MessageBox.Show("Please enter your email or username.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowNotification("Validation Error", "Please enter your email or username.", NotificationType.Warning);
                 return false;
             }
 
-            // Validate email format
             if (IsValidEmail(_viewModel.Email))
             {
-                // Additional validation logic for email (if required)
+                // Email validation passed
             }
-            else
+            else if (_viewModel.Email.Contains(" "))
             {
-                // Validate username (no spaces allowed)
-                if (_viewModel.Email.Contains(" "))
-                {
-                    MessageBox.Show("Username cannot contain spaces.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return false;
-                }
+                ShowNotification("Validation Error", "Username cannot contain spaces.", NotificationType.Warning);
+                return false;
             }
 
-            // Validate password
             if (string.IsNullOrWhiteSpace(_viewModel.Password))
             {
-                MessageBox.Show("Please enter your password.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowNotification("Validation Error", "Please enter your password.", NotificationType.Warning);
                 return false;
             }
 
@@ -160,6 +154,16 @@ namespace GradingSystem
             passwordTxt.Visibility = passwordTxt.Visibility == System.Windows.Visibility.Visible
                 ? System.Windows.Visibility.Hidden
                 : System.Windows.Visibility.Visible;
+        }
+
+        private void ShowNotification(string title, string message, NotificationType type)
+        {
+            _notificationManager.Show(new NotificationContent
+            {
+                Title = title,
+                Message = message,
+                Type = type
+            });
         }
     }
 }

@@ -30,18 +30,19 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
     {
         try
         {
-            using (var context = _serviceProvider.GetRequiredService<ApplicationDbContext>())
-            {
-                context.StudentSubjects.Add(studentSubject);
-                await context.SaveChangesAsync();
-                StudentSubjects.Add(studentSubject); // Directly add to the collection
-            }
+            // Get the DbContext from DI (don't dispose manually)
+            var context = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+
+            context.StudentSubjects.Add(studentSubject);
+            await context.SaveChangesAsync();
+            StudentSubjects.Add(studentSubject); // Directly add to the collection
         }
         catch (Exception ex)
         {
-            HandleError($"Error adding student subject: {ex.Message}");
+            HandleError($"Error adding student subject: {ex.InnerException.Message}");
         }
     }
+
 
     public async Task LoadSubjects(string studentId)
     {
@@ -79,8 +80,9 @@ public class StudentSubjectViewModel : INotifyPropertyChanged
 
             var context = _serviceProvider.GetRequiredService<ApplicationDbContext>();
             var studentSubjects = await context.StudentSubjects
-                .Where(ss => ss.StudentId == studentId)
-                .ToListAsync();
+                .Include(ss => ss.Subject) // Include the related Subject
+                .Where(ss => ss.StudentId == studentId)  // Closing parenthesis for the Where method
+                .ToListAsync();  // Fetch the results
 
             // Update ObservableCollection on UI thread
             Application.Current.Dispatcher.Invoke(() =>

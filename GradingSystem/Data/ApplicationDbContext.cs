@@ -106,6 +106,8 @@ namespace GradingSystem.Data
                 string connectionString = configuration.GetConnectionString("MyDbConnectionString");
                 optionsBuilder.UseSqlServer(connectionString);
                 optionsBuilder.EnableSensitiveDataLogging();
+
+                optionsBuilder.UseLazyLoadingProxies();
             }
 
             base.OnConfiguring(optionsBuilder);

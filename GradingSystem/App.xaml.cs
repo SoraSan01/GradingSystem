@@ -89,6 +89,7 @@ namespace GradingSystem
             services.AddTransient<AddSubject>();
             services.AddTransient<AddUser>();
             services.AddTransient<EnrollStudent>();
+            services.AddTransient<EnrollmentDashboard>();
         }
 
         private void RegisterViewModels(IServiceCollection services)

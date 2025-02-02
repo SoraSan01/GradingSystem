@@ -73,7 +73,11 @@ namespace GradingSystem.ViewModel
             {
                 using var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
                 {
-                    var subjects = await context.Subjects.AsNoTracking().ToListAsync();
+                    var subjects = await context.Subjects
+                        .AsNoTracking()
+                        .Include(s => s.Program) // Include the related Program entity
+                        .ToListAsync();
+
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         Subjects = new ObservableCollection<Subject>(subjects);
@@ -85,6 +89,7 @@ namespace GradingSystem.ViewModel
                 ShowMessage($"Error loading subjects: {ex.Message}", "Error", MessageBoxImage.Error);
             }
         }
+
 
         public void ApplySearch()
         {
@@ -100,47 +105,66 @@ namespace GradingSystem.ViewModel
                                 (s.SubjectId ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.CourseCode ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.ProfessorName ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.Semester ?? string.Empty).ToLower().Contains(lowerSearch) ||
+                                (s.ProgramName ?? string.Empty).ToLower().Contains(lowerSearch) ||
                                 (s.Schedule ?? string.Empty).ToLower().Contains(lowerSearch))
                     .ToList();
                 FilteredSubjects = new ObservableCollection<Subject>(filtered);
             }
         }
 
-        public async Task AddSubjectAsync(Subject newSubject)
+        public async Task<bool> AddSubjectAsync(Subject newSubject)
         {
             try
             {
+                // Check if subject name is empty
+                if (string.IsNullOrWhiteSpace(newSubject.SubjectName))
+                {
+                    ShowMessage("Subject name cannot be empty.", "Validation Error", MessageBoxImage.Warning);
+                    return false;
+                }
+
                 using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                 {
-                    // Generate a unique SubjectId
+                    // Check if the subject already exists in the same program, year level, and semester
+                    bool subjectExists = await context.Subjects
+                        .AnyAsync(s =>
+                            s.SubjectName == newSubject.SubjectName &&
+                            s.ProgramId == newSubject.ProgramId &&
+                            s.YearLevel == newSubject.YearLevel &&
+                            s.Semester == newSubject.Semester);
+
+                    if (subjectExists)
+                    {
+                        ShowMessage("A subject with the same name already exists in this program for the same year and semester.", "Validation Error", MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    // Validate ProgramId - Ensure the program exists in the database
+                    bool programExists = await context.Programs
+                        .AnyAsync(p => p.ProgramId == newSubject.ProgramId);
+
+                    if (!programExists)
+                    {
+                        ShowMessage("Invalid Program ID. Please select a valid program.", "Validation Error", MessageBoxImage.Warning);
+                        return false;
+                    }
+
+                    // Now generate a unique SubjectId after successful validation
                     var existingIds = await context.Subjects.Select(s => s.SubjectId).ToListAsync();
                     newSubject.SubjectId = ApplicationDbContext.GenerateSubjectId(newSubject.SubjectName, existingIds);
 
-                    var existingSubject = await context.Subjects.FindAsync(newSubject.SubjectId);
-                    if (existingSubject != null)
-                    {
-                        context.Entry(existingSubject).State = EntityState.Detached;
-                    }
-
+                    // Add the new subject to the context
                     context.Subjects.Add(newSubject);
                     await context.SaveChangesAsync();
                 }
 
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    Subjects.Add(newSubject);
-                    ApplySearch();
-                });
-
-                ShowMessage("Subject added successfully.", "Success", MessageBoxImage.Information);
-            }
-            catch (DbUpdateException ex)
-            {
-                ShowMessage($"Error adding subject: {ex.InnerException?.Message ?? ex.Message}", "Error", MessageBoxImage.Error);
+                return true;
             }
             catch (Exception ex)
             {
                 ShowMessage($"Error adding subject: {ex.Message}", "Error", MessageBoxImage.Error);
+                return false;
             }
         }
 

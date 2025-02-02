@@ -35,6 +35,7 @@ namespace GradingSystem.View.Admin
             SubjectListDataGrid.DataContext = _subject;
         }
 
+        // Notification handling
         private void ShowNotification(string title, string message, NotificationType type)
         {
             _notificationManager.Show(new NotificationContent
@@ -50,16 +51,21 @@ namespace GradingSystem.View.Admin
             ShowNotification("Error", $"{action}: {ex.Message}", NotificationType.Error);
         }
 
+        // Populate student details
         private void PopulateStudentDetails(Student student, Enrollment enrollment)
         {
             studentNameTxt.Text = enrollment.FullName;
-
             courseTxt.Text = enrollment.ProgramName;
-
-            scholarshipTxt.Text = enrollment.Status ?? "N/A"; // Handle null for Status as well
+            scholarshipTxt.Text = enrollment.Status;
         }
 
+        // Validate grade input
+        private bool IsValidGrade(string grade)
+        {
+            return !string.IsNullOrEmpty(grade) && (decimal.TryParse(grade, out _) || grade.Equals("INC", StringComparison.OrdinalIgnoreCase));
+        }
 
+        // Handle grade edit in DataGrid
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             if (e.Column.Header.ToString() == "Grade")
@@ -73,7 +79,6 @@ namespace GradingSystem.View.Admin
                     if (IsValidGrade(newGrade))
                     {
                         studentSubject.Grade = newGrade.Equals("INC", StringComparison.OrdinalIgnoreCase) ? "INC" : newGrade.ToUpper();
-
                         UpdateGradeAsync(studentSubject);
                     }
                     else
@@ -85,6 +90,7 @@ namespace GradingSystem.View.Admin
             }
         }
 
+        // Update grade in the database
         private async Task UpdateGradeAsync(StudentSubject studentSubject)
         {
             try
@@ -98,19 +104,16 @@ namespace GradingSystem.View.Admin
             }
         }
 
-        private bool IsValidGrade(string grade)
-        {
-            return !string.IsNullOrEmpty(grade) && (decimal.TryParse(grade, out _) || grade.Equals("INC", StringComparison.OrdinalIgnoreCase));
-        }
-
+        // Handle grade input filtering
         private void GradePreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            if (!char.IsDigit(e.Text, 0) && e.Text.ToUpper() != "I" && e.Text.ToUpper() != "N" && e.Text.ToUpper() != "C")
+            if (!char.IsDigit(e.Text, 0) && !e.Text.ToUpper().Equals("I") && !e.Text.ToUpper().Equals("N") && !e.Text.ToUpper().Equals("C"))
             {
                 e.Handled = true;
             }
         }
 
+        // Remove subject from student's list
         private async Task RemoveSubBtnAsync(object sender, RoutedEventArgs e)
         {
             var selectedSubject = StudentSubjectDatagrid.SelectedItem as StudentSubject;
@@ -137,14 +140,16 @@ namespace GradingSystem.View.Admin
             }
         }
 
+        // Load student data when Enter is pressed
         private async void StudentIdTxt_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
-                 LoadStudentDataAsync();  // Uncomment and implement if necessary
+                await LoadStudentDataAsync();
             }
         }
 
+        // Load student data and subjects based on student ID
         private async Task LoadStudentDataAsync()
         {
             string studentId = idTxt.Text?.Trim() ?? string.Empty;
@@ -156,22 +161,16 @@ namespace GradingSystem.View.Admin
 
             try
             {
-                // Load student by Student ID
                 var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId).ConfigureAwait(false);
 
                 if (student != null)
                 {
-                    // Load enrollment data for the student
                     var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId).ConfigureAwait(false);
                     if (enrollment != null)
                     {
-                        // Retrieve all student subjects without filtering by year or semester
                         await _viewModel.LoadSubjectsBasedOnStudentId(studentId);
-
-                        // Update the UI thread with the retrieved student subjects and student details
                         Dispatcher.Invoke(() =>
                         {
-                            // If no subjects are loaded, still display the student data
                             StudentSubjectDatagrid.ItemsSource = _viewModel.StudentSubjects.Any() ? _viewModel.StudentSubjects : new List<StudentSubject>();
                             PopulateStudentDetails(student, enrollment);
                         });
@@ -192,13 +191,10 @@ namespace GradingSystem.View.Admin
             }
         }
 
-
-        // If Add Sub Button is needed, add the following code to handle adding subject logic
-
+        // Add subject to student
         private async Task AddSubBtnAsync(object sender, RoutedEventArgs e)
         {
             string studentId = idTxt.Text?.Trim() ?? string.Empty;
-
             if (string.IsNullOrEmpty(studentId))
             {
                 ShowNotification("Validation Error", "Please enter a valid Student ID.", NotificationType.Warning);
@@ -230,76 +226,62 @@ namespace GradingSystem.View.Admin
                     return;
                 }
 
-                var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId);
-                if (enrollment == null)
+                var enrollments = await _context.Enrollments.Where(e => e.StudentId == studentId).ToListAsync();
+                if (enrollments == null || !enrollments.Any())
                 {
-                    ShowNotification("Error", "Enrollment not found.", NotificationType.Error);
+                    ShowNotification("Error", "No enrollments found for the student.", NotificationType.Error);
                     return;
                 }
 
-                if (enrollment.Status == "Scholar" && enrollment.YearLevel == "4th Year" && enrollment.Semester == "2nd Semester")
-                {
-                    var newStudentSubject = new StudentSubject
-                    {
-                        Id = $"{studentId}_{selectedSubject.SubjectId}",
-                        StudentId = studentId,
-                        SubjectId = selectedSubject.SubjectId,
-                        Grade = null
-                    };
+                bool isEligibleForSubjectAddition = enrollments.Any(e =>
+                    e.Status == "Scholar" && e.YearLevel == "Fourth Year" && e.Semester == "Second Semester");
 
-                    await _viewModel.AddStudentSubjectAsync(newStudentSubject);
-                    await _viewModel.LoadSubjects(studentId);
-
-                    ShowNotification("Success", "Subject added successfully.", NotificationType.Success);
-                }
-                else
+                if (!isEligibleForSubjectAddition)
                 {
                     ShowNotification("Validation Error", "Only scholars in 4th year and 2nd semester can add subjects.", NotificationType.Warning);
+                    return;
                 }
+
+                var newStudentSubject = new StudentSubject
+                {
+                    Id = $"{studentId}_{selectedSubject.SubjectId}",
+                    StudentId = studentId,
+                    SubjectId = selectedSubject.SubjectId,
+                    Grade = null
+                };
+
+                await _viewModel.AddStudentSubjectAsync(newStudentSubject);
+                await _viewModel.LoadSubjects(studentId);
+
+                ShowNotification("Success", "Subject added successfully.", NotificationType.Success);
             }
             catch (Exception ex)
             {
-                HandleError("Adding subject", ex);
+                ShowNotification("Error", $"Error adding subject: {ex.Message}", NotificationType.Error);
             }
         }
 
+        // Filter subjects based on year and semester selection
         private void FilterData()
         {
-            // Ensure that we are comparing the correct values
             string selectedYear = (YearComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string selectedSemester = (SemesterComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            // Check that selected values aren't null and filter accordingly
             var filteredSubjects = _viewModel.StudentSubjects
                 .Where(subject =>
-                    (string.IsNullOrEmpty(selectedYear) || subject.YearLevel.Equals(selectedYear, StringComparison.OrdinalIgnoreCase)) &
+                    (string.IsNullOrEmpty(selectedYear) || subject.YearLevel.Equals(selectedYear, StringComparison.OrdinalIgnoreCase)) &&
                     (string.IsNullOrEmpty(selectedSemester) || subject.Semester.Equals(selectedSemester, StringComparison.OrdinalIgnoreCase))
                 ).ToList();
 
-            // Update the DataGrid with filtered results
             StudentSubjectDatagrid.ItemsSource = filteredSubjects;
         }
 
+        // Event handlers for button clicks
+        private void AddSubBtn(object sender, RoutedEventArgs e) => AddSubBtnAsync(sender, e);
+        private void RemoveSubBtn(object sender, RoutedEventArgs e) => RemoveSubBtnAsync(sender, e);
 
-        // Uncomment AddSubBtn method to handle the Add Sub button click
-        private void AddSubBtn(object sender, RoutedEventArgs e)
-        {
-            AddSubBtnAsync(sender, e);
-        }
-
-        private void RemoveSubBtn(object sender, RoutedEventArgs e)
-        {
-            RemoveSubBtnAsync(sender, e);
-        }
-
-        private void YearComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            FilterData();
-        }
-
-        private void SemesterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            FilterData();
-        }
+        // Event handlers for combobox changes
+        private void YearComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => FilterData();
+        private void SemesterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) => FilterData();
     }
 }

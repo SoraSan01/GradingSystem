@@ -48,7 +48,6 @@
 
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    100
                                 </TextBlock>
                                 <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Professors</TextBlock>
                             </Grid>
@@ -68,7 +67,6 @@
                             </Grid.ColumnDefinitions>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    500
                                 </TextBlock>
                                 <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Students</TextBlock>
                             </Grid>
@@ -89,7 +87,6 @@
 
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    50
                                 </TextBlock>
                                 <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Courses</TextBlock>
                             </Grid>
@@ -102,12 +99,13 @@
         <!-- Additional Content Section -->
         <Grid Grid.Row="2" Margin="20 20 10 20">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="154*" />
+                <ColumnDefinition Width="923*"/>
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <!-- First Card -->
-            <Grid Grid.Column="0" Margin="0">
+            <Grid Grid.Column="0" Grid.ColumnSpan="2">
                 <materialDesign:Card Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <StackPanel>
                         <TextBlock Margin="10 10 0 0" Style="{StaticResource MaterialDesignHeadline4TextBlock}">Student Overview</TextBlock>
@@ -129,19 +127,6 @@
                             </lvc:CartesianChart.AxisY>
                         </lvc:CartesianChart>
                     </StackPanel>
-                </materialDesign:Card>
-            </Grid>
-
-            <!-- Second Card -->
-            <Grid Grid.Column="1" Margin="20 0 0 0">
-                <materialDesign:Card Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                        </Grid>
-                    </Grid>
                 </materialDesign:Card>
             </Grid>
         </Grid>

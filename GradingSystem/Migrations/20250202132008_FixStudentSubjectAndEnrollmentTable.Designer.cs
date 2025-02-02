@@ -4,6 +4,7 @@ using GradingSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GradingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250202132008_FixStudentSubjectAndEnrollmentTable")]
+    partial class FixStudentSubjectAndEnrollmentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -63,7 +66,7 @@ namespace GradingSystem.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments", (string)null);
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.Grade", b =>
@@ -107,7 +110,7 @@ namespace GradingSystem.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Grades", (string)null);
+                    b.ToTable("Grades");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.GradeRequest", b =>
@@ -134,7 +137,7 @@ namespace GradingSystem.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("GradeRequests", (string)null);
+                    b.ToTable("GradeRequests");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.Program", b =>
@@ -162,7 +165,7 @@ namespace GradingSystem.Migrations
 
                     b.HasKey("ProgramId");
 
-                    b.ToTable("Program", (string)null);
+                    b.ToTable("Program");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.Student", b =>
@@ -190,7 +193,7 @@ namespace GradingSystem.Migrations
 
                     b.HasKey("StudentId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.Subject", b =>
@@ -238,7 +241,7 @@ namespace GradingSystem.Migrations
 
                     b.HasIndex("ProgramId");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.User", b =>
@@ -278,7 +281,7 @@ namespace GradingSystem.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("StudentSubject", b =>
@@ -306,7 +309,7 @@ namespace GradingSystem.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("StudentSubjects", (string)null);
+                    b.ToTable("StudentSubjects");
                 });
 
             modelBuilder.Entity("GradingSystem.Model.Enrollment", b =>

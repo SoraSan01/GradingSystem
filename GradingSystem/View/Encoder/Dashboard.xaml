@@ -17,19 +17,19 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Dashboard Title -->
         <Grid Grid.Row="0" Margin="30 0 0 0">
             <TextBlock Text="Dashboard" 
-                       FontSize="35"
-                       Style="{StaticResource MaterialDesignCaptionTextBlock}" 
-                       VerticalAlignment="Center"/>
+                    FontSize="35"
+                    Style="{StaticResource MaterialDesignCaptionTextBlock}" 
+                    VerticalAlignment="Center"/>
         </Grid>
 
         <!-- Cards Section -->
-        <Grid Grid.Row="1" Height="200" Margin="20 0 20 0">
+        <Grid Grid.Row="1" Margin="20 0 20 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -37,23 +37,19 @@
             </Grid.ColumnDefinitions>
 
             <!-- Card 1 -->
-            <Grid Grid.Column="0" Margin="10 0 0 0" Height="130">
-                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10" Height="auto">
+            <Grid Grid.Column="0" Margin="10 0 0 0">
+                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Grid Grid.Column="0">
-                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
-                            </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    100
                                 </TextBlock>
-                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Professor</TextBlock>
+                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Professors</TextBlock>
                             </Grid>
                         </Grid>
                     </StackPanel>
@@ -61,23 +57,18 @@
             </Grid>
 
             <!-- Card 2 -->
-            <Grid Grid.Column="1" Margin="10 0 0 0" Height="130">
-                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10" Height="auto">
+            <Grid Grid.Column="1" Margin="10 0 0 0">
+                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-
-                            <Grid Grid.Column="0">
-                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
-                            </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    100
                                 </TextBlock>
-                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Professor</TextBlock>
+                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Students</TextBlock>
                             </Grid>
                         </Grid>
                     </StackPanel>
@@ -85,40 +76,37 @@
             </Grid>
 
             <!-- Card 3 -->
-            <Grid Grid.Column="2" Margin="10 0 0 0" Height="130">
-                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10" Height="auto">
+            <Grid Grid.Column="2" Margin="10 0 0 0">
+                <materialDesign:Card Padding="20 10 20 10" UniformCornerRadius="10">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Grid Grid.Column="0">
-                                <Image Source="/Resources/teacher.png" Width="200" Height="100" HorizontalAlignment="Center"/>
-                            </Grid>
                             <Grid Grid.Column="1">
                                 <TextBlock FontFamily="{StaticResource MaterialDesignFont}" FontWeight="Bold" HorizontalAlignment="Right" FontSize="50" Style="{StaticResource MaterialDesignCaptionTextBlock}">
-                                    100
                                 </TextBlock>
-                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Professor</TextBlock>
+                                <TextBlock VerticalAlignment="Bottom" HorizontalAlignment="Right" FontFamily="{StaticResource MaterialDesignFont}" FontSize="20" Style="{StaticResource MaterialDesignCaptionTextBlock}">Courses</TextBlock>
                             </Grid>
                         </Grid>
                     </StackPanel>
                 </materialDesign:Card>
             </Grid>
         </Grid>
+
         <!-- Additional Content Section -->
-        <Grid Margin="20 0 10 20" MinHeight="350" MaxHeight="500" Grid.Row="2">
+        <Grid Grid.Row="2" Margin="20 20 10 20">
             <Grid.ColumnDefinitions>
-                <!-- Use * to distribute space equally between columns -->
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="154*" />
+                <ColumnDefinition Width="923*"/>
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <!-- First Card -->
-            <Grid Grid.Column="0" Margin="0">
-                <materialDesign:Card Margin="0" Height="340" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <Grid Grid.Column="0" Grid.ColumnSpan="2">
+                <materialDesign:Card Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <StackPanel>
                         <TextBlock Margin="10 10 0 0" Style="{StaticResource MaterialDesignHeadline4TextBlock}">Student Overview</TextBlock>
 
@@ -139,22 +127,6 @@
                             </lvc:CartesianChart.AxisY>
                         </lvc:CartesianChart>
                     </StackPanel>
-                </materialDesign:Card>
-            </Grid>
-
-            <!-- Second Card -->
-            <Grid Grid.Column="1" Margin="20 0 0 0">
-                <materialDesign:Card Margin="0" Height="340" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid Grid.Row="0">
-                            <StackPanel>
-                                <Calendar HorizontalAlignment="Center" Height="300" Margin="20 20 20 0" Style="{StaticResource MaterialDesignDatePickerCalendarPortrait}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
                 </materialDesign:Card>
             </Grid>
         </Grid>

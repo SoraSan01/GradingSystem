@@ -12,24 +12,25 @@ public class StudentSubject
 
     // Define the relationship with Student entity
     [ForeignKey(nameof(StudentId))]
-    public Student Student { get; set; }
+    public virtual Student Student { get; set; }
 
     [Required]
     public string SubjectId { get; set; }
 
     // Define the relationship with Subject entity
     [ForeignKey(nameof(SubjectId))]
-    public Subject Subject { get; set; }
-
-    [Required]
-    public string YearLevel { get; set; }
-    [Required]
-    public string Semester { get; set; }
+    public virtual Subject Subject { get; set; }
 
     // Grade as a string to support "INC" or numeric values
     public string? Grade { get; set; } // Allow null values
 
     public DateTime CreatedAt { get; set; }
+
+    [NotMapped]
+    public string YearLevel => Subject?.YearLevel;
+
+    [NotMapped]
+    public string Semester => Subject?.Semester;
 
     [NotMapped]
     public string CourseCode => Subject?.CourseCode;
@@ -55,12 +56,6 @@ public class StudentSubject
     // Determine if the grade is below passing
     [NotMapped]
     public bool IsGradeLow => GradeAsNumber.HasValue && GradeAsNumber < 75;
-
-    public void SetYearLevelAndSemester(string yearLevel, string semester)
-    {
-        YearLevel = yearLevel;  // Now this works since we have a setter
-        Semester = semester;    // Same here
-    }
 
     // Constructor to set CreatedAt
     public StudentSubject()

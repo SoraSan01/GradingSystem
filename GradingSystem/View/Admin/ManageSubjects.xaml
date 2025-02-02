@@ -77,6 +77,9 @@
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding ProgramName}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Units" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Units" CanUserResize="False" Binding="{Binding Units}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Schedule" CanUserResize="False" Binding="{Binding Schedule}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Professor" CanUserResize="False" Binding="{Binding ProfessorName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="CreatedAt" CanUserResize="False" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy hh:mm tt}" IsReadOnly="True" Width="*"/>
