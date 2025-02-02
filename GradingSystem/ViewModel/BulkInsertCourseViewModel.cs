@@ -24,7 +24,7 @@ public class BulkInsertCourseViewModel : INotifyPropertyChanged
     public BulkInsertCourseViewModel(ApplicationDbContext context)
     {
         _context = context;
-        _studentSubjectViewModel = new StudentSubjectViewModel(context);
+        //_studentSubjectViewModel = new StudentSubjectViewModel(context);
         Subjects = new ObservableCollection<Subject>();
         SaveCommand = new RelayCommand(SaveData);
     }

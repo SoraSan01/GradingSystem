@@ -21,8 +21,7 @@ namespace GradingSystem.ViewModel
 
         public SubjectViewModel(ApplicationDbContext context)
         {
-            _context = context;
-            // Load subjects asynchronously when the ViewModel is initialized
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             _ = LoadSubjectsAsync();
         }
 
@@ -72,12 +71,14 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                // Fetch subjects from the database asynchronously
-                var subjects = await _context.Subjects.AsNoTracking().ToListAsync();
-                Application.Current.Dispatcher.Invoke(() =>
+                using var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
                 {
-                    Subjects = new ObservableCollection<Subject>(subjects);
-                });
+                    var subjects = await context.Subjects.AsNoTracking().ToListAsync();
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Subjects = new ObservableCollection<Subject>(subjects);
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -109,7 +110,7 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                 {
                     // Generate a unique SubjectId
                     var existingIds = await context.Subjects.Select(s => s.SubjectId).ToListAsync();
@@ -161,7 +162,7 @@ namespace GradingSystem.ViewModel
 
                 if (confirmResult == MessageBoxResult.Yes)
                 {
-                    using (var context = new ApplicationDbContext())
+                    using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                     {
                         var subjectToDelete = await context.Subjects.FindAsync(subject.SubjectId);
 
@@ -194,7 +195,7 @@ namespace GradingSystem.ViewModel
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                 {
                     var subjectToEdit = await context.Subjects.FindAsync(updatedSubject.SubjectId);
 

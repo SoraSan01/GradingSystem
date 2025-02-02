@@ -16,9 +16,9 @@ namespace GradingSystem.ViewModel
 
         public int GeneratedOtp { get; private set; } // To store the generated OTP
 
-        public ForgotPasswordViewModel()
+        public ForgotPasswordViewModel(ApplicationDbContext dbContext)
         {
-            _dbContext = new ApplicationDbContext();
+            _dbContext = dbContext;
         }
 
         public void SendOtp()
@@ -77,10 +77,10 @@ namespace GradingSystem.ViewModel
             {
                 MessageBox.Show("OTP verified successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                // Open the ChangePassword window
+                // Resolve ChangePassword window from IServiceProvider
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var changePasswordWindow = new ChangePassword(Email); // Pass the user's email
+                    var changePasswordWindow = new ChangePassword(_dbContext, Email, App.ServiceProvider);
                     changePasswordWindow.ShowDialog();
                 });
             }
@@ -89,8 +89,6 @@ namespace GradingSystem.ViewModel
                 MessageBox.Show("Invalid OTP. Please try again.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
 
         private int GenerateOtp()
         {

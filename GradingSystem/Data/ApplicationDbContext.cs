@@ -1,10 +1,12 @@
 ﻿using GradingSystem.Model;
 using LiveCharts.Wpf;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,11 @@ namespace GradingSystem.Data
 {
     public class ApplicationDbContext : DbContext
     {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
         public DbSet<Student> Students { get; set; }
@@ -91,13 +98,19 @@ namespace GradingSystem.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnectionString"].ConnectionString;
+                var configuration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+                string connectionString = configuration.GetConnectionString("MyDbConnectionString");
                 optionsBuilder.UseSqlServer(connectionString);
-                optionsBuilder.EnableSensitiveDataLogging(); // Enable detailed error logging
+                optionsBuilder.EnableSensitiveDataLogging();
             }
 
             base.OnConfiguring(optionsBuilder);
         }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

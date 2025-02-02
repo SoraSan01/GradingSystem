@@ -15,6 +15,9 @@ namespace GradingSystem.Model
         public string StudentId { get; set; }
 
         [Required]
+        public string FullName { get; set; }
+
+        [Required]
         public string YearLevel { get; set; }
 
         [Required]
@@ -26,6 +29,9 @@ namespace GradingSystem.Model
         [Required]
         [ForeignKey("Program")]
         public string ProgramId { get; set; }
+
+        [NotMapped]
+        public string ProgramName => Program?.ProgramName;
 
         // Navigation properties
         public virtual Student Student { get; set; }

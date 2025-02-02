@@ -100,14 +100,8 @@
                                                         </TextBlock>
                                                     </Grid>
                                                     <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left">
-                                                        <TextBlock Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                                            <TextBlock.Text>
-                                                                <MultiBinding StringFormat="{}{0} {1}">
-                                                                    <Binding Path="SelectedStudent.FirstName"/>
-                                                                    <Binding Path="SelectedStudent.LastName"/>
-                                                                </MultiBinding>
-                                                            </TextBlock.Text>
-                                                        </TextBlock>
+                                                        <TextBlock Margin="5" FontSize="15" Style="{StaticResource MaterialDesignHeadline1TextBlock}"
+                                                                   Text="{Binding FullName}"/>
                                                     </Grid>
 
                                                     <Grid Grid.Row="0" Grid.Column="3" HorizontalAlignment="Left">
@@ -127,7 +121,7 @@
                                                         </TextBlock>
                                                     </Grid>
                                                     <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left">
-                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Program.ProgramName}" FontSize="15"
+                                                        <TextBlock x:Name="ProgramTxt" Margin="5" Text="{Binding ProgramName}" FontSize="15"
                                                    Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
                                                     </Grid>
 
@@ -137,19 +131,10 @@
                                                         </TextBlock>
                                                     </Grid>
                                                     <Grid Grid.Row="1" Grid.Column="2" HorizontalAlignment="Left" Margin="70,0,0,30" Grid.RowSpan="2">
-                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Semester}" FontSize="15"
+                                                        <TextBlock Margin="5" Text="{Binding Semester}" FontSize="15"
                                                    Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
                                                     </Grid>
-
-                                                    <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left">
-                                                        <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
-                                            Email:
-                                                        </TextBlock>
-                                                    </Grid>
-                                                    <Grid Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left">
-                                                        <TextBlock Margin="5" Text="{Binding SelectedStudent.Email}" FontSize="15"
-                                                   Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
-                                                    </Grid>
+                                                  
 
                                                     <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left">
                                                         <TextBlock Margin="5" FontSize="12" FontWeight="Bold" Style="{StaticResource MaterialDesignHeadline1TextBlock}">
@@ -157,7 +142,7 @@
                                                         </TextBlock>
                                                     </Grid>
                                                     <Grid Grid.Row="2" Grid.Column="2" HorizontalAlignment="Left" Margin="75,0,0,0">
-                                                        <TextBlock Margin="9,5,1,5" Text="{Binding SelectedStudent.YearLevel}" FontSize="15"
+                                                        <TextBlock Margin="9,5,1,5" Text="{Binding YearLevel}" FontSize="15"
                                                    Style="{StaticResource MaterialDesignHeadline1TextBlock}" TextWrapping="Wrap"/>
                                                     </Grid>
                                                 </Grid>

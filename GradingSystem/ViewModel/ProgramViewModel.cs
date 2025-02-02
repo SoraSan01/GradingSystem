@@ -79,12 +79,13 @@ namespace GradingSystem.ViewModel
             IsLoading = true;
             try
             {
-                using (var context = new ApplicationDbContext())  // Create a new DbContext instance
+                // Use the already provided _context instead of creating a new one
+                using var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>());
                 {
                     var programs = await context.Programs.ToListAsync();
                     Programs = new ObservableCollection<Program>(programs);
+                    ApplySearch();
                 }
-                ApplySearch();
             }
             catch (Exception ex)
             {

@@ -1,4 +1,6 @@
-﻿using GradingSystem.ViewModel;
+﻿using GradingSystem.Data;
+using GradingSystem.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,13 +24,13 @@ namespace GradingSystem
     {
 
         private readonly ForgotPasswordViewModel _viewModel;  // Declare _viewModel as a private field
-
-        public ForgotPassword()
+        private readonly ApplicationDbContext _context;
+        public ForgotPassword(ApplicationDbContext context)
         {
             InitializeComponent();
-
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             // Initialize _viewModel with the ApplicationDbContext
-            _viewModel = new ForgotPasswordViewModel();
+            _viewModel = new ForgotPasswordViewModel(_context);
 
             // Set the DataContext for data binding
             DataContext = _viewModel;

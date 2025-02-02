@@ -14,17 +14,6 @@ namespace GradingSystem.ViewModel
         private readonly ApplicationDbContext _context;
         public ObservableCollection<Student> Students { get; set; } = new ObservableCollection<Student>();
         private ObservableCollection<Student> _filteredStudents = new ObservableCollection<Student>();
-        private ObservableCollection<StudentSubject> _studentSubjects = new ObservableCollection<StudentSubject>();
-
-        public ObservableCollection<StudentSubject> StudentSubjects
-        {
-            get => _studentSubjects;
-            set
-            {
-                _studentSubjects = value;
-                OnPropertyChanged(nameof(StudentSubjects));
-            }
-        }
 
         private DateTime _currentDate = DateTime.Now;
         public DateTime CurrentDate
@@ -47,48 +36,6 @@ namespace GradingSystem.ViewModel
             }
         }
 
-        private string? _program;
-        public string? Program
-        {
-            get => _program;
-            set
-            {
-                if (_program != value)
-                {
-                    _program = value;
-                    OnPropertyChanged(nameof(Program));
-                }
-            }
-        }
-
-        private string? _semester;
-        public string? Semester
-        {
-            get => _semester;
-            set
-            {
-                if (_semester != value)
-                {
-                    _semester = value;
-                    OnPropertyChanged(nameof(Semester));
-                }
-            }
-        }
-
-        private string? _status;
-        public string? Status
-        {
-            get => _status;
-            set
-            {
-                if (_status != value)
-                {
-                    _status = value;
-                    OnPropertyChanged(nameof(Status));
-                }
-            }
-        }
-
         public StudentsViewModel(ApplicationDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -96,6 +43,7 @@ namespace GradingSystem.ViewModel
         }
 
         public ApplicationDbContext Context => _context;
+        public event Action<Student> StudentDeleted;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -114,75 +62,26 @@ namespace GradingSystem.ViewModel
                 {
                     _selectedStudent = value;
                     OnPropertyChanged(nameof(SelectedStudent));
-                    _ = LoadStudentSubjectsAsync(_selectedStudent?.StudentId);
                 }
             }
-        }
-
-        public async Task LoadStudentSubjectsAsync(string? studentId)
-        {
-            if (string.IsNullOrWhiteSpace(studentId)) return;
-
-            try
-            {
-                using (var context = new ApplicationDbContext())
-                {
-                    var subjects = await context.StudentSubjects
-                        .Include(ss => ss.Subject)
-                        .Where(ss => ss.StudentId == studentId)
-                        .ToListAsync();
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        StudentSubjects.Clear();
-                        foreach (var subject in subjects)
-                        {
-                            StudentSubjects.Add(subject);
-                        }
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                await HandleErrorAsync("loading subjects", ex);
-            }
-        }
-
-        public async Task LoadStudentDataAsync(Student student)
-        {
-            if (student == null)
-            {
-                await ShowMessageAsync("No student selected.", "Error", MessageBoxImage.Error);
-                return;
-            }
-
-            SelectedStudent = student;
-
-            Program = SelectedStudent.Program?.ProgramId;
-            Semester = SelectedStudent.Semester;
-            Status = SelectedStudent.Status;
-
-            await LoadStudentSubjectsAsync(student.StudentId);
         }
 
         public async Task LoadStudentsAsync()
         {
             try
             {
-                using (var context = new ApplicationDbContext())
+                var studentsList = await _context.Students
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var studentsList = await context.Students
-                        .Include(s => s.Program)
-                        .AsNoTracking()
-                        .ToListAsync();
-                    Application.Current.Dispatcher.Invoke(() =>
+                    Students.Clear();
+                    foreach (var student in studentsList)
                     {
-                        Students.Clear();
-                        foreach (var student in studentsList)
-                        {
-                            Students.Add(student);
-                        }
-                    });
-                }
+                        Students.Add(student);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -190,90 +89,28 @@ namespace GradingSystem.ViewModel
             }
         }
 
-        public async Task AddStudentAsync(Student newStudent, string year, string semester, string programId, string status)
+        public async Task AddStudentAsync(Student newStudent)
         {
             if (newStudent == null) throw new ArgumentNullException(nameof(newStudent));
 
             try
             {
-                using (var context = new ApplicationDbContext())
-                {
-                    var existingStudents = await context.Students
-                        .Where(s => s.StudentId == newStudent.StudentId)
-                        .ToListAsync();
-
-                    if (existingStudents.Any())
-                    {
-                        // Ensure the name matches exactly
-                        if (!existingStudents.Any(s => s.StudentName == newStudent.StudentName))
-                        {
-                            await ShowMessageAsync("A student with this ID but a different name already exists.", "Duplicate Entry", MessageBoxImage.Warning);
-                            return;
-                        }
-
-                        // Ensure at least one of year, semester, or status is different
-                        if (existingStudents.Any(s => s.YearLevel == year && s.Semester == semester && s.Status == status))
-                        {
-                            await ShowMessageAsync("A student with this ID, same name, and the same year, semester, and status already exists.", "Duplicate Entry", MessageBoxImage.Warning);
-                            return;
-                        }
-                    }
-
-                    var programExists = await context.Programs.AnyAsync(p => p.ProgramId == programId);
-                    if (!programExists)
-                    {
-                        await ShowMessageAsync("Selected program does not exist.", "Error", MessageBoxImage.Error);
-                        return;
-                    }
-
-                    // Detach all tracked entities to avoid conflicts
-                    context.ChangeTracker.Clear();
-
-                    context.Students.Add(newStudent);
-                    await context.SaveChangesAsync();
-
-                    await AssignSubjectsToStudentAsync(newStudent.StudentId, year, semester, programId);
-
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        Students.Add(newStudent);
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                await ShowMessageAsync($"An error occurred while adding the student: {ex.Message}\n{ex.InnerException?.Message}", "Error", MessageBoxImage.Error);
-            }
-        }
-
-        private async Task AssignSubjectsToStudentAsync(string studentId, string year, string semester, string programId)
-        {
-            try
-            {
-                var subjects = await _context.Subjects
-                    .Where(s => s.ProgramId == programId && s.YearLevel == year && s.Semester == semester)
-                    .ToListAsync();
-
-                foreach (var subject in subjects)
-                {
-                    var studentSubject = new StudentSubject
-                    {
-                        Id = await _context.GenerateUniqueStudentSubjectId(_context, studentId, subject.SubjectId),
-                        StudentId = studentId,
-                        SubjectId = subject.SubjectId,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _context.StudentSubjects.Add(studentSubject);
-                }
-
+                _context.Students.Add(newStudent);
                 await _context.SaveChangesAsync();
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Students.Add(newStudent);
+                });
+
+                await ShowMessageAsync("Student added successfully.", "Success", MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                await HandleErrorAsync("assigning subjects", ex);
+                await HandleErrorAsync("adding student", ex);
             }
         }
+
 
         public async Task EditStudentAsync(Student updatedStudent)
         {
@@ -291,10 +128,6 @@ namespace GradingSystem.ViewModel
                 studentToUpdate.FirstName = updatedStudent.FirstName;
                 studentToUpdate.LastName = updatedStudent.LastName;
                 studentToUpdate.Email = updatedStudent.Email;
-                studentToUpdate.ProgramId = updatedStudent.ProgramId;
-                studentToUpdate.YearLevel = updatedStudent.YearLevel;
-                studentToUpdate.Semester = updatedStudent.Semester;
-                studentToUpdate.Status = updatedStudent.Status;
 
                 await _context.SaveChangesAsync();
 
@@ -316,10 +149,6 @@ namespace GradingSystem.ViewModel
                 studentInCollection.FirstName = updatedStudent.FirstName;
                 studentInCollection.LastName = updatedStudent.LastName;
                 studentInCollection.Email = updatedStudent.Email;
-                studentInCollection.ProgramId = updatedStudent.ProgramId;
-                studentInCollection.YearLevel = updatedStudent.YearLevel;
-                studentInCollection.Semester = updatedStudent.Semester;
-                studentInCollection.Status = updatedStudent.Status;
             }
         }
 
@@ -341,23 +170,42 @@ namespace GradingSystem.ViewModel
                         _context.Entry(existingEntity.Entity).State = EntityState.Detached;
                     }
 
+                    // Remove the student from the database
                     _context.Students.Remove(student);
                     await _context.SaveChangesAsync();
 
+                    // Also, remove the student's enrollments (if necessary)
+                    var enrollmentsToRemove = _context.Enrollments
+                        .Where(e => e.StudentId == student.StudentId)
+                        .ToList();
+
+                    foreach (var enrollment in enrollmentsToRemove)
+                    {
+                        _context.Enrollments.Remove(enrollment);
+                    }
+
+                    await _context.SaveChangesAsync();
+
+                    // Remove the student from the ObservableCollection
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        Students.Remove(student);
+                        Students.Remove(student);  // This will automatically update the DataGrid
+                        FilteredStudents.Remove(student);  // Update filtered students if necessary
                     });
 
-                    await ShowMessageAsync("Student deleted successfully.", "Success", MessageBoxImage.Information);
+                    // Notify other ViewModel about the deletion
+                    StudentDeleted?.Invoke(student);  // Raise the event here
+
+                    // Show success message
+                    await ShowMessageAsync("Student and associated enrollments deleted successfully.", "Success", MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                await HandleErrorAsync("deleting student", ex);
+                // Handle errors gracefully
+                await HandleErrorAsync("deleting student and enrollments", ex);
             }
         }
-
         private async Task ShowMessageAsync(string message, string caption, MessageBoxImage icon)
         {
             await Application.Current.Dispatcher.InvokeAsync(() =>

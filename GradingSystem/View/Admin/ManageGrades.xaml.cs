@@ -3,13 +3,14 @@ using GradingSystem.Model;
 using GradingSystem.View.Admin.Dialogs;
 using GradingSystem.ViewModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Notifications.Wpf;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Collections.ObjectModel;
-using Notifications.Wpf;
 using System.Windows.Input;
 
 namespace GradingSystem.View.Admin
@@ -19,14 +20,17 @@ namespace GradingSystem.View.Admin
         private readonly NotificationManager _notificationManager = new NotificationManager();
         private readonly StudentSubjectViewModel _viewModel;
         private readonly SubjectViewModel _subject;
-        private readonly StudentsViewModel _student;
+        private readonly EnrollmentViewModel _enrollment;
+        private readonly ILogger<ManageGrades> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public ManageGrades(ApplicationDbContext context)
+        public ManageGrades(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _viewModel = new StudentSubjectViewModel(context);
-            _student = new StudentsViewModel(context);
-            _subject = new SubjectViewModel(context);
+            _context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+            _viewModel = new StudentSubjectViewModel(serviceProvider);
+            _subject = new SubjectViewModel(_context);
+            _enrollment = serviceProvider.GetRequiredService<EnrollmentViewModel>();
             DataContext = _viewModel;
             SubjectListDataGrid.DataContext = _subject;
         }
@@ -43,44 +47,18 @@ namespace GradingSystem.View.Admin
 
         private void HandleError(string action, Exception ex)
         {
-            // Log the error (consider using a logging framework)
-            Console.Error.WriteLine($"{action}: {ex}");
-
             ShowNotification("Error", $"{action}: {ex.Message}", NotificationType.Error);
         }
 
-        private async void StudentIdTxt_KeyDown(object sender, KeyEventArgs e)
+        private void PopulateStudentDetails(Student student, Enrollment enrollment)
         {
-            if (e.Key == Key.Enter)
-            {
-                await LoadStudentDataAsync();
-            }
+            studentNameTxt.Text = enrollment.FullName;
+
+            courseTxt.Text = enrollment.ProgramName;
+
+            scholarshipTxt.Text = enrollment.Status ?? "N/A"; // Handle null for Status as well
         }
 
-        private async Task LoadStudentDataAsync()
-        {
-            string studentId = idTxt.Text?.Trim() ?? string.Empty;
-            if (string.IsNullOrEmpty(studentId))
-            {
-                ShowNotification("Validation Error", "Please enter a valid Student ID.", NotificationType.Warning);
-                return;
-            }
-
-            var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
-            if (student != null)
-            {
-                studentNameTxt.Text = student.StudentName;
-                courseTxt.Text = student.Program?.ProgramName ?? "N/A";
-                semesterTxt.Text = student.Semester;
-                yearLevelTxt.Text = student.YearLevel;
-                scholarshipTxt.Text = student.Status;
-                await _viewModel.LoadSubjects(studentId);
-            }
-            else
-            {
-                ShowNotification("Error", "Student not found.", NotificationType.Error);
-            }
-        }
 
         private void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
@@ -91,34 +69,32 @@ namespace GradingSystem.View.Admin
 
                 if (studentSubject != null && gradeCell != null)
                 {
-                    string newGrade = gradeCell.Text?.Trim().ToUpper();
-
+                    string newGrade = gradeCell.Text.Trim();
                     if (IsValidGrade(newGrade))
                     {
-                        studentSubject.Grade = newGrade.Equals("INC", StringComparison.OrdinalIgnoreCase) ? "INC" : newGrade;
+                        studentSubject.Grade = newGrade.Equals("INC", StringComparison.OrdinalIgnoreCase) ? "INC" : newGrade.ToUpper();
 
-                        Application.Current.Dispatcher.InvokeAsync(async () =>
-                        {
-                            try
-                            {
-                                await _viewModel.UpdateGradeAsync(studentSubject);
-                                ShowNotification("Success", "Grade updated successfully.", NotificationType.Success);
-                            }
-                            catch (Exception ex)
-                            {
-                                HandleError("Error updating grade", ex);
-                            }
-                        });
+                        UpdateGradeAsync(studentSubject);
                     }
                     else
                     {
                         ShowNotification("Validation Error", "Grade must be a valid numeric value or 'INC'.", NotificationType.Warning);
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            gradeCell.Text = studentSubject.Grade ?? "INC";
-                        });
+                        gradeCell.Text = studentSubject.Grade ?? "INC";
                     }
                 }
+            }
+        }
+
+        private async Task UpdateGradeAsync(StudentSubject studentSubject)
+        {
+            try
+            {
+                await _viewModel.UpdateGradeAsync(studentSubject).ConfigureAwait(false);
+                ShowNotification("Success", "Grade updated successfully.", NotificationType.Success);
+            }
+            catch (Exception ex)
+            {
+                HandleError("Updating grade", ex);
             }
         }
 
@@ -135,27 +111,89 @@ namespace GradingSystem.View.Admin
             }
         }
 
-        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async Task RemoveSubBtnAsync(object sender, RoutedEventArgs e)
         {
-            string searchText = (sender as TextBox)?.Text?.Trim().ToLower() ?? string.Empty;
-            string studentId = idTxt.Text?.Trim() ?? string.Empty;
+            var selectedSubject = StudentSubjectDatagrid.SelectedItem as StudentSubject;
+            if (selectedSubject != null)
+            {
+                var confirmation = MessageBox.Show("Are you sure you want to remove this subject?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (confirmation == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _viewModel.RemoveStudentSubjectAsync(selectedSubject);
+                        ShowNotification("Success", "Subject removed successfully.", NotificationType.Success);
+                        await _viewModel.LoadSubjects(idTxt.Text ?? string.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        HandleError("Removing subject", ex);
+                    }
+                }
+            }
+            else
+            {
+                ShowNotification("Validation Error", "Please select a subject to remove.", NotificationType.Warning);
+            }
+        }
 
+        private async void StudentIdTxt_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                 LoadStudentDataAsync();  // Uncomment and implement if necessary
+            }
+        }
+
+        private async Task LoadStudentDataAsync()
+        {
+            string studentId = idTxt.Text?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(studentId))
             {
                 ShowNotification("Validation Error", "Please enter a valid Student ID.", NotificationType.Warning);
                 return;
             }
 
-            var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
-            if (student == null)
+            try
             {
-                ShowNotification("Error", "Student not found.", NotificationType.Error);
-                return;
-            }
+                // Load student by Student ID
+                var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId).ConfigureAwait(false);
 
-            _subject.SearchText = searchText;
-            _subject.ApplySearch();
+                if (student != null)
+                {
+                    // Load enrollment data for the student
+                    var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId).ConfigureAwait(false);
+                    if (enrollment != null)
+                    {
+                        // Retrieve all student subjects without filtering by year or semester
+                        await _viewModel.LoadSubjectsBasedOnStudentId(studentId);
+
+                        // Update the UI thread with the retrieved student subjects and student details
+                        Dispatcher.Invoke(() =>
+                        {
+                            // If no subjects are loaded, still display the student data
+                            StudentSubjectDatagrid.ItemsSource = _viewModel.StudentSubjects.Any() ? _viewModel.StudentSubjects : new List<StudentSubject>();
+                            PopulateStudentDetails(student, enrollment);
+                        });
+                    }
+                    else
+                    {
+                        ShowNotification("Error", "Enrollment not found.", NotificationType.Error);
+                    }
+                }
+                else
+                {
+                    ShowNotification("Error", "Student not found.", NotificationType.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleError("Loading student data", ex);
+            }
         }
+
+
+        // If Add Sub Button is needed, add the following code to handle adding subject logic
 
         private async Task AddSubBtnAsync(object sender, RoutedEventArgs e)
         {
@@ -185,14 +223,21 @@ namespace GradingSystem.View.Admin
                     return;
                 }
 
-                var student = _student.Students.FirstOrDefault(s => s.StudentId == studentId);
+                var student = await _enrollment.GetStudentByIdAsync(studentId);
                 if (student == null)
                 {
                     ShowNotification("Error", "Student not found.", NotificationType.Error);
                     return;
                 }
 
-                if (student.Status == "Scholar" && student.YearLevel == "4th Year" && student.Semester == "2nd Semester")
+                var enrollment = await _context.Enrollments.FirstOrDefaultAsync(e => e.StudentId == studentId);
+                if (enrollment == null)
+                {
+                    ShowNotification("Error", "Enrollment not found.", NotificationType.Error);
+                    return;
+                }
+
+                if (enrollment.Status == "Scholar" && enrollment.YearLevel == "4th Year" && enrollment.Semester == "2nd Semester")
                 {
                     var newStudentSubject = new StudentSubject
                     {
@@ -214,50 +259,47 @@ namespace GradingSystem.View.Admin
             }
             catch (Exception ex)
             {
-                HandleError("Error adding subject", ex);
+                HandleError("Adding subject", ex);
             }
         }
 
-        private async Task RemoveSubBtnAsync(object sender, RoutedEventArgs e)
+        private void FilterData()
         {
-            var selectedSubject = StudentSubjectDatagrid.SelectedItem as StudentSubject;
-            if (selectedSubject != null)
-            {
-                var confirmation = MessageBox.Show("Are you sure you want to remove this subject?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                if (confirmation == MessageBoxResult.Yes)
-                {
-                    try
-                    {
-                        await _viewModel.RemoveStudentSubjectAsync(selectedSubject);
-                        ShowNotification("Success", "Subject removed successfully.", NotificationType.Success);
-                        await _viewModel.LoadSubjects(idTxt.Text ?? string.Empty);
-                    }
-                    catch (Exception ex)
-                    {
-                        HandleError("Error removing subject", ex);
-                    }
-                }
-            }
-            else
-            {
-                ShowNotification("Validation Error", "Please select a subject to remove.", NotificationType.Warning);
-            }
+            // Ensure that we are comparing the correct values
+            string selectedYear = (YearComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string selectedSemester = (SemesterComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            // Check that selected values aren't null and filter accordingly
+            var filteredSubjects = _viewModel.StudentSubjects
+                .Where(subject =>
+                    (string.IsNullOrEmpty(selectedYear) || subject.YearLevel.Equals(selectedYear, StringComparison.OrdinalIgnoreCase)) &
+                    (string.IsNullOrEmpty(selectedSemester) || subject.Semester.Equals(selectedSemester, StringComparison.OrdinalIgnoreCase))
+                ).ToList();
+
+            // Update the DataGrid with filtered results
+            StudentSubjectDatagrid.ItemsSource = filteredSubjects;
         }
 
-        private async void AddSubBtn(object sender, RoutedEventArgs e)
+
+        // Uncomment AddSubBtn method to handle the Add Sub button click
+        private void AddSubBtn(object sender, RoutedEventArgs e)
         {
-            await AddSubBtnAsync(sender, e);
+            AddSubBtnAsync(sender, e);
         }
 
-        private async void RemoveSubBtn(object sender, RoutedEventArgs e)
+        private void RemoveSubBtn(object sender, RoutedEventArgs e)
         {
-            await RemoveSubBtnAsync(sender, e);
+            RemoveSubBtnAsync(sender, e);
         }
 
-        private void SearchTextBox(object sender, TextChangedEventArgs e)
+        private void YearComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Implement the search functionality here
+            FilterData();
         }
 
+        private void SemesterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FilterData();
+        }
     }
 }

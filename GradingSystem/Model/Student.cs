@@ -27,22 +27,6 @@ namespace GradingSystem.Model
         [Required]
         [StringLength(100)]
         public string Email { get; set; }
-
-        [ForeignKey("Program")]
-        public string ProgramId { get; set; }  // The ProgramId links to the Program
-
-        // Navigation property to the Program model
-        public Program Program { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string Semester { get; set; }
-
-        [Required]
-        public string YearLevel { get; set; }
-
-        [Required]
-        public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public string StudentName => $"{LastName} {FirstName}";

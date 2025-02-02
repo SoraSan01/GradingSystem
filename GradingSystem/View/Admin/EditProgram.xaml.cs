@@ -28,10 +28,10 @@ namespace GradingSystem.View.Admin
         private readonly ApplicationDbContext _context;
 
 
-        public EditProgram(Program selectedProgram)
+        public EditProgram(ApplicationDbContext context, Program selectedProgram)
         {
             InitializeComponent();
-            _context = new ApplicationDbContext();
+            _context = context ?? throw new ArgumentNullException(nameof(context));
             ViewModel = new ProgramViewModel(_context);
             ViewModel.SelectedProgram = selectedProgram;
             DataContext = ViewModel;

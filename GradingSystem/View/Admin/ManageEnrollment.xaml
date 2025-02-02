@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GradingSystem.View.Admin"
-              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:viewModel="clr-namespace:GradingSystem.ViewModel"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1106.25">
@@ -17,9 +17,9 @@
         <!-- Dashboard Title -->
         <Grid Grid.Row="0" Margin="30 0 0 0">
             <TextBlock Text="Manage Students" 
-                   FontSize="35"
-                   Style="{StaticResource MaterialDesignCaptionTextBlock}" 
-                   VerticalAlignment="Center"/>
+                       FontSize="35"
+                       Style="{StaticResource MaterialDesignCaptionTextBlock}" 
+                       VerticalAlignment="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -31,6 +31,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
+                        <!-- Search and Enroll Button Section -->
                         <Grid Grid.Row="0" Effect="{StaticResource MaterialDesignElevationShadow1}">
                             <materialDesign:Card Padding="5">
                                 <Grid>
@@ -38,18 +39,32 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="auto"/>
                                         <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
 
+                                    <!-- Search TextBox -->
                                     <Grid Grid.Column="1">
                                         <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}" 
-                                             materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" Width="200"
-                                             Height="30" TextChanged="SearchTextBox">
+                                                 materialDesign:HintAssist.Hint="Search" Padding="10 0 0 0" Width="200"
+                                                 Height="30" TextChanged="SearchTextBox">
                                         </TextBox>
                                     </Grid>
+
+                                    <!-- Enroll Button -->
                                     <Grid Grid.Column="2">
-                                        <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Width="100" Click="EnrollStudentBtn">
+                                        <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Width="100" 
+                                                Margin="0 0 5 0" Click="EnrollStudentBtn">
                                             <StackPanel>
                                                 <materialDesign:PackIcon Kind="Add" Height="20"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </Grid>
+
+                                    <!-- Refresh Button -->
+                                    <Grid Grid.Column="3">
+                                        <Button Style="{StaticResource MaterialDesignFlatDarkBgButton}" Width="100" Click="RefreshButton_Click">
+                                            <StackPanel>
+                                                <materialDesign:PackIcon Kind="Refresh" Height="20"/>
                                             </StackPanel>
                                         </Button>
                                     </Grid>
@@ -57,17 +72,18 @@
                             </materialDesign:Card>
                         </Grid>
 
+                        <!-- DataGrid for Enrollment -->
                         <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-                            <DataGrid x:Name="studentsDataGrid" Style="{StaticResource DataGridStyle1}"
-                                  RowStyle="{DynamicResource DataGridRowStyle1}"
-                                  ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
-                                  CellStyle="{DynamicResource DataGridCellStyle1}" ItemsSource="{Binding Students}"
-                                  AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <DataGrid x:Name="EnrollmentDataGrid" Style="{StaticResource DataGridStyle1}"
+                                      RowStyle="{DynamicResource DataGridRowStyle1}" SelectionMode="Single" SelectionUnit="FullRow"
+                                      ColumnHeaderStyle="{DynamicResource DataGridColumnHeaderStyle1}" 
+                                      CellStyle="{DynamicResource DataGridCellStyle1}" ItemsSource="{Binding Enrollments}"
+                                      AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                                 <DataGrid.Columns>
-
+                                    <DataGridTextColumn Header="EnrollmentID" IsReadOnly="True" CanUserResize="False" Width="*" Binding="{Binding EnrollmentID}"/>
                                     <DataGridTextColumn Header="StudentID" IsReadOnly="True" CanUserResize="False" Width="100" Binding="{Binding StudentId}"/>
-                                    <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding StudentName}" IsReadOnly="True" Width="*"/>
+                                    <DataGridTextColumn Header="Name" CanUserResize="False" Binding="{Binding FullName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Program" CanUserResize="False" Binding="{Binding Program.ProgramName}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Year Level" CanUserResize="False" Binding="{Binding YearLevel}" IsReadOnly="True" Width="*"/>
                                     <DataGridTextColumn Header="Semester" CanUserResize="False" Binding="{Binding Semester}" IsReadOnly="True" Width="*"/>
@@ -79,18 +95,13 @@
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
 
-                                    <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto" >
+                                    <!-- Action Column with View Button -->
+                                    <DataGridTemplateColumn Header="Action" CanUserResize="False" IsReadOnly="True" Width="auto">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Style="{StaticResource gridEditButton}" Click="EditButton_Click">
-                                                        <materialDesign:PackIcon Kind="PencilOutline" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
-                                                    <Button Margin="5 0 5 0" Style="{StaticResource gridRemoveButton}" Click="DeleteButton_Click">
-                                                        <materialDesign:PackIcon Kind="DeleteOutline" Style="{StaticResource gridButtonIcon}"/>
-                                                    </Button>
                                                     <Button Margin="0 0 0 0" Style="{StaticResource gridEditButton}" 
-                                                        Background="Green" Cursor="Hand" Click="ShowButton_Click">
+                                                            Background="Green" Cursor="Hand" Click="ShowButton_Click">
                                                         <materialDesign:PackIcon Kind="Eye" Style="{StaticResource gridButtonIcon}"/>
                                                     </Button>
                                                 </StackPanel>

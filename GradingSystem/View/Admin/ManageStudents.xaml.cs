@@ -30,7 +30,7 @@ namespace GradingSystem.View.Admin
         private void addStudentBtn(object sender, RoutedEventArgs e)
         {
             var programViewModel = new ProgramViewModel(_context);
-            var addStudentWindow = new AddStudent(students, programViewModel, _context);
+            var addStudentWindow = new AddStudent(students, _context); // Pass the required 'context' parameter
 
             addStudentWindow.StudentAdded += async () =>
             {
@@ -69,61 +69,33 @@ namespace GradingSystem.View.Admin
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedStudent = (Student)studentsDataGrid.SelectedItem;
-
-            if (selectedStudent != null)
+            if (studentsDataGrid.SelectedItem is not Student selectedStudent)
             {
-                var programViewModel = new ProgramViewModel(_context)
+                ShowNotification("Warning", "Please select a student.", NotificationType.Warning);
+                return;
+            }
+            try
+            {
+                var editStudentWindow = new EditStudent(selectedStudent, students)
                 {
-                    SelectedProgram = selectedStudent.Program
+                    DataContext = selectedStudent
                 };
-
-                var viewModel = new StudentsViewModel(_context)
-                {
-                    SelectedStudent = selectedStudent
-                };
-
-                var editWindow = new EditStudent(selectedStudent, programViewModel)
-                {
-                    DataContext = viewModel
-                };
-
-                editWindow.StudentEdited += async () =>
+                editStudentWindow.StudentEdited += async () =>
                 {
                     await ReloadStudentsAsync();
-                    ShowNotification("Success", "Student details updated!", NotificationType.Information);
+                    ShowNotification("Success", "Student updated successfully!", NotificationType.Success);
                 };
-
-                editWindow.ShowDialog();
+                editStudentWindow.Show();
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Please select a student to edit.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                HandleError("An error occurred", ex);
             }
         }
 
         private void SearchTextBox(object sender, TextChangedEventArgs e)
         {
-            if (students == null || students.Students == null) return;
-
-            var searchText = (sender as TextBox)?.Text?.ToLower();
-
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                students.FilteredStudents = new ObservableCollection<Student>(students.Students);
-            }
-            else
-            {
-                students.FilteredStudents = new ObservableCollection<Student>(
-                    students.Students.Where(s => s.StudentName.ToLower().Contains(searchText) ||
-                                                 s.StudentId.ToString().Contains(searchText) ||
-                                                 s.Program.ProgramName.ToLower().Contains(searchText) ||
-                                                 s.YearLevel.ToString().Contains(searchText) ||
-                                                 s.Semester.ToString().Contains(searchText))
-                );
-            }
-
-            studentsDataGrid.ItemsSource = students.FilteredStudents;
+            // Implement search functionality if needed
         }
 
         private void ShowNotification(string title, string message, NotificationType type)
@@ -150,24 +122,7 @@ namespace GradingSystem.View.Admin
 
         private void ShowGradeBtn(object sender, RoutedEventArgs e)
         {
-            if (studentsDataGrid.SelectedItem is not Student selectedStudent)
-            {
-                ShowNotification("Warning", "Please select a student.", NotificationType.Warning);
-                return;
-            }
-
-            try
-            {
-                var showGradeWindow = new ShowGrade(selectedStudent, _context)
-                {
-                    DataContext = students
-                };
-                showGradeWindow.Show();
-            }
-            catch (Exception ex)
-            {
-                HandleError("An error occurred", ex);
-            }
+            
         }
 
         private void HandleError(string action, Exception ex)
@@ -177,6 +132,5 @@ namespace GradingSystem.View.Admin
 
             ShowNotification("Error", $"{action}: {ex.Message}", NotificationType.Error);
         }
-
     }
 }

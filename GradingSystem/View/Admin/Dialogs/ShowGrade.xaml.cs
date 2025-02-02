@@ -8,6 +8,8 @@ using System.Windows.Documents;
 using System.Collections.Generic;
 using System.Windows.Media;
 using static MaterialDesignThemes.Wpf.Theme;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace GradingSystem.View.Admin.Dialogs
 {
@@ -15,21 +17,17 @@ namespace GradingSystem.View.Admin.Dialogs
     {
         public string CurrentDate => DateTime.Now.ToString("MM/dd/yyyy hh:mm tt");
 
-        private readonly ApplicationDbContext _context;
-        public StudentsViewModel Students { get; set; }
+        private readonly EnrollmentViewModel _students;
 
-        public ShowGrade(Student student, ApplicationDbContext context)
+        public ShowGrade(Enrollment enrollment)
         {
             InitializeComponent();
-            _context = context;
-
-            // Initialize the ViewModel
-            Students = new StudentsViewModel(_context);
-            DataContext = Students;
             DateText.Text = DateTime.Now.ToString("MMMM dd, yyyy");
 
-            // Asynchronously load the student data
-            _ = LoadStudentDataAsync(student);
+            _students = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+
+            // Load student data based on the enrollment info
+            _ = LoadStudentDataAsync(enrollment.StudentId, enrollment.YearLevel, enrollment.Semester);
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -40,22 +38,26 @@ namespace GradingSystem.View.Admin.Dialogs
             }
         }
 
-        private async Task LoadStudentDataAsync(Student student)
+        // Modified LoadStudentDataAsync method that loads based on studentId, year, and semester
+        private async Task LoadStudentDataAsync(string studentId, string yearLevel, string semester)
         {
             try
             {
-                // Load the student data asynchronously
-                await Students.LoadStudentDataAsync(student);
-
-                // Once data is loaded, update the UI on the main thread
-                Dispatcher.Invoke(() =>
+                // Use a separate instance of ApplicationDbContext
+                using (var context = new ApplicationDbContext(new DbContextOptions<ApplicationDbContext>()))
                 {
-                    DataContext = Students;
-                });
+                    var viewModel = App.ServiceProvider.GetRequiredService<EnrollmentViewModel>();
+                    await viewModel.LoadStudentDataAsync(studentId, yearLevel, semester);
+
+                    // Ensure UI updates happen on the main thread
+                    Dispatcher.Invoke(() =>
+                    {
+                        DataContext = viewModel;
+                    });
+                }
             }
             catch (Exception ex)
             {
-                // Handle any potential errors
                 MessageBox.Show($"An error occurred while loading student data: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

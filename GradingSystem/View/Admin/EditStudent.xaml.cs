@@ -12,24 +12,21 @@ namespace GradingSystem.View.Admin
     public partial class EditStudent : Window
     {
         public event Action? StudentEdited; // Declare the event as nullable
-        public Student SelectedStudent { get; set; }
-        public ProgramViewModel ProgramViewModel { get; set; }
+        private readonly Student _student;
+        public StudentsViewModel StudentsViewModel { get; set; }
 
-        public EditStudent(Student student, ProgramViewModel Programs)
+        public EditStudent(Student student, StudentsViewModel viewModel)
         {
             InitializeComponent();
 
-            ProgramViewModel = Programs;
-            this.SelectedStudent = student;
-            this.DataContext = this;
+            _student = student ?? throw new ArgumentNullException(nameof(student));
+            StudentsViewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+            DataContext = StudentsViewModel;
 
-            _ = LoadProgramsAsync();
-        }
-
-        private async Task LoadProgramsAsync()
-        {
-            await ProgramViewModel.LoadProgramsAsync();
-            programCmb.ItemsSource = ProgramViewModel.Programs;
+            // Initialize the fields with the student data
+            FnameTxt.Text = _student.FirstName;
+            LnameTxt.Text = _student.LastName;
+            emailTxt.Text = _student.Email;
         }
 
         private void Close(object sender, RoutedEventArgs e)
@@ -43,39 +40,28 @@ namespace GradingSystem.View.Admin
 
         private async void saveBtn(object sender, RoutedEventArgs e)
         {
-            if (SelectedStudent != null)
+            if (_student != null)
             {
                 try
                 {
-                    var viewModel = (StudentsViewModel)this.DataContext;
+                    // Update the student details
+                    _student.FirstName = FnameTxt.Text.Trim();
+                    _student.LastName = LnameTxt.Text.Trim();
+                    _student.Email = emailTxt.Text.Trim();
 
                     // Detach the existing tracked entity
-                    var existingEntity = viewModel.Context.ChangeTracker.Entries<Student>()
-                        .FirstOrDefault(e => e.Entity.StudentId == SelectedStudent.StudentId);
+                    var existingEntity = StudentsViewModel.Context.ChangeTracker.Entries<Student>()
+                        .FirstOrDefault(entry => entry.Entity.StudentId == _student.StudentId);
                     if (existingEntity != null)
                     {
-                        viewModel.Context.Entry(existingEntity.Entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                        StudentsViewModel.Context.Entry(existingEntity.Entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
                     }
 
-                    // Detach the existing tracked Program entity
-                    var existingProgramEntity = viewModel.Context.ChangeTracker.Entries<Program>()
-                        .FirstOrDefault(e => e.Entity.ProgramId == SelectedStudent.ProgramId);
-                    if (existingProgramEntity != null)
-                    {
-                        viewModel.Context.Entry(existingProgramEntity.Entity).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                    }
+                    // Attach the updated student entity and mark it as modified
+                    StudentsViewModel.Context.Students.Attach(_student);
+                    StudentsViewModel.Context.Entry(_student).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 
-                    // Update the student details
-                    SelectedStudent.FirstName = FnameTxt.Text.Trim();
-                    SelectedStudent.LastName = LnameTxt.Text.Trim();
-                    SelectedStudent.Email = emailTxt.Text.Trim();
-                    SelectedStudent.ProgramId = ((Program)programCmb.SelectedItem).ProgramId;
-                    SelectedStudent.YearLevel = yearCmb.SelectedValue?.ToString() ?? string.Empty;
-                    SelectedStudent.Semester = semesterCmb.SelectedValue?.ToString() ?? string.Empty;
-                    SelectedStudent.Status = scholarCmb.SelectedValue?.ToString() ?? string.Empty;
-
-                    viewModel.Context.Students.Update(SelectedStudent);
-                    await viewModel.Context.SaveChangesAsync(); // Ensure the update is completed
+                    await StudentsViewModel.Context.SaveChangesAsync(); // Ensure the update is completed
 
                     // Close the window after editing
                     StudentEdited?.Invoke();
@@ -148,4 +134,3 @@ namespace GradingSystem.View.Admin
         }
     }
 }
-
